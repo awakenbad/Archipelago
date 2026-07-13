@@ -12,6 +12,12 @@ PICKUP_INDEX_TO_LOCATION_ID = {
     1: 81001,
     2: 81002,
 }
+ITEM_ID_TO_EFFECT = {
+    1: ("progressive_map", None),
+    2: ("money", 500),
+    3: ("weapon", "M4"),
+    4: ("progressive_mission", None),
+}
 
 class GTASACommandProcessor(ClientCommandProcessor):
     def _cmd_testcheck(self, location_id: str):
@@ -40,7 +46,14 @@ class GTASAContext(CommonContext):
             print(f"RECEIVED ITEMS: {args}")
             if self.plugin_writer:
                 for item in args["items"]:
-                    self.plugin_writer.write(b"GIVE:money:500\n")
+                    effect = ITEM_ID_TO_EFFECT.get(item.item)
+                    if effect is None:
+                        print(f"Unrecognized item ID: {item.item}")
+                        continue
+
+                    effect_type, value = effect
+                    msg = f"GIVE:{effect_type}\n" if value is None else f"GIVE:{effect_type}:{value}\n"
+                    self.plugin_writer.write(msg.encode())
                     asyncio.create_task(self.plugin_writer.drain())
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
