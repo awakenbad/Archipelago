@@ -8,17 +8,21 @@ if TYPE_CHECKING:
     from .world import GTASAWorld
 
 ITEM_NAME_TO_ID = {
-    "Progressive Map": 1,
     "Money": 2,
     "M4": 3,
     "Progressive Mission": 4,
+    "Max Health Upgrade": 5,
+    "Max Armor Upgrade": 6,
+    "Fire Immunity": 7,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
-    "Progressive Map": ItemClassification.progression,
     "Money": ItemClassification.filler,
     "M4": ItemClassification.useful,
     "Progressive Mission": ItemClassification.progression,
+    "Max Health Upgrade": ItemClassification.useful,
+    "Max Armor Upgrade": ItemClassification.useful,
+    "Fire Immunity": ItemClassification.useful,
 }
 
 class GTASAItem(Item):
@@ -32,34 +36,14 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 def create_all_items(world: GTASAWorld) -> None:
-    itempool: list[Item] = [
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-        world.create_item("Progressive Mission"),
-    ]
-
+    itempool: list[Item] = (
+        [world.create_item("Progressive Mission") for _ in range(26)]
+        + [
+            world.create_item("Max Health Upgrade"),
+            world.create_item("Max Armor Upgrade"),
+            world.create_item("Fire Immunity"),
+        ]
+    )
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))
     needed_number_of_filler_items = number_of_unfilled_locations - number_of_items

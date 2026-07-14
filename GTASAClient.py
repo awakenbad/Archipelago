@@ -13,10 +13,10 @@ PICKUP_INDEX_TO_LOCATION_ID = {
     2: 81002,
 }
 ITEM_ID_TO_EFFECT = {
-    1: ("progressive_map", None),
     2: ("money", 500),
     3: ("weapon", "M4"),
     4: ("progressive_mission", None),
+    5: ("health_upgrade", None),
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):

@@ -1,6 +1,9 @@
 ﻿from worlds.AutoWorld import World
 
 from . import items, locations, regions, rules
+from . import options as gtasa_options
+from .. import gta_sa
+
 
 class GTASAWorld(World):
     """
@@ -11,10 +14,14 @@ class GTASAWorld(World):
 
     game = "Grand Theft Auto: San Andreas"
 
+    options_dataclass = gtasa_options.GTASAOptions
+    options: gtasa_options.GTASAOptions
+
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
 
     origin_region_name = "Los Santos"
+
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
         locations.create_all_locations(self)
