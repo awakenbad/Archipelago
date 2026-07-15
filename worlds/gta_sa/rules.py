@@ -60,6 +60,8 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "LS Mission: Paramedic Level 12",
         "LS Mission: Firefighter Level 12",
         "LS Mission: Vigilante Level 12",
+        "LS Mission: Taxi Driver 50 Fares",
+        "LS Mission: Burglary $10,000 Stolen",
     ]
     for location_name in submission_locations:
         location = world.get_location(location_name)

@@ -33,7 +33,9 @@ MISSION_DATA = [
     (37, "Reuniting The Families", "Los Santos"),
     (38, "The Green Sabre", "Los Santos"),
 
+    (121, "Taxi Driver 50 Fares", "Los Santos"),
     (122, "Paramedic Level 12", "Los Santos"),
     (123, "Firefighter Level 12", "Los Santos"),
     (124, "Vigilante Level 12", "Los Santos"),
+    (125, "Burglary $10,000 Stolen", "Los Santos"),
 ]

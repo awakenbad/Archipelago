@@ -14,6 +14,8 @@ ITEM_NAME_TO_ID = {
     "Max Health Upgrade": 5,
     "Max Armor Upgrade": 6,
     "Fire Immunity": 7,
+    "Infinite Sprint": 8,
+    "Taxi Nitro": 9,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -23,6 +25,8 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Max Health Upgrade": ItemClassification.useful,
     "Max Armor Upgrade": ItemClassification.useful,
     "Fire Immunity": ItemClassification.useful,
+    "Infinite Sprint": ItemClassification.useful,
+    "Taxi Nitro": ItemClassification.useful,
 }
 
 class GTASAItem(Item):
@@ -42,6 +46,8 @@ def create_all_items(world: GTASAWorld) -> None:
             world.create_item("Max Health Upgrade"),
             world.create_item("Max Armor Upgrade"),
             world.create_item("Fire Immunity"),
+            world.create_item("Infinite Sprint"),
+            world.create_item("Taxi Nitro"),
         ]
     )
     number_of_items = len(itempool)
