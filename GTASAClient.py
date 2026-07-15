@@ -8,6 +8,11 @@ from NetUtils import ClientStatus
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
 
+TAG_BASE_ID = 200
+
+def tag_check_to_location_id(tag_index: int) -> int:
+    return TAG_BASE_ID + tag_index
+
 GOAL_LOCATION_ID = 38
 
 PICKUP_INDEX_TO_LOCATION_ID = {
@@ -133,6 +138,8 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
             if location_id is None:
                 print(f"Pickup index {check_id} has no mapped AP location yet")
                 continue
+        elif check_type == "TAG":
+            location_id = tag_check_to_location_id(check_id)
         else:
             print(f"Unknown check type: {check_type}")
             continue

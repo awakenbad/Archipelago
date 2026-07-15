@@ -7,6 +7,7 @@ from BaseClasses import ItemClassification, Location
 from . import items
 from . import mission_list
 from .mission_list import REGION_ABBREVIATIONS, MISSION_DATA
+from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -19,6 +20,9 @@ LOCATION_NAME_TO_ID = {
     f"{REGION_ABBREVIATIONS[region]} Mission: {name}": mission_id
     for mission_id, name, region in MISSION_DATA
 }
+LOCATION_NAME_TO_ID.update({
+    name: TAG_BASE_ID + i for i, name in enumerate(TAG_LOCATION_NAMES)
+})
 
 class GTASALocation(Location):
     game = "Grand Theft Auto: San Andreas"
@@ -28,6 +32,8 @@ def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | No
 
 def create_all_locations(world: GTASAWorld) -> None:
     create_regular_locations(world)
+    if world.options.include_tags:
+        create_tag_locations(world)
 
 def create_regular_locations(world: GTASAWorld) -> None:
     for mission_id, name, region_name in MISSION_DATA:
@@ -35,3 +41,8 @@ def create_regular_locations(world: GTASAWorld) -> None:
         location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
         location_id = LOCATION_NAME_TO_ID[location_name]
         region.add_locations({location_name: location_id}, GTASALocation)
+
+def create_tag_locations(world: GTASAWorld) -> None:
+    region = world.get_region(TAG_REGION)
+    tag_locations = get_location_names_with_ids(TAG_LOCATION_NAMES)
+    region.add_locations(tag_locations, GTASALocation)

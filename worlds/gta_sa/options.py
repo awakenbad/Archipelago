@@ -14,15 +14,25 @@ class EndGoal(Choice):
 
     default = option_the_green_sabre
 
+class IncludeTags(Toggle):
+    """
+    Whether to include all 100 Los Santos spray tags as individual location checks.
+    """
+
+    display_name = "Include Tags"
+
+    default = 1
+
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
     end_goal: EndGoal
     death_link: DeathLink
+    include_tags: IncludeTags
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink],
+        [EndGoal, DeathLink, IncludeTags],
     ),
 ]
 
