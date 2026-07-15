@@ -38,4 +38,5 @@ MISSION_DATA = [
     (123, "Firefighter Level 12", "Los Santos"),
     (124, "Vigilante Level 12", "Los Santos"),
     (125, "Burglary $10,000 Stolen", "Los Santos"),
+    (114, "Los Santos Gym Fight School", "Los Santos"),
 ]

@@ -6,6 +6,7 @@ SUBMISSION_REWARD_ITEMS = [
     "Fire Immunity",
     "Infinite Sprint",
     "Taxi Nitro",
+    "Boxing Style",
 ]
 
 

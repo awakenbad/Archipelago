@@ -16,6 +16,7 @@ ITEM_NAME_TO_ID = {
     "Fire Immunity": 7,
     "Infinite Sprint": 8,
     "Taxi Nitro": 9,
+    "Boxing Style": 10,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -27,6 +28,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Fire Immunity": ItemClassification.useful,
     "Infinite Sprint": ItemClassification.useful,
     "Taxi Nitro": ItemClassification.useful,
+    "Boxing Style": ItemClassification.useful,
 }
 
 class GTASAItem(Item):
@@ -48,6 +50,7 @@ def create_all_items(world: GTASAWorld) -> None:
             world.create_item("Fire Immunity"),
             world.create_item("Infinite Sprint"),
             world.create_item("Taxi Nitro"),
+            world.create_item("Boxing Style"),
         ]
     )
     number_of_items = len(itempool)

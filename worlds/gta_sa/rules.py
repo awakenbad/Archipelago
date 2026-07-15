@@ -67,5 +67,10 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         location = world.get_location(location_name)
         world.set_rule(location, Has("Progressive Mission", 1))
 
+    world.set_rule(
+        world.get_location("LS Mission: Los Santos Gym Fight School"),
+        Has("Progressive Mission", 5),
+    )
+
 def set_completion_condition(world: GTASAWorld) -> None:
     world.set_completion_rule(Has("Progressive Mission", 25))

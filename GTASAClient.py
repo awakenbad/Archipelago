@@ -24,6 +24,7 @@ ITEM_ID_TO_EFFECT = {
     7: ("fire_immunity", None),
     8: ("stamina_upgrade", None),
     9: ("taxi_nitro", None),
+    10: ("boxing_style", None),
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
