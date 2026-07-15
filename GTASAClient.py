@@ -3,9 +3,12 @@ from Utils import init_logging
 init_logging("GTASAClient")
 
 from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
+from NetUtils import ClientStatus
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
+
+GOAL_LOCATION_ID = 38
 
 PICKUP_INDEX_TO_LOCATION_ID = {
     0: 81000,
@@ -38,6 +41,7 @@ class GTASAContext(CommonContext):
     items_handling = 0b111
     command_processor = GTASACommandProcessor
     plugin_writer = None
+    items_applied_count = 0
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
@@ -45,24 +49,38 @@ class GTASAContext(CommonContext):
         await self.get_username()
         await self.send_connect()
 
+    def apply_pending_items(self) -> None:
+        if not self.plugin_writer:
+            return
+
+        new_items = self.items_received[self.items_applied_count:]
+        for item in new_items:
+            effect = ITEM_ID_TO_EFFECT.get(item.item)
+            if effect is None:
+                print(f"Unrecognized item ID: {item.item}")
+                continue
+
+            effect_type, value = effect
+            msg = f"GIVE:{effect_type}\n" if value is None else f"GIVE:{effect_type}:{value}\n"
+            self.plugin_writer.write(msg.encode())
+            asyncio.create_task(self.plugin_writer.drain())
+        self.items_applied_count = len(self.items_received)
+
+    async def check_goal_complete(self) -> None:
+        if not self.finished_game and GOAL_LOCATION_ID in self.checked_locations:
+            self.finished_game = True
+            await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+
     def on_package(self, cmd: str, args: dict):
         if cmd == "ReceivedItems":
-            print(f"RECEIVED ITEMS: {args}")
-            if self.plugin_writer:
-                for item in args["items"]:
-                    effect = ITEM_ID_TO_EFFECT.get(item.item)
-                    if effect is None:
-                        print(f"Unrecognized item ID: {item.item}")
-                        continue
-
-                    effect_type, value = effect
-                    msg = f"GIVE:{effect_type}\n" if value is None else f"GIVE:{effect_type}:{value}\n"
-                    self.plugin_writer.write(msg.encode())
-                    asyncio.create_task(self.plugin_writer.drain())
+            self.apply_pending_items()
+        elif cmd in ("Connected", "RoomUpdate"):
+            asyncio.create_task(self.check_goal_complete())
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     print("Plugin connected.")
     ctx.plugin_writer = writer
+    ctx.apply_pending_items()
     while True:
         line = await reader.readline()
         if not line:
@@ -98,6 +116,7 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
         await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [location_id]}])
 
     print("Plugin disconnected.")
+    ctx.plugin_writer = None
     writer.close()
 
 async def main():
