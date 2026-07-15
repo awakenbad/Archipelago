@@ -43,6 +43,7 @@ class GTASAContext(CommonContext):
     command_processor = GTASACommandProcessor
     plugin_writer = None
     items_applied_count = 0
+    death_link_enabled = False
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
@@ -67,27 +68,49 @@ class GTASAContext(CommonContext):
             asyncio.create_task(self.plugin_writer.drain())
         self.items_applied_count = len(self.items_received)
 
+    def send_death_link_config(self) -> None:
+        if not self.plugin_writer:
+            return
+        self.plugin_writer.write(f"GIVE:death_link:{int(self.death_link_enabled)}\n".encode())
+        asyncio.create_task(self.plugin_writer.drain())
+
     async def check_goal_complete(self) -> None:
         if not self.finished_game and GOAL_LOCATION_ID in self.checked_locations:
             self.finished_game = True
             await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
+    def on_deathlink(self, data: dict) -> None:
+        super().on_deathlink(data)
+        if self.plugin_writer:
+            self.plugin_writer.write(b"GIVE:deathlink_kill\n")
+            asyncio.create_task(self.plugin_writer.drain())
+
     def on_package(self, cmd: str, args: dict):
         if cmd == "ReceivedItems":
             self.apply_pending_items()
-        elif cmd in ("Connected", "RoomUpdate"):
+        elif cmd == "Connected":
+            self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
+            asyncio.create_task(self.update_death_link(self.death_link_enabled))
+            self.send_death_link_config()
+            asyncio.create_task(self.check_goal_complete())
+        elif cmd == "RoomUpdate":
             asyncio.create_task(self.check_goal_complete())
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     print("Plugin connected.")
     ctx.plugin_writer = writer
     ctx.apply_pending_items()
+    ctx.send_death_link_config()
     while True:
         line = await reader.readline()
         if not line:
             break
         msg = line.decode().strip()
         print(f"From plugin: {msg}")
+
+        if msg == "PLAYER_DIED":
+            asyncio.create_task(ctx.send_death(f"{ctx.username} died in San Andreas"))
+            continue
 
         if not msg.startswith("CHECK:"):
             continue

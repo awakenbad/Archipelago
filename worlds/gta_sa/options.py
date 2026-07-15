@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
+from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle
 
 # A Choice is an option with multiple discrete choices. This will be represented by a dropdown on the website.
 class EndGoal(Choice):
@@ -17,11 +17,12 @@ class EndGoal(Choice):
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
     end_goal: EndGoal
+    death_link: DeathLink
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal],
+        [EndGoal, DeathLink],
     ),
 ]
 
