@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
@@ -7,9 +7,32 @@ from BaseClasses import Item, ItemClassification
 if TYPE_CHECKING:
     from .world import GTASAWorld
 
+WEAPON_FILLER_ITEMS = [
+    "Pistol",
+    "Silenced Pistol",
+    "Desert Eagle",
+    "Shotgun",
+    "Sawn-off Shotgun",
+    "Combat Shotgun",
+    "Micro Uzi",
+    "MP5",
+    "AK-47",
+    "M4",
+    "Tec-9",
+    "Country Rifle",
+    "Sniper Rifle",
+    "Rocket Launcher",
+    "Rocket Launcher HS",
+    "Flamethrower",
+    "Minigun",
+    "Grenade",
+    "Molotov Cocktail",
+    "Tear Gas",
+    "Satchel Charge",
+]
+
 ITEM_NAME_TO_ID = {
     "Money": 2,
-    "M4": 3,
     "Progressive Mission": 4,
     "Max Health Upgrade": 5,
     "Max Armor Upgrade": 6,
@@ -17,11 +40,11 @@ ITEM_NAME_TO_ID = {
     "Infinite Sprint": 8,
     "Taxi Nitro": 9,
     "Boxing Style": 10,
+    **{name: 11 + i for i, name in enumerate(WEAPON_FILLER_ITEMS)},
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Money": ItemClassification.filler,
-    "M4": ItemClassification.useful,
     "Progressive Mission": ItemClassification.progression,
     "Max Health Upgrade": ItemClassification.useful,
     "Max Armor Upgrade": ItemClassification.useful,
@@ -29,13 +52,14 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Infinite Sprint": ItemClassification.useful,
     "Taxi Nitro": ItemClassification.useful,
     "Boxing Style": ItemClassification.useful,
+    **{name: ItemClassification.filler for name in WEAPON_FILLER_ITEMS},
 }
 
 class GTASAItem(Item):
     game = "Grand Theft Auto: San Andreas"
 
 def get_random_filler_item_name(world: GTASAWorld) -> str:
-    return "Money"
+    return world.random.choice(["Money", *WEAPON_FILLER_ITEMS])
 
 def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTASAItem:
     classification = DEFAULT_ITEM_CLASSIFICATIONS[name]

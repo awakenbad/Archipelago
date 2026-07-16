@@ -4,6 +4,7 @@ init_logging("GTASAClient")
 
 from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
+from worlds.gta_sa.items import WEAPON_FILLER_ITEMS
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
@@ -22,7 +23,6 @@ PICKUP_INDEX_TO_LOCATION_ID = {
 }
 ITEM_ID_TO_EFFECT = {
     2: ("money", 500),
-    3: ("weapon", "M4"),
     4: ("progressive_mission", None),
     5: ("health_upgrade", None),
     6: ("armor_upgrade", None),
@@ -30,6 +30,8 @@ ITEM_ID_TO_EFFECT = {
     8: ("stamina_upgrade", None),
     9: ("taxi_nitro", None),
     10: ("boxing_style", None),
+    # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
+    **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
