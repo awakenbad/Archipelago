@@ -12,8 +12,8 @@ SUBMISSION_REWARD_ITEMS = [
 
 
 class TestProgressiveMissionItem(GTASATestBase):
-    def test_pool_contains_26_progressive_missions(self) -> None:
-        self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 26)
+    def test_pool_contains_27_progressive_missions(self) -> None:
+        self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 27)
 
     def test_progressive_mission_is_progression_not_useful(self) -> None:
         progressive_missions = self.get_items_by_name("Progressive Mission")

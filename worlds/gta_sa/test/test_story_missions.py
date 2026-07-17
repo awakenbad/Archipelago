@@ -7,33 +7,37 @@ class TestStoryMissionGating(GTASATestBase):
         self.assertTrue(big_smoke.can_reach(self.multiworld.state))
 
     def test_mid_game_mission_requires_exact_progressive_mission_count(self) -> None:
+        # Wrong Side of the Tracks sits at story position 12.
         location = self.world.get_location("LS Mission: Wrong Side of the Tracks")
         progressive_missions = self.get_items_by_name("Progressive Mission")
 
-        for item in progressive_missions[:16]:
+        for item in progressive_missions[:11]:
             self.multiworld.state.collect(item)
         self.assertFalse(location.can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[16])
+        self.multiworld.state.collect(progressive_missions[11])
         self.assertTrue(location.can_reach(self.multiworld.state))
 
-    def test_last_mission_requires_25_not_all_26_progressive_missions(self) -> None:
+    def test_last_mission_requires_26_progressive_missions(self) -> None:
         location = self.world.get_location("LS Mission: The Green Sabre")
         progressive_missions = self.get_items_by_name("Progressive Mission")
-        self.assertEqual(len(progressive_missions), 26)
+        self.assertEqual(len(progressive_missions), 27)
 
         for item in progressive_missions[:25]:
             self.multiworld.state.collect(item)
+        self.assertFalse(location.can_reach(self.multiworld.state))
+
+        self.multiworld.state.collect(progressive_missions[25])
         self.assertTrue(location.can_reach(self.multiworld.state))
 
-    def test_completion_requires_25_progressive_missions(self) -> None:
+    def test_completion_requires_26_progressive_missions(self) -> None:
         progressive_missions = self.get_items_by_name("Progressive Mission")
 
-        for item in progressive_missions[:24]:
+        for item in progressive_missions[:25]:
             self.multiworld.state.collect(item)
         self.assertBeatable(False)
 
-        self.multiworld.state.collect(progressive_missions[24])
+        self.multiworld.state.collect(progressive_missions[25])
         self.assertBeatable(True)
 
 

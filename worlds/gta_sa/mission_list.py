@@ -17,6 +17,7 @@ MISSION_DATA = [
     (19, "Cesar Vialpando", "Los Santos"),
     (20, "Los Sepulcros", "Los Santos"),
     (21, "Doberman", "Los Santos"),
+    (22, "Burning Desire", "Los Santos"),
     (23, "Gray Imports", "Los Santos"),
     (24, "Home Invasion", "Los Santos"),
     (25, "Catalyst", "Los Santos"),

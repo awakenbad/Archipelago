@@ -24,32 +24,33 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
 
 def set_all_location_rules(world: GTASAWorld) -> None:
     story_mission_order = [
-        "LS Mission: Big Smoke",
-        "LS Mission: Ryder",
-        "LS Mission: Tagging Up Turf",
-        "LS Mission: Cleaning The Hood",
-        "LS Mission: Drive-Thru",
-        "LS Mission: Nines And AK's",
-        "LS Mission: Drive-By",
-        "LS Mission: Sweet's Girl",
-        "LS Mission: Cesar Vialpando",
-        "LS Mission: Los Sepulcros",
-        "LS Mission: Doberman",
-        "LS Mission: Gray Imports",
-        "LS Mission: Home Invasion",
-        "LS Mission: Catalyst",
-        "LS Mission: Robbing Uncle Sam",
-        "LS Mission: OG Loc",
-        "LS Mission: Running Dog",
-        "LS Mission: Wrong Side of the Tracks",
-        "LS Mission: Just Business",
-        "LS Mission: Life's a Beach",
-        "LS Mission: Madd Dogg's Rhymes",
-        "LS Mission: Management Issues",
-        "LS Mission: House Party",
-        "LS Mission: Lowrider (High Stakes)",
-        "LS Mission: Reuniting The Families",
-        "LS Mission: The Green Sabre",
+        "LS Mission: Big Smoke",                  # 0
+        "LS Mission: Ryder",                      # 1
+        "LS Mission: Tagging Up Turf",            # 2
+        "LS Mission: Cleaning The Hood",          # 3
+        "LS Mission: Drive-Thru",                 # 4
+        "LS Mission: Nines And AK's",             # 5  - opens the parallel strands
+        "LS Mission: Drive-By",                   # 6
+        "LS Mission: Sweet's Girl",               # 7
+        "LS Mission: Cesar Vialpando",            # 8
+        "LS Mission: Lowrider (High Stakes)",     # 9  - only needs Cesar Vialpando
+        "LS Mission: OG Loc",                     # 10
+        "LS Mission: Running Dog",                # 11
+        "LS Mission: Wrong Side of the Tracks",   # 12
+        "LS Mission: Just Business",              # 13
+        "LS Mission: Home Invasion",              # 14
+        "LS Mission: Catalyst",                   # 15
+        "LS Mission: Robbing Uncle Sam",          # 16
+        "LS Mission: Life's a Beach",             # 17
+        "LS Mission: Madd Dogg's Rhymes",         # 18
+        "LS Mission: Management Issues",          # 19
+        "LS Mission: House Party",                # 20
+        "LS Mission: Burning Desire",             # 21 - needs Madd Dogg's Rhymes
+        "LS Mission: Gray Imports",               # 22 - needs Burning Desire
+        "LS Mission: Doberman",                   # 23 - needs Cesar Vialpando + Burning Desire
+        "LS Mission: Los Sepulcros",              # 24 - needs Doberman
+        "LS Mission: Reuniting The Families",     # 25
+        "LS Mission: The Green Sabre",            # 26
     ]
     for index, location_name in enumerate(story_mission_order):
         location = world.get_location(location_name)
@@ -79,4 +80,4 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(location, Has("Progressive Mission", required_count))
 
 def set_completion_condition(world: GTASAWorld) -> None:
-    world.set_completion_rule(Has("Progressive Mission", 25))
+    world.set_completion_rule(Has("Progressive Mission", 26))

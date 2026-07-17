@@ -87,7 +87,7 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
 
 def create_all_items(world: GTASAWorld) -> None:
     itempool: list[Item] = (
-        [world.create_item("Progressive Mission") for _ in range(26)]
+        [world.create_item("Progressive Mission") for _ in range(27)]
         + [
             world.create_item("Max Health Upgrade"),
             world.create_item("Max Armor Upgrade"),
