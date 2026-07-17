@@ -5,6 +5,7 @@ init_logging("GTASAClient")
 from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
 from worlds.gta_sa.items import WEAPON_FILLER_ITEMS
+from worlds.gta_sa.shop_list import INCLUDED_SHOP_SLOTS
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
@@ -13,6 +14,11 @@ TAG_BASE_ID = 200
 
 def tag_check_to_location_id(tag_index: int) -> int:
     return TAG_BASE_ID + tag_index
+
+SHOP_BASE_ID = 300
+
+def shop_check_to_location_id(slot_index: int) -> int:
+    return SHOP_BASE_ID + slot_index
 
 GOAL_LOCATION_ID = 38
 
@@ -32,6 +38,14 @@ ITEM_ID_TO_EFFECT = {
     10: ("boxing_style", None),
     # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
     **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
+    # Traps: 40 + index into items.py's TRAP_ITEMS.
+    40: ("trap_tires", None),
+    41: ("trap_fat", None),
+    42: ("trap_wanted", None),
+    43: ("trap_carfire", None),
+    # Utility fillers: 50 + index into items.py's UTILITY_FILLER_ITEMS.
+    50: ("armor_refill", None),
+    51: ("car_repair", None),
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
@@ -57,12 +71,6 @@ class GTASACommandProcessor(ClientCommandProcessor):
         asyncio.create_task(self.ctx.plugin_writer.drain())
         self.output(f"Highlighting LS Tag #{tag_number} on the in-game map.")
 
-    def _cmd_testcheck(self, location_id: str):
-        loc_id = int(location_id)
-        self.ctx.locations_checked.add(loc_id)
-        asyncio.create_task(self.ctx.send_msgs([{"cmd": "LocationChecks", "locations": [loc_id]}]))
-        self.output(f"Sent check for location {loc_id}")
-
     def _cmd_showlocations(self):
         self.output(f"Missing locations: {sorted(self.ctx.missing_locations)}")
 
@@ -73,6 +81,7 @@ class GTASAContext(CommonContext):
     plugin_writer = None
     items_applied_count = 0
     death_link_enabled = False
+    shop_slot_contents: dict = {}
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
@@ -88,7 +97,7 @@ class GTASAContext(CommonContext):
         for item in new_items:
             effect = ITEM_ID_TO_EFFECT.get(item.item)
             if effect is None:
-                print(f"Unrecognized item ID: {item.item}")
+                logger.warning(f"Unrecognized item ID: {item.item}")
                 continue
 
             effect_type, value = effect
@@ -101,6 +110,23 @@ class GTASAContext(CommonContext):
         if not self.plugin_writer:
             return
         self.plugin_writer.write(f"GIVE:death_link:{int(self.death_link_enabled)}\n".encode())
+        asyncio.create_task(self.plugin_writer.drain())
+
+    def scout_shop_locations(self) -> None:
+        """Ask the server what item sits at each Ammu-Nation slot, so the plugin can display it."""
+        shop_ids = [SHOP_BASE_ID + slot for slot in INCLUDED_SHOP_SLOTS]
+        existing = [i for i in shop_ids if i in self.missing_locations or i in self.checked_locations]
+        if existing:
+            asyncio.create_task(self.send_msgs([{"cmd": "LocationScouts", "locations": existing, "create_as_hint": 0}]))
+
+    def push_shop_contents(self) -> None:
+        if not self.plugin_writer or not self.shop_slot_contents:
+            return
+        for slot, text in self.shop_slot_contents.items():
+            # Already-checked slots are pushed as empty, which reverts them to vanilla stock
+            # in-game (real weapon, no interception) - the check is gone, the shop moves on.
+            active = (SHOP_BASE_ID + slot) in self.missing_locations
+            self.plugin_writer.write(f"SHOPITEM:{slot}:{text if active else ''}\n".encode())
         asyncio.create_task(self.plugin_writer.drain())
 
     async def check_goal_complete(self) -> None:
@@ -121,21 +147,35 @@ class GTASAContext(CommonContext):
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.send_death_link_config()
+            self.scout_shop_locations()
             asyncio.create_task(self.check_goal_complete())
         elif cmd == "RoomUpdate":
             asyncio.create_task(self.check_goal_complete())
+            self.push_shop_contents()
+        elif cmd == "LocationInfo":
+            for network_item in args["locations"]:
+                if not SHOP_BASE_ID <= network_item.location < SHOP_BASE_ID + 100:
+                    continue
+                slot = network_item.location - SHOP_BASE_ID
+                name = self.item_names.lookup_in_slot(network_item.item, network_item.player)
+                if network_item.player != self.slot:
+                    name += f" ({self.player_names.get(network_item.player, '?')})"
+                # The in-game font only handles plain ASCII, and the display column is narrow.
+                name = "".join(ch if 32 <= ord(ch) < 127 else "?" for ch in name)[:40]
+                self.shop_slot_contents[slot] = name
+            self.push_shop_contents()
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
-    print("Plugin connected.")
+    logger.info("Game plugin connected.")
     ctx.plugin_writer = writer
     ctx.apply_pending_items()
     ctx.send_death_link_config()
+    ctx.push_shop_contents()
     while True:
         line = await reader.readline()
         if not line:
             break
         msg = line.decode().strip()
-        print(f"From plugin: {msg}")
 
         if msg == "PLAYER_DIED":
             asyncio.create_task(ctx.send_death(f"{ctx.username} died in San Andreas"))
@@ -146,7 +186,7 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
 
         parts = msg.split(":")
         if len(parts) != 3:
-            print(f"Malformed check message: {msg}")
+            logger.warning(f"Malformed check message from plugin: {msg}")
             continue
 
         _, check_type, raw_id = parts
@@ -154,56 +194,48 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
 
         if check_type == "MISSION":
             if check_id == -1:
-                print("Unrecognized mission key received, skipping check")
                 continue
             location_id = mission_check_to_location_id(check_id)
         elif check_type == "PICKUP":
             location_id = PICKUP_INDEX_TO_LOCATION_ID.get(check_id)
             if location_id is None:
-                print(f"Pickup index {check_id} has no mapped AP location yet")
                 continue
         elif check_type == "TAG":
             location_id = tag_check_to_location_id(check_id)
+        elif check_type == "SHOP":
+            location_id = shop_check_to_location_id(check_id)
         else:
-            print(f"Unknown check type: {check_type}")
+            logger.warning(f"Unknown check type from plugin: {check_type}")
             continue
 
         await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [location_id]}])
 
-    print("Plugin disconnected.")
+    logger.info("Game plugin disconnected.")
     ctx.plugin_writer = None
     writer.close()
 
 async def main():
-    print("DEBUG: creating context")
     ctx = GTASAContext(None, None)
 
-    print("DEBUG: starting server_task")
     ctx.server_task = asyncio.create_task(server_loop(ctx), name="server loop")
-
-    print("DEBUG: starting input_task")
     input_task = asyncio.create_task(console_loop(ctx), name="input loop")
 
-    print("DEBUG: about to start plugin socket server")
     try:
         plugin_server = await asyncio.start_server(
             lambda r, w: handle_plugin_connection(r, w, ctx),
             "127.0.0.1", 12345
         )
-        print("DEBUG: plugin socket server started successfully on port 12345")
+        logger.info("Listening for the game plugin on 127.0.0.1:12345")
     except Exception as e:
-        print(f"DEBUG: FAILED to start plugin socket server: {e!r}")
+        logger.error(f"Failed to start the plugin socket server: {e!r}")
         raise
 
     asyncio.create_task(plugin_server.serve_forever())
 
-    print("DEBUG: entering exit_event.wait()")
     await ctx.exit_event.wait()
-    print("DEBUG: exit_event was set, shutting down")
 
     ctx.server_address = None
     await ctx.shutdown()
-    print("DEBUG: shutdown complete, main() returning")
 
 if __name__ == "__main__":
     asyncio.run(main())

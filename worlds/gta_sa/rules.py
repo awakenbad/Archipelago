@@ -72,5 +72,11 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         Has("Progressive Mission", 5),
     )
 
+    if world.options.include_ammunation_shop:
+        from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS
+        for slot, required_count in INCLUDED_SHOP_SLOTS.items():
+            location = world.get_location(SHOP_LOCATION_NAMES[slot])
+            world.set_rule(location, Has("Progressive Mission", required_count))
+
 def set_completion_condition(world: GTASAWorld) -> None:
     world.set_completion_rule(Has("Progressive Mission", 25))

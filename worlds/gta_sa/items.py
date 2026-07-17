@@ -31,6 +31,18 @@ WEAPON_FILLER_ITEMS = [
     "Satchel Charge",
 ]
 
+TRAP_ITEMS = [
+    "Flat Tires Trap",
+    "Fat CJ Trap",
+    "Wanted Level Trap",
+    "Car Fire Trap",
+]
+
+UTILITY_FILLER_ITEMS = [
+    "Full Armor",
+    "Car Repair",
+]
+
 ITEM_NAME_TO_ID = {
     "Money": 2,
     "Progressive Mission": 4,
@@ -41,6 +53,10 @@ ITEM_NAME_TO_ID = {
     "Taxi Nitro": 9,
     "Boxing Style": 10,
     **{name: 11 + i for i, name in enumerate(WEAPON_FILLER_ITEMS)},
+    # Weapons occupy 11-31; traps start at 40 to leave room for more weapons.
+    **{name: 40 + i for i, name in enumerate(TRAP_ITEMS)},
+    # Utility fillers start at 50, after the trap block.
+    **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -53,13 +69,17 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Taxi Nitro": ItemClassification.useful,
     "Boxing Style": ItemClassification.useful,
     **{name: ItemClassification.filler for name in WEAPON_FILLER_ITEMS},
+    **{name: ItemClassification.trap for name in TRAP_ITEMS},
+    **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
 }
 
 class GTASAItem(Item):
     game = "Grand Theft Auto: San Andreas"
 
 def get_random_filler_item_name(world: GTASAWorld) -> str:
-    return world.random.choice(["Money", *WEAPON_FILLER_ITEMS])
+    if world.random.random() * 100 < world.options.trap_percentage:
+        return world.random.choice(TRAP_ITEMS)
+    return world.random.choice(["Money", *WEAPON_FILLER_ITEMS, *UTILITY_FILLER_ITEMS])
 
 def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTASAItem:
     classification = DEFAULT_ITEM_CLASSIFICATIONS[name]

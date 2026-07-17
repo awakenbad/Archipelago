@@ -1,5 +1,5 @@
 from .bases import GTASATestBase
-from ..items import WEAPON_FILLER_ITEMS
+from ..items import TRAP_ITEMS, UTILITY_FILLER_ITEMS, WEAPON_FILLER_ITEMS
 
 SUBMISSION_REWARD_ITEMS = [
     "Max Health Upgrade",
@@ -42,8 +42,8 @@ class TestFillerItems(GTASATestBase):
         weapon_items = self.get_items_by_name(WEAPON_FILLER_ITEMS)
         self.assertTrue(all(item.filler for item in weapon_items))
 
-    def test_get_filler_item_name_returns_money_or_a_weapon(self) -> None:
-        possible_filler_names = {"Money", *WEAPON_FILLER_ITEMS}
+    def test_get_filler_item_name_returns_money_a_weapon_or_a_trap(self) -> None:
+        possible_filler_names = {"Money", *WEAPON_FILLER_ITEMS, *TRAP_ITEMS, *UTILITY_FILLER_ITEMS}
         for _ in range(50):
             with self.subTest():
                 self.assertIn(self.world.get_filler_item_name(), possible_filler_names)

@@ -23,16 +23,39 @@ class IncludeTags(Toggle):
 
     default = 1
 
+class IncludeAmmunationShop(Toggle):
+    """
+    Whether Ammu-Nation purchases are location checks. Buying an item sends the check
+    instead of giving the vanilla weapon (money is still spent).
+    """
+
+    display_name = "Include Ammu-Nation Shop"
+
+    default = 1
+
+class TrapPercentage(Range):
+    """
+    Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
+    """
+
+    display_name = "Trap Percentage"
+
+    range_start = 0
+    range_end = 100
+    default = 15
+
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
     end_goal: EndGoal
     death_link: DeathLink
     include_tags: IncludeTags
+    include_ammunation_shop: IncludeAmmunationShop
+    trap_percentage: TrapPercentage
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink, IncludeTags],
+        [EndGoal, DeathLink, IncludeTags, IncludeAmmunationShop, TrapPercentage],
     ),
 ]
 
