@@ -35,6 +35,28 @@ ITEM_ID_TO_EFFECT = {
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
+    def _cmd_tag(self, number: str = ""):
+        """Highlight spray tag #<number> (1-100) on the in-game radar/map. Without a number, clears the highlight."""
+        if not self.ctx.plugin_writer:
+            self.output("The game plugin is not connected.")
+            return
+        if not number:
+            self.ctx.plugin_writer.write(b"LOCATE:TAG:-1\n")
+            asyncio.create_task(self.ctx.plugin_writer.drain())
+            self.output("Cleared the tag highlight.")
+            return
+        try:
+            tag_number = int(number)
+        except ValueError:
+            self.output(f"Not a number: {number}")
+            return
+        if not 1 <= tag_number <= 100:
+            self.output("Tag number must be between 1 and 100.")
+            return
+        self.ctx.plugin_writer.write(f"LOCATE:TAG:{tag_number - 1}\n".encode())
+        asyncio.create_task(self.ctx.plugin_writer.drain())
+        self.output(f"Highlighting LS Tag #{tag_number} on the in-game map.")
+
     def _cmd_testcheck(self, location_id: str):
         loc_id = int(location_id)
         self.ctx.locations_checked.add(loc_id)
