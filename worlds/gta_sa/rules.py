@@ -57,20 +57,28 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         required_count = index
         world.set_rule(location, Has("Progressive Mission", required_count))
 
+    # Submissions whose vehicle can simply be found in the world from the start.
     submission_locations = [
         "LS Mission: Paramedic Level 12",
         "LS Mission: Firefighter Level 12",
         "LS Mission: Vigilante Level 12",
         "LS Mission: Taxi Driver 50 Fares",
-        "LS Mission: Burglary $10,000 Stolen",
     ]
     for location_name in submission_locations:
         location = world.get_location(location_name)
         world.set_rule(location, Has("Progressive Mission", 1))
 
+    # These two have real in-game prerequisites, so they're gated on the story mission that
+    # unlocks them (its position + 1, i.e. that mission must actually be completed):
+    # the gym isn't enterable until Drive-Thru (position 4), and burglary isn't available
+    # until Home Invasion (position 14) introduces the Boxville van.
     world.set_rule(
         world.get_location("LS Mission: Los Santos Gym Fight School"),
         Has("Progressive Mission", 5),
+    )
+    world.set_rule(
+        world.get_location("LS Mission: Burglary $10,000 Stolen"),
+        Has("Progressive Mission", 15),
     )
 
     if world.options.include_ammunation_shop:
