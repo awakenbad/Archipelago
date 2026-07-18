@@ -22,6 +22,11 @@ def shop_check_to_location_id(slot_index: int) -> int:
 
 GOAL_LOCATION_ID = 38
 
+def sanitize_for_game(text: str, limit: int) -> str:
+    """The in-game font only renders plain ASCII, and its display columns are narrow.
+    Also guarantees no newline sneaks into the line-delimited plugin protocol."""
+    return "".join(ch if 32 <= ord(ch) < 127 else "?" for ch in text)[:limit]
+
 PICKUP_INDEX_TO_LOCATION_ID = {
     0: 81000,
     1: 81001,
@@ -134,6 +139,44 @@ class GTASAContext(CommonContext):
             self.finished_game = True
             await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
+    def push_sent_item(self, item_id: int, receiver_slot: int) -> None:
+        """Announce in-game that a check we just found belonged to someone else's world."""
+        if not self.plugin_writer:
+            return
+        try:
+            item_name = self.item_names.lookup_in_slot(item_id, receiver_slot)
+        except Exception:
+            item_name = f"Item {item_id}"
+        player_name = self.player_names.get(receiver_slot, "another player")
+        text = sanitize_for_game(f"Sent {item_name} to {player_name}", 60)
+        self.plugin_writer.write(f"SENT:{text}\n".encode())
+        asyncio.create_task(self.plugin_writer.drain())
+
+    def on_print_json(self, args: dict) -> None:
+        super().on_print_json(args)
+        if args.get("type") != "ItemSend":
+            return
+
+        item = args.get("item")
+        receiver = args.get("receiving")
+        if item is None or receiver is None:
+            return
+
+        # NetworkItem.player is the SENDING player for ItemSend packets.
+        sender = getattr(item, "player", None)
+        item_id = getattr(item, "item", None)
+        if sender is None and isinstance(item, dict):
+            sender, item_id = item.get("player"), item.get("item")
+        if sender is None or item_id is None:
+            return
+
+        # Only our own finds, and only when they belong to somebody else - items we send to
+        # ourselves are already announced when the plugin applies them.
+        if sender != self.slot or receiver == self.slot:
+            return
+
+        self.push_sent_item(item_id, receiver)
+
     def on_deathlink(self, data: dict) -> None:
         super().on_deathlink(data)
         if self.plugin_writer:
@@ -160,9 +203,7 @@ class GTASAContext(CommonContext):
                 name = self.item_names.lookup_in_slot(network_item.item, network_item.player)
                 if network_item.player != self.slot:
                     name += f" ({self.player_names.get(network_item.player, '?')})"
-                # The in-game font only handles plain ASCII, and the display column is narrow.
-                name = "".join(ch if 32 <= ord(ch) < 127 else "?" for ch in name)[:40]
-                self.shop_slot_contents[slot] = name
+                self.shop_slot_contents[slot] = sanitize_for_game(name, 40)
             self.push_shop_contents()
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
