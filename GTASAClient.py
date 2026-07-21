@@ -20,6 +20,11 @@ SHOP_BASE_ID = 300
 def shop_check_to_location_id(slot_index: int) -> int:
     return SHOP_BASE_ID + slot_index
 
+SUBMISSION_TIER_BASE_ID = 400
+
+def submission_tier_check_to_location_id(slot_index: int) -> int:
+    return SUBMISSION_TIER_BASE_ID + slot_index
+
 # Fallback only - the real goal location arrives via slot_data on connect.
 DEFAULT_GOAL_LOCATION_ID = 38
 
@@ -248,6 +253,8 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
             location_id = tag_check_to_location_id(check_id)
         elif check_type == "SHOP":
             location_id = shop_check_to_location_id(check_id)
+        elif check_type == "SUBLEVEL":
+            location_id = submission_tier_check_to_location_id(check_id)
         else:
             logger.warning(f"Unknown check type from plugin: {check_type}")
             continue

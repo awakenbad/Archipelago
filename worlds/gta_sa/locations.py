@@ -9,6 +9,11 @@ from . import mission_list
 from .mission_list import REGION_ABBREVIATIONS, MISSION_DATA
 from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION
 from .shop_list import SHOP_BASE_ID, SHOP_LOCATION_NAMES, SHOP_REGION, INCLUDED_SHOP_SLOTS
+from .submission_tier_list import (
+    SUBMISSION_TIER_BASE_ID,
+    SUBMISSION_TIER_LOCATION_NAMES,
+    SUBMISSION_TIER_REGION,
+)
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -27,6 +32,10 @@ LOCATION_NAME_TO_ID.update({
 LOCATION_NAME_TO_ID.update({
     name: SHOP_BASE_ID + i for i, name in enumerate(SHOP_LOCATION_NAMES)
 })
+LOCATION_NAME_TO_ID.update({
+    name: SUBMISSION_TIER_BASE_ID + i
+    for i, name in enumerate(SUBMISSION_TIER_LOCATION_NAMES)
+})
 
 class GTASALocation(Location):
     game = "Grand Theft Auto: San Andreas"
@@ -36,10 +45,16 @@ def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | No
 
 def create_all_locations(world: GTASAWorld) -> None:
     create_regular_locations(world)
+    create_submission_tier_locations(world)
     if world.options.include_tags:
         create_tag_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
+
+def create_submission_tier_locations(world: GTASAWorld) -> None:
+    region = world.get_region(SUBMISSION_TIER_REGION)
+    locations = get_location_names_with_ids(SUBMISSION_TIER_LOCATION_NAMES)
+    region.add_locations(locations, GTASALocation)
 
 def create_regular_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)

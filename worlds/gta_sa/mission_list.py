@@ -64,10 +64,8 @@ MISSION_DATA = [
     (48, "Wu Zi Mu", "Badlands"),
     (135, "Farewell, My Love...", "Badlands"),
 
-    (121, "Taxi Driver 50 Fares", "Los Santos"),
-    (122, "Paramedic Level 12", "Los Santos"),
-    (123, "Firefighter Level 12", "Los Santos"),
-    (124, "Vigilante Level 12", "Los Santos"),
-    (125, "Burglary $10,000 Stolen", "Los Santos"),
+    # Paramedic (122), Firefighter (123), Vigilante (124), Taxi (121) and Burglary (125) are
+    # deliberately absent: they pay out per tier rather than once on completion, so their
+    # locations live in submission_tier_list.py.
     (114, "Los Santos Gym Fight School", "Los Santos"),
 ]

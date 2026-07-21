@@ -73,15 +73,12 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         required_count = index
         world.set_rule(location, Has("Progressive Mission", required_count))
 
-    # Submissions whose vehicle can simply be found in the world from the start, Burglary included (Thanks @knuxfan24 for pointing it out!).
-    submission_locations = [
-        "LS Mission: Paramedic Level 12",
-        "LS Mission: Firefighter Level 12",
-        "LS Mission: Vigilante Level 12",
-        "LS Mission: Taxi Driver 50 Fares",
-        "LS Mission: Burglary $10,000 Stolen",
-    ]
-    for location_name in submission_locations:
+    # Tiered submissions (Paramedic/Firefighter/Vigilante levels, Taxi fares, Burglary loot):
+    # every one of these can be started from the beginning of the game, so each tier carries the
+    # same requirement as the activity itself.
+    from .submission_tier_list import SUBMISSION_TIER_LOCATION_NAMES
+
+    for location_name in SUBMISSION_TIER_LOCATION_NAMES:
         location = world.get_location(location_name)
         world.set_rule(location, Has("Progressive Mission", 1))
 
