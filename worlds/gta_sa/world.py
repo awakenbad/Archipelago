@@ -38,4 +38,9 @@ class GTASAWorld(World):
         return items.get_random_filler_item_name(self)
 
     def fill_slot_data(self) -> dict:
-        return {"death_link": self.options.death_link.value}
+        # The client checks this location ID against checked_locations to report the goal.
+        goal_location_id = 47 if self.options.end_goal == "are_you_going_to_san_fierro" else 38
+        return {
+            "death_link": self.options.death_link.value,
+            "goal_location_id": goal_location_id,
+        }

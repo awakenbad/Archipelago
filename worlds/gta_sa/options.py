@@ -11,6 +11,7 @@ class EndGoal(Choice):
     display_name = "End Goal"
 
     option_the_green_sabre = 0
+    option_are_you_going_to_san_fierro = 1
 
     default = option_the_green_sabre
 

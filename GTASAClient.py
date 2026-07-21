@@ -20,7 +20,8 @@ SHOP_BASE_ID = 300
 def shop_check_to_location_id(slot_index: int) -> int:
     return SHOP_BASE_ID + slot_index
 
-GOAL_LOCATION_ID = 38
+# Fallback only - the real goal location arrives via slot_data on connect.
+DEFAULT_GOAL_LOCATION_ID = 38
 
 def sanitize_for_game(text: str, limit: int) -> str:
     """The in-game font only renders plain ASCII, and its display columns are narrow.
@@ -86,6 +87,7 @@ class GTASAContext(CommonContext):
     plugin_writer = None
     items_applied_count = 0
     death_link_enabled = False
+    goal_location_id = DEFAULT_GOAL_LOCATION_ID
     shop_slot_contents: dict = {}
 
     async def server_auth(self, password_requested=False):
@@ -135,7 +137,7 @@ class GTASAContext(CommonContext):
         asyncio.create_task(self.plugin_writer.drain())
 
     async def check_goal_complete(self) -> None:
-        if not self.finished_game and GOAL_LOCATION_ID in self.checked_locations:
+        if not self.finished_game and self.goal_location_id in self.checked_locations:
             self.finished_game = True
             await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
@@ -187,6 +189,7 @@ class GTASAContext(CommonContext):
         if cmd == "ReceivedItems":
             self.apply_pending_items()
         elif cmd == "Connected":
+            self.goal_location_id = args.get("slot_data", {}).get("goal_location_id", DEFAULT_GOAL_LOCATION_ID)
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.send_death_link_config()

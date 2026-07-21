@@ -12,13 +12,22 @@ SUBMISSION_REWARD_ITEMS = [
 
 
 class TestProgressiveMissionItem(GTASATestBase):
-    def test_pool_contains_27_progressive_missions(self) -> None:
+    def test_pool_contains_27_progressive_missions_for_the_los_santos_goal(self) -> None:
+        # Default goal is The Green Sabre, so only the Los Santos positions (0-26) are in play.
         self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 27)
 
     def test_progressive_mission_is_progression_not_useful(self) -> None:
         progressive_missions = self.get_items_by_name("Progressive Mission")
         self.assertTrue(all(item.advancement for item in progressive_missions))
         self.assertFalse(any(item.useful for item in progressive_missions))
+
+
+class TestProgressiveMissionItemWithBadlandsGoal(GTASATestBase):
+    options = {"end_goal": "are_you_going_to_san_fierro"}
+
+    def test_pool_grows_to_36_progressive_missions(self) -> None:
+        # Los Santos 0-26 plus Badlands 27-35.
+        self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 36)
 
 
 class TestSubmissionRewardItems(GTASATestBase):

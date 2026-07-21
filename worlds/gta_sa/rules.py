@@ -18,8 +18,12 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
     badlands_to_san_fierro = world.get_entrance("Badlands to San Fierro")
     san_fierro_to_las_venturas = world.get_entrance("San Fierro to Las Venturas")
 
-    world.set_rule(los_santos_to_badlands, Has("Progressive Mission", 23))
-    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 30))
+    # Badlands opens when The Green Sabre (story position 26) has actually been completed.
+    world.set_rule(los_santos_to_badlands, Has("Progressive Mission", 27))
+    # San Fierro has no locations yet - keep its entrance above the total Progressive Mission
+    # pool (36) so it stays unreachable until the region is actually populated. Revisit both
+    # thresholds when their regions get locations.
+    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 37))
     world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 50))
 
 def set_all_location_rules(world: GTASAWorld) -> None:
@@ -51,8 +55,20 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "LS Mission: Los Sepulcros",              # 24 - needs Doberman
         "LS Mission: Reuniting The Families",     # 25
         "LS Mission: The Green Sabre",            # 26
+
+        "BD Mission: Badlands",                   # 27
+        "BD Mission: Local Liquor Store",         # 28
+        "BD Mission: Body Harvest",               # 29
+        "BD Mission: Small Town Bank",            # 30
+        "BD Mission: Wu Zi Mu",                   # 31 - unlocks after 2 robberies
+        "BD Mission: Tanker Commander",           # 32
+        "BD Mission: Against All Odds",           # 33
+        "BD Mission: Farewell, My Love...",       # 34
+        "BD Mission: Are You Going to San Fierro?", # 35
     ]
-    for index, location_name in enumerate(story_mission_order):
+    from .mission_list import get_story_mission_count
+
+    for index, location_name in enumerate(story_mission_order[:get_story_mission_count(world)]):
         location = world.get_location(location_name)
         required_count = index
         world.set_rule(location, Has("Progressive Mission", required_count))
@@ -82,4 +98,8 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(location, Has("Progressive Mission", required_count))
 
 def set_completion_condition(world: GTASAWorld) -> None:
-    world.set_completion_rule(Has("Progressive Mission", 26))
+    # The required count is the goal mission's story position (see story_mission_order).
+    if world.options.end_goal == "are_you_going_to_san_fierro":
+        world.set_completion_rule(Has("Progressive Mission", 35))
+    else:
+        world.set_completion_rule(Has("Progressive Mission", 26))

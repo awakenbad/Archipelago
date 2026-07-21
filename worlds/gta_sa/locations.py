@@ -42,7 +42,10 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_shop_locations(world)
 
 def create_regular_locations(world: GTASAWorld) -> None:
+    included_regions = mission_list.get_included_regions(world)
     for mission_id, name, region_name in MISSION_DATA:
+        if region_name not in included_regions:
+            continue
         region = world.get_region(region_name)
         location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
         location_id = LOCATION_NAME_TO_ID[location_name]

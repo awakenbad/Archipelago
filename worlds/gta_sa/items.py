@@ -86,8 +86,11 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 def create_all_items(world: GTASAWorld) -> None:
+    from .mission_list import get_story_mission_count
+
     itempool: list[Item] = (
-        [world.create_item("Progressive Mission") for _ in range(27)]
+        # One per story mission position in scope for this seed's goal (see rules.py).
+        [world.create_item("Progressive Mission") for _ in range(get_story_mission_count(world))]
         + [
             world.create_item("Max Health Upgrade"),
             world.create_item("Max Armor Upgrade"),
