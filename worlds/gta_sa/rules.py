@@ -73,14 +73,16 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         required_count = index
         world.set_rule(location, Has("Progressive Mission", required_count))
 
-    # Tiered submissions (Paramedic/Firefighter/Vigilante levels, Taxi fares, Burglary loot):
-    # every one of these can be started from the beginning of the game, so each tier carries the
-    # same requirement as the activity itself.
-    from .submission_tier_list import SUBMISSION_TIER_LOCATION_NAMES
+    # Tiered submissions. Every tier carries the same requirement as starting the activity
+    # itself - Has(1) for the ones available from the off, more for Trucking, which needs
+    # Tanker Commander done first. Out-of-scope regions have no locations to gate.
+    from .submission_tier_list import get_tier_requirements
 
-    for location_name in SUBMISSION_TIER_LOCATION_NAMES:
+    for location_name, required_count in get_tier_requirements().items():
+        if location_name not in world.multiworld.regions.location_cache[world.player]:
+            continue
         location = world.get_location(location_name)
-        world.set_rule(location, Has("Progressive Mission", 1))
+        world.set_rule(location, Has("Progressive Mission", required_count))
 
     # The gym is the only submission that isn't enterable until Drive-thru (position 4)
     world.set_rule(

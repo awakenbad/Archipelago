@@ -5,6 +5,8 @@ FLAT_GATED_SUBMISSION_LOCATIONS = [
     "LS Mission: Paramedic Level 12",
     "LS Mission: Firefighter Level 12",
     "LS Mission: Vigilante Level 12",
+    "LS Mission: Taxi Driver 50 Fares",
+    "LS Mission: Burglary $10,000 Stolen",
 ]
 
 ALL_SUBMISSION_LOCATIONS = FLAT_GATED_SUBMISSION_LOCATIONS + [
@@ -118,9 +120,12 @@ class TestTieredSubmissionLocations(GTASATestBase):
                 except KeyError:
                     self.fail(f"{name} should exist, but it doesn't.")
 
-    def test_fifty_six_tier_locations_exist(self) -> None:
-        from ..submission_tier_list import SUBMISSION_TIER_LOCATION_NAMES
-        self.assertEqual(len(SUBMISSION_TIER_LOCATION_NAMES), 56)
+    def test_all_tier_locations_exist(self) -> None:
+        from ..submission_tier_list import (
+            SUBMISSION_TIER_LOCATION_NAMES,
+            SUBMISSION_TIER_SLOT_COUNT,
+        )
+        self.assertEqual(len(SUBMISSION_TIER_LOCATION_NAMES), SUBMISSION_TIER_SLOT_COUNT)
 
     def test_tier_slot_layout_matches_the_plugin(self) -> None:
         # Slot bases must match the SubmissionTierSpec constants in the mod's EntityIDs.h.
@@ -152,10 +157,10 @@ class TestSubmissionTierSlotLayout(GTASATestBase):
         from ..submission_tier_list import SUBMISSION_TIERS
 
         expected_base = 0
-        for base_slot, tier_count, name_template, value_per_tier in SUBMISSION_TIERS:
-            with self.subTest(name_template):
-                self.assertEqual(base_slot, expected_base)
-                expected_base = base_slot + tier_count
+        for tier_spec in SUBMISSION_TIERS:
+            with self.subTest(tier_spec.name_template):
+                self.assertEqual(tier_spec.base_slot, expected_base)
+                expected_base = tier_spec.base_slot + tier_spec.tier_count
 
     def test_declared_slot_count_matches_the_blocks(self) -> None:
         from ..submission_tier_list import (
@@ -164,7 +169,7 @@ class TestSubmissionTierSlotLayout(GTASATestBase):
             SUBMISSION_TIER_LOCATION_NAMES,
         )
 
-        total = sum(tier_count for _, tier_count, _, _ in SUBMISSION_TIERS)
+        total = sum(tier_spec.tier_count for tier_spec in SUBMISSION_TIERS)
         self.assertEqual(total, SUBMISSION_TIER_SLOT_COUNT)
         self.assertEqual(len(SUBMISSION_TIER_LOCATION_NAMES), SUBMISSION_TIER_SLOT_COUNT)
 
@@ -175,3 +180,49 @@ class TestSubmissionTierSlotLayout(GTASATestBase):
         ids = [LOCATION_NAME_TO_ID[name] for name in SUBMISSION_TIER_LOCATION_NAMES]
         self.assertEqual(len(set(ids)), len(ids))
         self.assertEqual(len(set(SUBMISSION_TIER_LOCATION_NAMES)), len(SUBMISSION_TIER_LOCATION_NAMES))
+
+
+class TestTruckingIsScopedToBadlands(GTASATestBase):
+    """Trucking is at RS Haul in Flint County, so it must not exist in a Los Santos-only seed."""
+
+    def test_trucking_locations_are_not_created_for_the_los_santos_goal(self) -> None:
+        trucking = [
+            location.name
+            for location in self.multiworld.get_locations(self.player)
+            if "Trucking" in location.name
+        ]
+        self.assertEqual(trucking, [])
+
+
+class TestTruckingWithBadlandsGoal(GTASATestBase):
+    options = {"end_goal": "are_you_going_to_san_fierro"}
+
+    def test_all_eight_trucking_tiers_exist(self) -> None:
+        for tier in range(1, 9):
+            name = f"BD Mission: Trucking Level {tier}"
+            with self.subTest(name):
+                try:
+                    self.world.get_location(name)
+                except KeyError:
+                    self.fail(f"{name} should exist, but it doesn't.")
+
+    def test_trucking_needs_tanker_commander_not_just_one_mission(self) -> None:
+        # Tanker Commander sits at story position 32, so Trucking opens at 33.
+        location = self.world.get_location("BD Mission: Trucking Level 1")
+        progressive_missions = self.get_items_by_name("Progressive Mission")
+
+        for item in progressive_missions[:32]:
+            self.multiworld.state.collect(item)
+        self.assertFalse(location.can_reach(self.multiworld.state))
+
+        self.multiworld.state.collect(progressive_missions[32])
+        self.assertTrue(location.can_reach(self.multiworld.state))
+
+    def test_trucking_slots_follow_burglary(self) -> None:
+        from ..submission_tier_list import SUBMISSION_TIER_BASE_ID
+        from ..locations import LOCATION_NAME_TO_ID
+
+        self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 1"],
+                         SUBMISSION_TIER_BASE_ID + 56)
+        self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 8"],
+                         SUBMISSION_TIER_BASE_ID + 63)

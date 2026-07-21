@@ -86,7 +86,8 @@ class TestGoalScopingWithBadlandsGoal(GTASATestBase):
             for location in self.multiworld.get_locations(self.player)
             if location.name.startswith("BD ")
         ]
-        self.assertEqual(len(badlands_location_names), 9)
+        # 9 story missions plus the 8 Trucking tiers.
+        self.assertEqual(len(badlands_location_names), 17)
 
     def test_final_badlands_mission_requires_35_progressive_missions(self) -> None:
         location = self.world.get_location("BD Mission: Are You Going to San Fierro?")

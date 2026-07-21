@@ -12,7 +12,7 @@ from .shop_list import SHOP_BASE_ID, SHOP_LOCATION_NAMES, SHOP_REGION, INCLUDED_
 from .submission_tier_list import (
     SUBMISSION_TIER_BASE_ID,
     SUBMISSION_TIER_LOCATION_NAMES,
-    SUBMISSION_TIER_REGION,
+    get_tier_location_names_by_region,
 )
 
 if TYPE_CHECKING:
@@ -52,9 +52,14 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_shop_locations(world)
 
 def create_submission_tier_locations(world: GTASAWorld) -> None:
-    region = world.get_region(SUBMISSION_TIER_REGION)
-    locations = get_location_names_with_ids(SUBMISSION_TIER_LOCATION_NAMES)
-    region.add_locations(locations, GTASALocation)
+    # Tiered submissions live in different regions (Trucking is in the Badlands), so skip the
+    # ones whose region this seed's goal never requires visiting.
+    included_regions = mission_list.get_included_regions(world)
+    for region_name, location_names in get_tier_location_names_by_region().items():
+        if region_name not in included_regions:
+            continue
+        region = world.get_region(region_name)
+        region.add_locations(get_location_names_with_ids(location_names), GTASALocation)
 
 def create_regular_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)
