@@ -73,8 +73,13 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
 }
 
+VICTORY_ITEM_NAME = "Victory"
+
 class GTASAItem(Item):
     game = "Grand Theft Auto: San Andreas"
+
+def create_victory_item(world: GTASAWorld) -> GTASAItem:
+    return GTASAItem(VICTORY_ITEM_NAME, ItemClassification.progression, None, world.player)
 
 def get_random_filler_item_name(world: GTASAWorld) -> str:
     if world.random.random() * 100 < world.options.trap_percentage:

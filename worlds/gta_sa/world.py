@@ -1,6 +1,6 @@
 ﻿from worlds.AutoWorld import World
 
-from . import items, locations, regions, rules
+from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
 from .. import gta_sa
 
@@ -38,9 +38,7 @@ class GTASAWorld(World):
         return items.get_random_filler_item_name(self)
 
     def fill_slot_data(self) -> dict:
-        # The client checks this location ID against checked_locations to report the goal.
-        goal_location_id = 47 if self.options.end_goal == "are_you_going_to_san_fierro" else 38
         return {
             "death_link": self.options.death_link.value,
-            "goal_location_id": goal_location_id,
+            "goal_mission_id": mission_list.get_goal_mission_id(self),
         }

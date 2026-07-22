@@ -97,8 +97,5 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(location, Has("Progressive Mission", required_count))
 
 def set_completion_condition(world: GTASAWorld) -> None:
-    # The required count is the goal mission's story position (see story_mission_order).
-    if world.options.end_goal == "are_you_going_to_san_fierro":
-        world.set_completion_rule(Has("Progressive Mission", 35))
-    else:
-        world.set_completion_rule(Has("Progressive Mission", 26))
+    from .items import VICTORY_ITEM_NAME
+    world.set_completion_rule(Has(VICTORY_ITEM_NAME))

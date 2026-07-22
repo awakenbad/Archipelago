@@ -21,6 +21,15 @@ def get_included_regions(world) -> set[str]:
 def get_story_mission_count(world) -> int:
     return 36 if badlands_in_scope(world) else 27
 
+def get_goal_mission_id(world) -> int:
+    return 47 if badlands_in_scope(world) else 38
+
+def get_goal_region(world) -> str:
+    return "Badlands" if badlands_in_scope(world) else "Los Santos"
+
+def get_goal_location_name(world) -> str:
+    return get_mission_location_name(get_goal_mission_id(world))
+
 MISSION_DATA = [
     (11, "Big Smoke", "Los Santos"),
     (12, "Ryder", "Los Santos"),
@@ -69,3 +78,11 @@ MISSION_DATA = [
     # locations live in submission_tier_list.py.
     (114, "Los Santos Gym Fight School", "Los Santos"),
 ]
+
+MISSION_ID_TO_LOCATION_NAME = {
+    mission_id: f"{REGION_ABBREVIATIONS[region]} Mission: {name}"
+    for mission_id, name, region in MISSION_DATA
+}
+
+def get_mission_location_name(mission_id: int) -> str:
+    return MISSION_ID_TO_LOCATION_NAME[mission_id]

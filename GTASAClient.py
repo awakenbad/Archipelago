@@ -25,8 +25,7 @@ SUBMISSION_TIER_BASE_ID = 400
 def submission_tier_check_to_location_id(slot_index: int) -> int:
     return SUBMISSION_TIER_BASE_ID + slot_index
 
-# Fallback only - the real goal location arrives via slot_data on connect.
-DEFAULT_GOAL_LOCATION_ID = 38
+DEFAULT_GOAL_MISSION_ID = 38
 
 def sanitize_for_game(text: str, limit: int) -> str:
     """The in-game font only renders plain ASCII, and its display columns are narrow.
@@ -92,7 +91,7 @@ class GTASAContext(CommonContext):
     plugin_writer = None
     items_applied_count = 0
     death_link_enabled = False
-    goal_location_id = DEFAULT_GOAL_LOCATION_ID
+    goal_mission_id = DEFAULT_GOAL_MISSION_ID
     shop_slot_contents: dict = {}
 
     async def server_auth(self, password_requested=False):
@@ -141,10 +140,11 @@ class GTASAContext(CommonContext):
             self.plugin_writer.write(f"SHOPITEM:{slot}:{text if active else ''}\n".encode())
         asyncio.create_task(self.plugin_writer.drain())
 
-    async def check_goal_complete(self) -> None:
-        if not self.finished_game and self.goal_location_id in self.checked_locations:
-            self.finished_game = True
-            await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+    async def report_goal_reached(self) -> None:
+        if self.finished_game:
+            return
+        self.finished_game = True
+        await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
     def push_sent_item(self, item_id: int, receiver_slot: int) -> None:
         """Announce in-game that a check we just found belonged to someone else's world."""
@@ -194,14 +194,12 @@ class GTASAContext(CommonContext):
         if cmd == "ReceivedItems":
             self.apply_pending_items()
         elif cmd == "Connected":
-            self.goal_location_id = args.get("slot_data", {}).get("goal_location_id", DEFAULT_GOAL_LOCATION_ID)
+            self.goal_mission_id = args.get("slot_data", {}).get("goal_mission_id", DEFAULT_GOAL_MISSION_ID)
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.send_death_link_config()
             self.scout_shop_locations()
-            asyncio.create_task(self.check_goal_complete())
         elif cmd == "RoomUpdate":
-            asyncio.create_task(self.check_goal_complete())
             self.push_shop_contents()
         elif cmd == "LocationInfo":
             for network_item in args["locations"]:
@@ -243,6 +241,9 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
 
         if check_type == "MISSION":
             if check_id == -1:
+                continue
+            if check_id == ctx.goal_mission_id:
+                await ctx.report_goal_reached()
                 continue
             location_id = mission_check_to_location_id(check_id)
         elif check_type == "PICKUP":

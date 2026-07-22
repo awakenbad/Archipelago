@@ -46,10 +46,19 @@ def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | No
 def create_all_locations(world: GTASAWorld) -> None:
     create_regular_locations(world)
     create_submission_tier_locations(world)
+    create_victory_location(world)
     if world.options.include_tags:
         create_tag_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
+
+def create_victory_location(world: GTASAWorld) -> None:
+    location_name = mission_list.get_goal_location_name(world)
+    region = world.get_region(mission_list.get_goal_region(world))
+    victory = GTASALocation(world.player, location_name, None, region)
+
+    victory.place_locked_item(items.create_victory_item(world))
+    region.locations.append(victory)
 
 def create_submission_tier_locations(world: GTASAWorld) -> None:
     # Tiered submissions live in different regions (Trucking is in the Badlands), so skip the
@@ -63,8 +72,11 @@ def create_submission_tier_locations(world: GTASAWorld) -> None:
 
 def create_regular_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)
+    goal_mission_id = mission_list.get_goal_mission_id(world)
     for mission_id, name, region_name in MISSION_DATA:
         if region_name not in included_regions:
+            continue
+        if mission_id == goal_mission_id:
             continue
         region = world.get_region(region_name)
         location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
