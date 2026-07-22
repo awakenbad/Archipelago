@@ -1,6 +1,9 @@
 ﻿import asyncio
+import sys
 from Utils import init_logging
 init_logging("GTASAClient")
+
+import websockets
 
 from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
@@ -26,6 +29,20 @@ def submission_tier_check_to_location_id(slot_index: int) -> int:
     return SUBMISSION_TIER_BASE_ID + slot_index
 
 DEFAULT_GOAL_MISSION_ID = 38
+
+EXPECTED_DISCONNECT_REASONS = (
+    (ConnectionRefusedError, "the server refused the connection - check the address and port, and that it is running"),
+    (asyncio.TimeoutError, "the connection timed out"),
+    (websockets.exceptions.ConnectionClosed, "the server closed the connection"),
+    (ConnectionResetError, "the server closed the connection"),
+    (OSError, "the network connection dropped"),
+)
+
+def describe_disconnect(exception: BaseException | None) -> str | None:
+    for exception_type, reason in EXPECTED_DISCONNECT_REASONS:
+        if isinstance(exception, exception_type):
+            return reason
+    return None
 
 def sanitize_for_game(text: str, limit: int) -> str:
     """The in-game font only renders plain ASCII, and its display columns are narrow.
@@ -65,8 +82,7 @@ class GTASACommandProcessor(ClientCommandProcessor):
             self.output("The game plugin is not connected.")
             return
         if not number:
-            self.ctx.plugin_writer.write(b"LOCATE:TAG:-1\n")
-            asyncio.create_task(self.ctx.plugin_writer.drain())
+            self.ctx.send_to_plugin("LOCATE:TAG:-1\n")
             self.output("Cleared the tag highlight.")
             return
         try:
@@ -77,8 +93,7 @@ class GTASACommandProcessor(ClientCommandProcessor):
         if not 1 <= tag_number <= 100:
             self.output("Tag number must be between 1 and 100.")
             return
-        self.ctx.plugin_writer.write(f"LOCATE:TAG:{tag_number - 1}\n".encode())
-        asyncio.create_task(self.ctx.plugin_writer.drain())
+        self.ctx.send_to_plugin(f"LOCATE:TAG:{tag_number - 1}\n")
         self.output(f"Highlighting LS Tag #{tag_number} on the in-game map.")
 
     def _cmd_showlocations(self):
@@ -99,6 +114,43 @@ class GTASAContext(CommonContext):
             await super(GTASAContext, self).server_auth(password_requested)
         await self.get_username()
         await self.send_connect()
+
+    def send_to_plugin(self, message: str) -> None:
+        writer = self.plugin_writer
+        if writer is None:
+            return
+        try:
+            writer.write(message.encode())
+        except (ConnectionError, OSError):
+            self.on_plugin_lost()
+            return
+        asyncio.create_task(self._drain_plugin(writer))
+
+    async def _drain_plugin(self, writer: asyncio.StreamWriter) -> None:
+        try:
+            await writer.drain()
+        except (ConnectionError, OSError):
+            if writer is self.plugin_writer:
+                self.on_plugin_lost()
+
+    def handle_connection_loss(self, msg: str) -> None:
+        exception = sys.exc_info()[1]
+        reason = describe_disconnect(exception)
+        if reason is None:
+            super().handle_connection_loss(msg)
+            return
+
+        logger.warning(f"{msg} ({reason})")
+        self._messagebox_connection_loss = self.gui_error(msg, exception)
+
+    def is_connected_to_server(self) -> bool:
+        return bool(self.server and self.server.socket.open and not self.server.socket.closed)
+
+    def on_plugin_lost(self) -> None:
+        if self.plugin_writer is None:
+            return
+        self.plugin_writer = None
+        logger.info("Lost the connection to the game. Waiting for it to reconnect...")
 
     def apply_pending_items(self) -> None:
         """Push items to the plugin, each tagged with its position in items_received.
@@ -124,15 +176,11 @@ class GTASAContext(CommonContext):
 
             effect_type, value = effect
             msg = f"GIVE:{index}:{effect_type}\n" if value is None else f"GIVE:{index}:{effect_type}:{value}\n"
-            self.plugin_writer.write(msg.encode())
-            asyncio.create_task(self.plugin_writer.drain())
+            self.send_to_plugin(msg)
         self.items_applied_count = len(self.items_received)
 
     def send_death_link_config(self) -> None:
-        if not self.plugin_writer:
-            return
-        self.plugin_writer.write(f"CTRL:death_link:{int(self.death_link_enabled)}\n".encode())
-        asyncio.create_task(self.plugin_writer.drain())
+        self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
 
     def scout_shop_locations(self) -> None:
         """Ask the server what item sits at each Ammu-Nation slot, so the plugin can display it."""
@@ -148,8 +196,7 @@ class GTASAContext(CommonContext):
             # Already-checked slots are pushed as empty, which reverts them to vanilla stock
             # in-game (real weapon, no interception) - the check is gone, the shop moves on.
             active = (SHOP_BASE_ID + slot) in self.missing_locations
-            self.plugin_writer.write(f"SHOPITEM:{slot}:{text if active else ''}\n".encode())
-        asyncio.create_task(self.plugin_writer.drain())
+            self.send_to_plugin(f"SHOPITEM:{slot}:{text if active else ''}\n")
 
     async def report_goal_reached(self) -> None:
         if self.finished_game:
@@ -167,8 +214,7 @@ class GTASAContext(CommonContext):
             item_name = f"Item {item_id}"
         player_name = self.player_names.get(receiver_slot, "another player")
         text = sanitize_for_game(f"Sent {item_name} to {player_name}", 60)
-        self.plugin_writer.write(f"SENT:{text}\n".encode())
-        asyncio.create_task(self.plugin_writer.drain())
+        self.send_to_plugin(f"SENT:{text}\n")
 
     def on_print_json(self, args: dict) -> None:
         super().on_print_json(args)
@@ -197,11 +243,9 @@ class GTASAContext(CommonContext):
 
     def on_deathlink(self, data: dict) -> None:
         super().on_deathlink(data)
-        if self.plugin_writer:
-            # CTRL, not GIVE: control messages carry no item index and must never be deduplicated
-            # against one - a DeathLink kill is an event, not a thing you own a copy of.
-            self.plugin_writer.write(b"CTRL:deathlink_kill\n")
-            asyncio.create_task(self.plugin_writer.drain())
+        # CTRL, not GIVE: control messages carry no item index and must never be deduplicated
+        # against one - a DeathLink kill is an event, not a thing you own a copy of.
+        self.send_to_plugin("CTRL:deathlink_kill\n")
 
     def on_package(self, cmd: str, args: dict):
         if cmd == "ReceivedItems":
@@ -235,11 +279,29 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     ctx.apply_pending_items()
     ctx.send_death_link_config()
     ctx.push_shop_contents()
+    try:
+        await read_plugin_messages(reader, ctx)
+    except (ConnectionError, OSError):
+        # The game was closed or crashed rather than shutting the socket down politely. Normal
+        # enough that it does not deserve a traceback.
+        pass
+    finally:
+        # Guard against a newer connection having already replaced ours - closing then would take
+        # down a game that is currently running fine.
+        if ctx.plugin_writer is writer:
+            ctx.plugin_writer = None
+            logger.info("Game disconnected. Waiting for it to reconnect...")
+        try:
+            writer.close()
+        except (ConnectionError, OSError):
+            pass
+
+async def read_plugin_messages(reader, ctx: GTASAContext):
     while True:
         line = await reader.readline()
         if not line:
-            break
-        msg = line.decode().strip()
+            return
+        msg = line.decode(errors="replace").strip()
 
         if msg == "PLAYER_DIED":
             asyncio.create_task(ctx.send_death(f"{ctx.username} died in San Andreas"))
@@ -254,7 +316,11 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
             continue
 
         _, check_type, raw_id = parts
-        check_id = int(raw_id)
+        try:
+            check_id = int(raw_id)
+        except ValueError:
+            logger.warning(f"Non-numeric check ID from plugin: {msg}")
+            continue
 
         if check_type == "MISSION":
             if check_id == -1:
@@ -277,11 +343,13 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
             logger.warning(f"Unknown check type from plugin: {check_type}")
             continue
 
+        if not ctx.is_connected_to_server():
+            logger.warning(
+                f"Not connected to the Archipelago server - check {location_id} was not sent. "
+                "Re-do it once reconnected."
+            )
+            continue
         await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [location_id]}])
-
-    logger.info("Game plugin disconnected.")
-    ctx.plugin_writer = None
-    writer.close()
 
 async def main():
     ctx = GTASAContext(None, None)
@@ -294,7 +362,6 @@ async def main():
             lambda r, w: handle_plugin_connection(r, w, ctx),
             "127.0.0.1", 12345
         )
-        logger.info("Listening for the game plugin on 127.0.0.1:12345")
     except Exception as e:
         logger.error(f"Failed to start the plugin socket server: {e!r}")
         raise
