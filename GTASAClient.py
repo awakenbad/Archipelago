@@ -101,18 +101,29 @@ class GTASAContext(CommonContext):
         await self.send_connect()
 
     def apply_pending_items(self) -> None:
+        """Push items to the plugin, each tagged with its position in items_received.
+
+        The index is what makes this safe to repeat. The server replays the whole list on every
+        connect, and items_applied_count only tracks what this process has sent - so it cannot be
+        the thing that prevents double-granting. The plugin decides, against a mark stored in the
+        GTA save, which indices it has already applied. That mark has to live in the save rather
+        than here, because the save is what can roll back: loading an older one should legitimately
+        re-grant the items it never saw.
+        """
         if not self.plugin_writer:
             return
 
-        new_items = self.items_received[self.items_applied_count:]
-        for item in new_items:
+        for index, item in enumerate(self.items_received):
+            if index < self.items_applied_count:
+                continue
+
             effect = ITEM_ID_TO_EFFECT.get(item.item)
             if effect is None:
                 logger.warning(f"Unrecognized item ID: {item.item}")
                 continue
 
             effect_type, value = effect
-            msg = f"GIVE:{effect_type}\n" if value is None else f"GIVE:{effect_type}:{value}\n"
+            msg = f"GIVE:{index}:{effect_type}\n" if value is None else f"GIVE:{index}:{effect_type}:{value}\n"
             self.plugin_writer.write(msg.encode())
             asyncio.create_task(self.plugin_writer.drain())
         self.items_applied_count = len(self.items_received)
@@ -120,7 +131,7 @@ class GTASAContext(CommonContext):
     def send_death_link_config(self) -> None:
         if not self.plugin_writer:
             return
-        self.plugin_writer.write(f"GIVE:death_link:{int(self.death_link_enabled)}\n".encode())
+        self.plugin_writer.write(f"CTRL:death_link:{int(self.death_link_enabled)}\n".encode())
         asyncio.create_task(self.plugin_writer.drain())
 
     def scout_shop_locations(self) -> None:
@@ -187,7 +198,9 @@ class GTASAContext(CommonContext):
     def on_deathlink(self, data: dict) -> None:
         super().on_deathlink(data)
         if self.plugin_writer:
-            self.plugin_writer.write(b"GIVE:deathlink_kill\n")
+            # CTRL, not GIVE: control messages carry no item index and must never be deduplicated
+            # against one - a DeathLink kill is an event, not a thing you own a copy of.
+            self.plugin_writer.write(b"CTRL:deathlink_kill\n")
             asyncio.create_task(self.plugin_writer.drain())
 
     def on_package(self, cmd: str, args: dict):
@@ -215,6 +228,10 @@ class GTASAContext(CommonContext):
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     logger.info("Game plugin connected.")
     ctx.plugin_writer = writer
+    # A freshly launched game knows nothing about what it has already been given, so replay the
+    # full list and let it filter against its own saved mark. Sending only what this process has
+    # not sent yet would starve it of exactly the items it needs to make that decision.
+    ctx.items_applied_count = 0
     ctx.apply_pending_items()
     ctx.send_death_link_config()
     ctx.push_shop_contents()
