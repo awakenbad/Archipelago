@@ -109,7 +109,8 @@ MISSION_DATA = [
     (65, "T-Bone Mendez", "San Fierro"),
     (66, "Mike Toreno", "San Fierro"),
 
-    # Zero's RC missions.
+    # Optional San Fierro side content.
+    (71, "Back to School", "San Fierro"),
     (72, "Air Raid", "San Fierro"),
     (73, "Supply Lines...", "San Fierro"),
     (74, "New Model Army", "San Fierro"),
@@ -141,6 +142,8 @@ class OptionalMissionBranch(NamedTuple):
 OPTIONAL_MISSION_BRANCHES = (
     # Zero's RC missions, off Wear Flowers in Your Hair (story position 36).
     OptionalMissionBranch("Zero", (72, 73, 74), 37),
+    # Driving school, off Deconstruction (story position 38).
+    OptionalMissionBranch("Driving School", (71,), 39),
 )
 
 def get_optional_mission_ids() -> set[int]:
