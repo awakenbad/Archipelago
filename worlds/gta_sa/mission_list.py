@@ -1,31 +1,47 @@
-﻿REGION_ABBREVIATIONS = {
+﻿from typing import NamedTuple
+
+REGION_ABBREVIATIONS = {
     "Los Santos": "LS",
     "Badlands": "BD",
-    #"San Fierro": "SF",
+    "San Fierro": "SF",
     #"Las Venturas": "LV",
 }
 
-# Content past the end goal is left out of the seed entirely. If it were still generated,
-# another player's progression item could land in a region this seed never requires visiting -
-# the GTA player would legitimately stop at their goal and strand it. Both helpers key off the
-# same option so the scope can't drift apart.
-def badlands_in_scope(world) -> bool:
-    return world.options.end_goal == "are_you_going_to_san_fierro"
+class GoalSpec(NamedTuple):
+    option_value: str
+
+    # The mission that ends the run. It becomes the Victory event location.
+    mission_id: int
+
+    # Regions the seed generates.
+    regions_in_scope: tuple[str, ...]
+
+    # Progressive Mission pool size.
+    story_mission_count: int
+
+GOALS = (
+    GoalSpec("the_green_sabre", 38, ("Los Santos",), 27),
+    GoalSpec("are_you_going_to_san_fierro", 47, ("Los Santos", "Badlands"), 36),
+    GoalSpec("yay_ka_boom_boom", 63, ("Los Santos", "Badlands", "San Fierro"), 54),
+)
+
+def get_goal(world) -> GoalSpec:
+    for goal in GOALS:
+        if world.options.end_goal == goal.option_value:
+            return goal
+    raise ValueError(f"No GoalSpec for end_goal {world.options.end_goal!r} - options.py and GOALS disagree")
 
 def get_included_regions(world) -> set[str]:
-    return {"Los Santos", "Badlands"} if badlands_in_scope(world) else {"Los Santos"}
+    return set(get_goal(world).regions_in_scope)
 
-# Story-mission positions in play, indexing into rules.py's story_mission_order
-# (Los Santos is 0-26, Badlands 27-35). Also the Progressive Mission pool size: the goal sits
-# at the last position and needs that many items, leaving exactly one spare.
 def get_story_mission_count(world) -> int:
-    return 36 if badlands_in_scope(world) else 27
+    return get_goal(world).story_mission_count
 
 def get_goal_mission_id(world) -> int:
-    return 47 if badlands_in_scope(world) else 38
+    return get_goal(world).mission_id
 
 def get_goal_region(world) -> str:
-    return "Badlands" if badlands_in_scope(world) else "Los Santos"
+    return get_mission_region(get_goal_mission_id(world))
 
 def get_goal_location_name(world) -> str:
     return get_mission_location_name(get_goal_mission_id(world))
@@ -73,6 +89,26 @@ MISSION_DATA = [
     (48, "Wu Zi Mu", "Badlands"),
     (135, "Farewell, My Love...", "Badlands"),
 
+    # San Fierro story missions.
+    (49, "Wear Flowers in Your Hair", "San Fierro"),
+    (50, "Deconstruction", "San Fierro"),
+    (51, "555 WE TIP", "San Fierro"),
+    (52, "Snail Trail", "San Fierro"),
+    (53, "Mountain Cloud Boys", "San Fierro"),
+    (54, "Ran Fa Li", "San Fierro"),
+    (55, "Lure", "San Fierro"),
+    (56, "Amphibious Assault", "San Fierro"),
+    (57, "The Da Nang Thang", "San Fierro"),
+    (58, "Photo Opportunity", "San Fierro"),
+    (59, "Jizzy", "San Fierro"),
+    (60, "Outrider", "San Fierro"),
+    (61, "Ice Cold Killa", "San Fierro"),
+    (62, "Toreno's Last Flight", "San Fierro"),
+    (63, "Yay Ka-Boom-Boom", "San Fierro"),
+    (64, "Pier 69", "San Fierro"),
+    (65, "T-Bone Mendez", "San Fierro"),
+    (66, "Mike Toreno", "San Fierro"),
+
     # Paramedic (122), Firefighter (123), Vigilante (124), Taxi (121) and Burglary (125) are
     # deliberately absent: they pay out per tier rather than once on completion, so their
     # locations live in submission_tier_list.py.
@@ -84,5 +120,10 @@ MISSION_ID_TO_LOCATION_NAME = {
     for mission_id, name, region in MISSION_DATA
 }
 
+MISSION_ID_TO_REGION = {mission_id: region for mission_id, _, region in MISSION_DATA}
+
 def get_mission_location_name(mission_id: int) -> str:
     return MISSION_ID_TO_LOCATION_NAME[mission_id]
+
+def get_mission_region(mission_id: int) -> str:
+    return MISSION_ID_TO_REGION[mission_id]

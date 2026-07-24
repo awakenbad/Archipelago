@@ -20,11 +20,11 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
 
     # Badlands opens when The Green Sabre (story position 26) has actually been completed.
     world.set_rule(los_santos_to_badlands, Has("Progressive Mission", 27))
-    # San Fierro has no locations yet - keep its entrance above the total Progressive Mission
-    # pool (36) so it stays unreachable until the region is actually populated. Revisit both
-    # thresholds when their regions get locations.
-    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 37))
-    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 50))
+    # San Fierro opens when Are You Going to San Fierro? (story position 35) is done.
+    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 36))
+    # Las Venturas has no locations yet - keep its entrance above the total Progressive Mission
+    # pool (54) so it stays unreachable until the region is actually populated.
+    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 55))
 
 def set_all_location_rules(world: GTASAWorld) -> None:
     story_mission_order = [
@@ -65,6 +65,25 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "BD Mission: Against All Odds",           # 33
         "BD Mission: Farewell, My Love...",       # 34
         "BD Mission: Are You Going to San Fierro?", # 35
+
+        "SF Mission: Wear Flowers in Your Hair",  # 36 - first SF mission, opens the garage
+        "SF Mission: 555 WE TIP",                 # 37
+        "SF Mission: Deconstruction",             # 38
+        "SF Mission: Photo Opportunity",          # 39
+        "SF Mission: Jizzy",                      # 40
+        "SF Mission: T-Bone Mendez",              # 41
+        "SF Mission: Mountain Cloud Boys",        # 42
+        "SF Mission: Mike Toreno",                # 43
+        "SF Mission: Ran Fa Li",                  # 44
+        "SF Mission: Outrider",                   # 45
+        "SF Mission: Lure",                       # 46
+        "SF Mission: Snail Trail",                # 47
+        "SF Mission: Amphibious Assault",         # 48
+        "SF Mission: Ice Cold Killa",             # 49
+        "SF Mission: The Da Nang Thang",          # 50
+        "SF Mission: Pier 69",                    # 51
+        "SF Mission: Toreno's Last Flight",       # 52
+        "SF Mission: Yay Ka-Boom-Boom",           # 53 - ends San Fierro
     ]
     from .mission_list import get_story_mission_count
 
