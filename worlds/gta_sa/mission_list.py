@@ -109,6 +109,11 @@ MISSION_DATA = [
     (65, "T-Bone Mendez", "San Fierro"),
     (66, "Mike Toreno", "San Fierro"),
 
+    # Zero's RC missions.
+    (72, "Air Raid", "San Fierro"),
+    (73, "Supply Lines...", "San Fierro"),
+    (74, "New Model Army", "San Fierro"),
+
     # Paramedic (122), Firefighter (123), Vigilante (124), Taxi (121) and Burglary (125) are
     # deliberately absent: they pay out per tier rather than once on completion, so their
     # locations live in submission_tier_list.py.
@@ -127,3 +132,24 @@ def get_mission_location_name(mission_id: int) -> str:
 
 def get_mission_region(mission_id: int) -> str:
     return MISSION_ID_TO_REGION[mission_id]
+
+class OptionalMissionBranch(NamedTuple):
+    name: str
+    mission_ids: tuple[int, ...]
+    required_progressive_missions: int
+
+OPTIONAL_MISSION_BRANCHES = (
+    # Zero's RC missions, off Wear Flowers in Your Hair (story position 36).
+    OptionalMissionBranch("Zero", (72, 73, 74), 37),
+)
+
+def get_optional_mission_ids() -> set[int]:
+    return {mission_id for branch in OPTIONAL_MISSION_BRANCHES for mission_id in branch.mission_ids}
+
+def get_optional_mission_requirements() -> dict[str, int]:
+    """Location name -> Progressive Missions needed, for every optional branch."""
+    return {
+        get_mission_location_name(mission_id): branch.required_progressive_missions
+        for branch in OPTIONAL_MISSION_BRANCHES
+        for mission_id in branch.mission_ids
+    }

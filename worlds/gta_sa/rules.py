@@ -109,6 +109,13 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         Has("Progressive Mission", 5),
     )
 
+    from .mission_list import get_optional_mission_requirements
+
+    for location_name, required_count in get_optional_mission_requirements().items():
+        if location_name not in world.multiworld.regions.location_cache[world.player]:
+            continue
+        world.set_rule(world.get_location(location_name), Has("Progressive Mission", required_count))
+
     if world.options.include_ammunation_shop:
         from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS
         for slot, required_count in INCLUDED_SHOP_SLOTS.items():
