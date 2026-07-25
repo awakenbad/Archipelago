@@ -16,6 +16,16 @@ class EndGoal(Choice):
 
     default = option_the_green_sabre
 
+class IncludeSnapshots(Toggle):
+    """
+    Whether to include all 50 San Fierro snapshots as individual location checks.
+    Ignored unless San Fierro is in scope for your goal.
+    """
+
+    display_name = "Include Snapshots"
+
+    default = 1
+
 class IncludeTags(Toggle):
     """
     Whether to include all 100 Los Santos spray tags as individual location checks.
@@ -51,13 +61,14 @@ class GTASAOptions(PerGameCommonOptions):
     end_goal: EndGoal
     death_link: DeathLink
     include_tags: IncludeTags
+    include_snapshots: IncludeSnapshots
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink, IncludeTags, IncludeAmmunationShop, TrapPercentage],
+        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeAmmunationShop, TrapPercentage],
     ),
 ]
 

@@ -18,6 +18,11 @@ TAG_BASE_ID = 200
 def tag_check_to_location_id(tag_index: int) -> int:
     return TAG_BASE_ID + tag_index
 
+SNAPSHOT_BASE_ID = 500
+
+def snapshot_check_to_location_id(snapshot_index: int) -> int:
+    return SNAPSHOT_BASE_ID + snapshot_index
+
 SHOP_BASE_ID = 300
 
 def shop_check_to_location_id(slot_index: int) -> int:
@@ -335,6 +340,8 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
                 continue
         elif check_type == "TAG":
             location_id = tag_check_to_location_id(check_id)
+        elif check_type == "SNAPSHOT":
+            location_id = snapshot_check_to_location_id(check_id)
         elif check_type == "SHOP":
             location_id = shop_check_to_location_id(check_id)
         elif check_type == "SUBLEVEL":
