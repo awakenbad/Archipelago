@@ -119,6 +119,7 @@ MISSION_DATA = [
     # deliberately absent: they pay out per tier rather than once on completion, so their
     # locations live in submission_tier_list.py.
     (114, "Los Santos Gym Fight School", "Los Santos"),
+    (115, "San Fierro Gym Fight School", "San Fierro"),
 ]
 
 MISSION_ID_TO_LOCATION_NAME = {

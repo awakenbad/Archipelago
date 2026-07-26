@@ -109,6 +109,10 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         Has("Progressive Mission", 5),
     )
 
+    sf_gym = "SF Mission: San Fierro Gym Fight School"
+    if sf_gym in world.multiworld.regions.location_cache[world.player]:
+        world.set_rule(world.get_location(sf_gym), Has("Progressive Mission", 36))
+
     from .mission_list import get_optional_mission_requirements
 
     for location_name, required_count in get_optional_mission_requirements().items():

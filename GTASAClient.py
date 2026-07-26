@@ -68,6 +68,7 @@ ITEM_ID_TO_EFFECT = {
     8: ("stamina_upgrade", None),
     9: ("taxi_nitro", None),
     10: ("boxing_style", None),
+    3: ("kung_fu_style", None),
     # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
     **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
     # Traps: 40 + index into items.py's TRAP_ITEMS.
