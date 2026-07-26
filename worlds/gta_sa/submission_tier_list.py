@@ -13,6 +13,7 @@ class SubmissionTier(NamedTuple):
     region: str
     # Progressive Missions needed before the activity itself can be started.
     required_progressive_missions: int
+    thresholds: tuple[int, ...] = ()
 
 # Submissions that pay out in tiers rather than once on completion. The plugin sends
 # base_slot + (tier - 1); a tier is reached at value_per_tier * tier of whatever that
@@ -28,9 +29,11 @@ SUBMISSION_TIERS = [
     SubmissionTier(36, 10, "Taxi Driver {value} Fares",  5,    "Los Santos", 1),
     SubmissionTier(46, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 1),
     SubmissionTier(56, 8,  "Trucking Level {tier}",      1,    "Badlands",   33),
+    SubmissionTier(64, 5,  "Valet {value} Cars Parked",  0,    "San Fierro", 38,
+                   thresholds=(3, 7, 12, 18, 25)),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 64
+SUBMISSION_TIER_SLOT_COUNT = 69
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -38,10 +41,11 @@ def build_tier_location_names() -> list[str]:
     for tier_spec in SUBMISSION_TIERS:
         prefix = REGION_ABBREVIATIONS[tier_spec.region]
         for tier in range(1, tier_spec.tier_count + 1):
-            label = tier_spec.name_template.format(
-                tier=tier,
-                value=tier * tier_spec.value_per_tier,
-            )
+            if tier_spec.thresholds:
+                value = tier_spec.thresholds[tier - 1]
+            else:
+                value = tier * tier_spec.value_per_tier
+            label = tier_spec.name_template.format(tier=tier, value=value)
             names.append(f"{prefix} Mission: {label}")
     return names
 
