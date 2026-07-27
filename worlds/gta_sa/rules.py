@@ -88,7 +88,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "LV Mission: Highjack",                   # 55
         "LV Mission: Interdiction",               # 56
         "LV Mission: Verdant Meadows",            # 57 - buys the airstrip
-        "LV Mission: Learning to Fly",            # 58 - flight school, gates the rest of the arc
+        "LV Mission: Learning to Fly",            # 58 - flight school, gates every mission after it
         "LV Mission: N.O.E.",                     # 59
         "LV Mission: Stowaway",                   # 60
         "LV Mission: Black Project",              # 61
@@ -101,13 +101,10 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "LV Mission: The Meat Business",          # 68
         "LV Mission: Fish in a Barrel",           # 69 - opens off The Meat Business
         "LV Mission: Madd Dogg",                  # 70 - also opens off The Meat Business
-        "LV Mission: Freefall",                   # 71
-        "LV Mission: Saint Mark's Bistro",        # 72
-        "LV Mission: Misappropriation",           # 73
-        "LV Mission: High Noon",                  # 74
-        # The Caligula's heist (96-101) is absent entirely: it is optional side content, not a step
-        # towards the goal, so it takes no story position. It is in OPTIONAL_MISSION_IDS on the
-        # plugin side, which is what stops it spending a Progressive Mission.
+        "LV Mission: Misappropriation",           # 71 - needs Intensive Care
+        "LV Mission: Freefall",                   # 72
+        "LV Mission: High Noon",                  # 73 - needs Misappropriation + Freefall
+        "LV Mission: Saint Mark's Bistro",        # 74 - needs every other Las Venturas mission
         "LV Mission: A Home in the Hills",        # 75
     ]
     from .mission_list import get_story_mission_count

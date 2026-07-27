@@ -13,11 +13,13 @@ HEIST_MISSION_NAMES = [
 
 MEAT_BUSINESS = "LV Mission: The Meat Business"
 MADD_DOGG = "LV Mission: Madd Dogg"
+SAINT_MARKS = "LV Mission: Saint Mark's Bistro"
 GOAL = "LV Mission: A Home in the Hills"
 
-# Story positions. The heist takes none of them, so the goal sits directly after High Noon.
+# Story positions. The heist takes none of them, so the goal sits directly after Saint Mark's.
 MEAT_BUSINESS_POSITION = 68
 MADD_DOGG_POSITION = 70
+SAINT_MARKS_POSITION = 74
 GOAL_POSITION = 75
 
 
@@ -55,8 +57,10 @@ class TestHomeInTheHillsGoal(GTASATestBase):
             self.multiworld.state.collect(item)
         self.assertTrue(madd_dogg.can_reach(self.multiworld.state))
 
-    def test_the_goal_sits_directly_after_high_noon(self) -> None:
-        """The heist takes no story position, because finishing it is not required for the goal."""
+    def test_the_goal_sits_directly_after_saint_marks_bistro(self) -> None:
+        """Saint Mark's Bistro opens only once every other Las Venturas mission is done, so it is
+        the last story position before the goal. The heist takes no position at all, being optional.
+        """
         progressive_missions = self.get_items_by_name("Progressive Mission")
         goal = self.world.get_location(GOAL)
 
@@ -66,6 +70,23 @@ class TestHomeInTheHillsGoal(GTASATestBase):
 
         self.multiworld.state.collect(progressive_missions[GOAL_POSITION - 1])
         self.assertTrue(goal.can_reach(self.multiworld.state))
+
+    def test_saint_marks_bistro_comes_last_of_the_las_venturas_missions(self) -> None:
+        # It opens only once everything else is done, so nothing else may be gated above it.
+        progressive_missions = self.get_items_by_name("Progressive Mission")
+        for item in progressive_missions[:SAINT_MARKS_POSITION]:
+            self.multiworld.state.collect(item)
+
+        las_venturas_missions = [
+            location
+            for location in self.multiworld.get_locations(self.player)
+            if location.name.startswith("LV ") and location.name not in (SAINT_MARKS, GOAL)
+        ]
+        for location in las_venturas_missions:
+            with self.subTest(location.name):
+                self.assertTrue(location.can_reach(self.multiworld.state))
+
+        self.assertTrue(self.world.get_location(SAINT_MARKS).can_reach(self.multiworld.state))
 
     def test_the_pool_covers_every_story_position(self) -> None:
         # One Progressive Mission per position, or the run cannot be finished.
