@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from BaseClasses import Item, ItemClassification
+from Options import OptionError
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -114,5 +115,14 @@ def create_all_items(world: GTASAWorld) -> None:
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))
     needed_number_of_filler_items = number_of_unfilled_locations - number_of_items
+
+    if needed_number_of_filler_items < 0:
+        raise OptionError(
+            f"Grand Theft Auto: San Andreas ({world.player_name}): these options leave only "
+            f"{number_of_unfilled_locations} locations for {number_of_items} required items. "
+            "Turn on more of the per-submission toggles, Include Tags, Include Snapshots or "
+            "Include Ammu-Nation Shop, or pick a later End Goal."
+        )
+
     itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
     world.multiworld.itempool += itempool

@@ -51,7 +51,7 @@ SUBMISSION_TIERS = [
     SubmissionTier(56, 8,  "Trucking Level {tier}",      1,    "Badlands",   33),
     SubmissionTier(64, 5,  "Valet {value} Cars Parked",  0,    "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25)),
-    SubmissionTier(69, 12, "Driving School - {name}",   0,    "San Fierro", 39,
+    SubmissionTier(69, 12, "Driving School - {name}",    0,    "San Fierro", 39,
                    tier_names=DRIVING_SCHOOL_TESTS),
     SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 1),
 ]
@@ -75,14 +75,30 @@ def build_tier_location_names() -> list[str]:
 
 SUBMISSION_TIER_LOCATION_NAMES = build_tier_location_names()
 
+def get_tier_names(tier_spec: SubmissionTier) -> list[str]:
+    """One submission's location names, in slot order."""
+    start = tier_spec.base_slot
+    return SUBMISSION_TIER_LOCATION_NAMES[start:start + tier_spec.tier_count]
+
 def get_tier_location_names_by_region() -> dict[str, list[str]]:
-    """Location names grouped by region, so out-of-scope regions can be skipped."""
+    """Every submission's location names grouped by region, ignoring the options."""
     grouped: dict[str, list[str]] = {}
-    slot = 0
     for tier_spec in SUBMISSION_TIERS:
-        names = SUBMISSION_TIER_LOCATION_NAMES[slot:slot + tier_spec.tier_count]
-        grouped.setdefault(tier_spec.region, []).extend(names)
-        slot += tier_spec.tier_count
+        grouped.setdefault(tier_spec.region, []).extend(get_tier_names(tier_spec))
+    return grouped
+
+def get_included_tier_names_by_region(options) -> dict[str, list[str]]:
+    """As above, but honouring Include Submissions.
+
+    on_completion keeps only each submission's final tier - reaching that one means the whole
+    activity is done, so no extra location IDs are needed for it.
+    """
+    if options.include_submissions != "on_completion":
+        return get_tier_location_names_by_region()
+
+    grouped: dict[str, list[str]] = {}
+    for tier_spec in SUBMISSION_TIERS:
+        grouped.setdefault(tier_spec.region, []).extend(get_tier_names(tier_spec)[-1:])
     return grouped
 
 def get_tier_requirements() -> dict[str, int]:

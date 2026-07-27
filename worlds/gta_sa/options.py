@@ -45,6 +45,21 @@ class IncludeAmmunationShop(Toggle):
 
     default = 1
 
+class IncludeSubmissions(Choice):
+    """
+    How submissions send checks.
+
+    *Per Level*: a check for every level, fare or tier of progress.
+    *On Completion*: a single check for finishing the whole activity.
+    """
+
+    display_name = "Include Submissions"
+
+    option_per_level = 0
+    option_on_completion = 1
+
+    default = option_per_level
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -64,11 +79,16 @@ class GTASAOptions(PerGameCommonOptions):
     include_snapshots: IncludeSnapshots
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
+    include_submissions: IncludeSubmissions
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
         [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeAmmunationShop, TrapPercentage],
+    ),
+    OptionGroup(
+        "Submission Options",
+        [IncludeSubmissions],
     ),
 ]
 
