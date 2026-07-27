@@ -85,3 +85,31 @@ class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
     def test_it_generates(self) -> None:
         # Getting this far means create_items placed everything without overflowing.
         self.assertTrue(self.multiworld.itempool)
+
+
+class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
+    options = {
+        "end_goal": "yay_ka_boom_boom",
+    }
+
+    def test_boat_school_is_absent(self) -> None:
+        self.assertRaises(KeyError, self.world.get_location, "SF Mission: Boat School - Basic Seamanship")
+
+    def test_driving_school_is_still_present(self) -> None:
+        # Also San Fierro, but it opens at 39, well before this goal's position 53.
+        self.world.get_location("SF Mission: Driving School - The 360")
+
+
+class TestBoatSchoolExistsForALaterGoal(GTASATestBase):
+    options = {
+        "end_goal": "a_home_in_the_hills",
+    }
+
+    def test_boat_and_bike_school_exist(self) -> None:
+        for location_name in ("SF Mission: Boat School - Basic Seamanship",
+                              "LV Mission: Bike School - Jump & Stoppie"):
+            with self.subTest(location_name):
+                try:
+                    self.world.get_location(location_name)
+                except KeyError:
+                    self.fail(f"{location_name} should exist, but it doesn't.")

@@ -76,7 +76,10 @@ def create_submission_tier_locations(world: GTASAWorld) -> None:
     # Tiered submissions live in different regions (Trucking is in the Badlands), so skip the
     # ones whose region this seed's goal never requires visiting.
     included_regions = mission_list.get_included_regions(world)
-    for region_name, location_names in get_included_tier_names_by_region(world.options).items():
+    story_mission_count = mission_list.get_story_mission_count(world)
+    for region_name, location_names in get_included_tier_names_by_region(
+        world.options, story_mission_count
+    ).items():
         if region_name not in included_regions:
             continue
         region = world.get_region(region_name)

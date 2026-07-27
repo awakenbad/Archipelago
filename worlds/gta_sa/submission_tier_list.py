@@ -34,6 +34,23 @@ FLYING_SCHOOL_LESSONS = (
     "Parachute onto Target",
 )
 
+BOAT_SCHOOL_TESTS = (
+    "Basic Seamanship",
+    "Plot a Course",
+    "Fresh Slalom",
+    "Flying Fish",
+    "Land, Sea and Air",
+)
+
+BIKE_SCHOOL_TESTS = (
+    "The 360",
+    "The 180",
+    "The Wheelie",
+    "The Stoppie",
+    "Jump & Stop",
+    "Jump & Stoppie",
+)
+
 class SubmissionTier(NamedTuple):
     base_slot: int
     tier_count: int
@@ -71,9 +88,13 @@ SUBMISSION_TIERS = [
     SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 1),
     SubmissionTier(91, 10, "Flying School - {name}",     0,    "Las Venturas", 58,
                    tier_names=FLYING_SCHOOL_LESSONS),
+    SubmissionTier(101, 5, "Boat School - {name}",       0,    "San Fierro", 54,
+                   tier_names=BOAT_SCHOOL_TESTS),
+    SubmissionTier(106, 6, "Bike School - {name}",       0,    "Las Venturas", 54,
+                   tier_names=BIKE_SCHOOL_TESTS),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 101
+SUBMISSION_TIER_SLOT_COUNT = 112
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -97,25 +118,23 @@ def get_tier_names(tier_spec: SubmissionTier) -> list[str]:
     start = tier_spec.base_slot
     return SUBMISSION_TIER_LOCATION_NAMES[start:start + tier_spec.tier_count]
 
-def get_tier_location_names_by_region() -> dict[str, list[str]]:
-    """Every submission's location names grouped by region, ignoring the options."""
-    grouped: dict[str, list[str]] = {}
-    for tier_spec in SUBMISSION_TIERS:
-        grouped.setdefault(tier_spec.region, []).extend(get_tier_names(tier_spec))
-    return grouped
-
-def get_included_tier_names_by_region(options) -> dict[str, list[str]]:
-    """As above, but honouring Include Submissions.
+def get_included_tier_names_by_region(options, story_mission_count: int) -> dict[str, list[str]]:
+    """Location names grouped by region, honouring Include Submissions and this seed's goal.
 
     on_completion keeps only each submission's final tier - reaching that one means the whole
     activity is done, so no extra location IDs are needed for it.
     """
-    if options.include_submissions != "on_completion":
-        return get_tier_location_names_by_region()
+    on_completion_only = options.include_submissions == "on_completion"
 
     grouped: dict[str, list[str]] = {}
     for tier_spec in SUBMISSION_TIERS:
-        grouped.setdefault(tier_spec.region, []).extend(get_tier_names(tier_spec)[-1:])
+        if tier_spec.required_progressive_missions >= story_mission_count:
+            continue
+
+        names = get_tier_names(tier_spec)
+        if on_completion_only:
+            names = names[-1:]
+        grouped.setdefault(tier_spec.region, []).extend(names)
     return grouped
 
 def get_tier_requirements() -> dict[str, int]:
