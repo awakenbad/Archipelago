@@ -120,7 +120,7 @@ def create_all_items(world: GTASAWorld) -> None:
         raise OptionError(
             f"Grand Theft Auto: San Andreas ({world.player_name}): these options leave only "
             f"{number_of_unfilled_locations} locations for {number_of_items} required items. "
-            "Turn on more of the per-submission toggles, Include Tags, Include Snapshots or "
+            "Set Include Submissions to Per Level, turn on Include Tags, Include Snapshots or "
             "Include Ammu-Nation Shop, or pick a later End Goal."
         )
 

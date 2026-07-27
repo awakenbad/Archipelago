@@ -22,9 +22,8 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
     world.set_rule(los_santos_to_badlands, Has("Progressive Mission", 27))
     # San Fierro opens when Are You Going to San Fierro? (story position 35) is done.
     world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 36))
-    # Las Venturas has no locations yet - keep its entrance above the total Progressive Mission
-    # pool (54) so it stays unreachable until the region is actually populated.
-    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 55))
+    # Las Venturas opens when Yay Ka-Boom-Boom (story position 53) is done.
+    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 54))
 
 def set_all_location_rules(world: GTASAWorld) -> None:
     story_mission_order = [
@@ -84,6 +83,32 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         "SF Mission: Pier 69",                    # 51
         "SF Mission: Toreno's Last Flight",       # 52
         "SF Mission: Yay Ka-Boom-Boom",           # 53 - ends San Fierro
+
+        "LV Mission: Monster",                    # 54 - first of Toreno's desert arc
+        "LV Mission: Highjack",                   # 55
+        "LV Mission: Interdiction",               # 56
+        "LV Mission: Verdant Meadows",            # 57 - buys the airstrip
+        "LV Mission: Learning to Fly",            # 58 - flight school, gates the rest of the arc
+        "LV Mission: N.O.E.",                     # 59
+        "LV Mission: Stowaway",                   # 60
+        "LV Mission: Black Project",              # 61
+        "LV Mission: Green Goo",                  # 62
+        "LV Mission: Fender Ketchup",             # 63 - casino arc starts
+        "LV Mission: Explosive Situation",        # 64
+        "LV Mission: You've Had Your Chips",      # 65
+        "LV Mission: Don Peyote",                 # 66
+        "LV Mission: Intensive Care",             # 67
+        "LV Mission: The Meat Business",          # 68
+        "LV Mission: Fish in a Barrel",           # 69 - opens off The Meat Business
+        "LV Mission: Madd Dogg",                  # 70 - also opens off The Meat Business
+        "LV Mission: Freefall",                   # 71
+        "LV Mission: Saint Mark's Bistro",        # 72
+        "LV Mission: Misappropriation",           # 73
+        "LV Mission: High Noon",                  # 74
+        # The Caligula's heist (96-101) is absent entirely: it is optional side content, not a step
+        # towards the goal, so it takes no story position. It is in OPTIONAL_MISSION_IDS on the
+        # plugin side, which is what stops it spending a Progressive Mission.
+        "LV Mission: A Home in the Hills",        # 75
     ]
     from .mission_list import get_story_mission_count
 

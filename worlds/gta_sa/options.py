@@ -13,6 +13,7 @@ class EndGoal(Choice):
     option_the_green_sabre = 0
     option_are_you_going_to_san_fierro = 1
     option_yay_ka_boom_boom = 2
+    option_a_home_in_the_hills = 3
 
     default = option_the_green_sabre
 
