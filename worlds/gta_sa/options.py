@@ -36,6 +36,16 @@ class IncludeTags(Toggle):
 
     default = 1
 
+class IncludeHorseshoes(Toggle):
+    """
+    Whether to include all 50 Las Venturas horseshoes as individual location checks.
+    Ignored unless Las Venturas is in scope for your goal.
+    """
+
+    display_name = "Include Horseshoes"
+
+    default = 1
+
 class IncludeAmmunationShop(Toggle):
     """
     Whether Ammu-Nation purchases are location checks. Buying an item sends the check
@@ -78,6 +88,7 @@ class GTASAOptions(PerGameCommonOptions):
     death_link: DeathLink
     include_tags: IncludeTags
     include_snapshots: IncludeSnapshots
+    include_horseshoes: IncludeHorseshoes
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
@@ -85,7 +96,8 @@ class GTASAOptions(PerGameCommonOptions):
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeAmmunationShop, TrapPercentage],
+        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes,
+         IncludeAmmunationShop, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

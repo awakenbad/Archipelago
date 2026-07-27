@@ -142,6 +142,14 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             continue
         world.set_rule(world.get_location(location_name), Has("Progressive Mission", required_count))
 
+    if world.options.include_horseshoes:
+        from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
+        for location_name in HORSESHOE_LOCATION_NAMES:
+            if location_name not in world.multiworld.regions.location_cache[world.player]:
+                continue
+            world.set_rule(world.get_location(location_name),
+                           Has("Progressive Mission", HORSESHOE_REQUIREMENT))
+
     if world.options.include_ammunation_shop:
         from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS
         for slot, required_count in INCLUDED_SHOP_SLOTS.items():
