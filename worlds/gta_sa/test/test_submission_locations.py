@@ -71,7 +71,8 @@ class TestSubmissionLevelLocations(GTASATestBase):
         level_locations = [
             location.name
             for location in self.multiworld.get_locations(self.player)
-            if " Level " in location.name
+            if any(f"{activity} Level " in location.name
+                   for activity in ("Paramedic", "Firefighter", "Vigilante"))
         ]
         self.assertEqual(len(level_locations), 36)
 
