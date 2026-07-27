@@ -19,6 +19,21 @@ DRIVING_SCHOOL_TESTS = (
     "City Slicking",
 )
 
+# In the school's own order, matching FLYING_SCHOOL_SCORE_GLOBALS in the mod's EntityIDs.h. Names
+# are from american.gxt, title-cased for consistency with the rest of the location names.
+FLYING_SCHOOL_LESSONS = (
+    "Takeoff",
+    "Land Plane",
+    "Circle Airstrip",
+    "Circle Airstrip and Land",
+    "Helicopter Takeoff",
+    "Land Helicopter",
+    "Destroy Targets",
+    "Loop-the-Loop",
+    "Barrel Roll",
+    "Parachute onto Target",
+)
+
 class SubmissionTier(NamedTuple):
     base_slot: int
     tier_count: int
@@ -54,9 +69,11 @@ SUBMISSION_TIERS = [
     SubmissionTier(69, 12, "Driving School - {name}",    0,    "San Fierro", 39,
                    tier_names=DRIVING_SCHOOL_TESTS),
     SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 1),
+    SubmissionTier(91, 10, "Flying School - {name}",     0,    "Las Venturas", 58,
+                   tier_names=FLYING_SCHOOL_LESSONS),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 91
+SUBMISSION_TIER_SLOT_COUNT = 101
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
