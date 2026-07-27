@@ -4,16 +4,36 @@ from .mission_list import REGION_ABBREVIATIONS
 
 SUBMISSION_TIER_BASE_ID = 400
 
+DRIVING_SCHOOL_TESTS = (
+    "The 360",
+    "The 180",
+    "Whip and Terminate",
+    "Pop and Control",
+    "Burn and Lap",
+    "Cone Coil",
+    "The '90'",
+    "Wheelie Weave",
+    "Spin and Go",
+    "P.I.T. Maneuver",
+    "Alley Oop",
+    "City Slicking",
+)
+
 class SubmissionTier(NamedTuple):
     base_slot: int
     tier_count: int
-    # {tier} is the tier number, {value} is tier * value_per_tier.
+    # {tier} is the tier number, {value} the progress it needs, {name} the entry from tier_names.
     name_template: str
     value_per_tier: int
     region: str
     # Progressive Missions needed before the activity itself can be started.
     required_progressive_missions: int
+    # Cumulative progress per tier, for activities whose levels are unevenly spaced.
+    # Empty means the uniform value_per_tier * tier applies.
     thresholds: tuple[int, ...] = ()
+    # Per-tier names, for activities whose levels are named rather than numbered (Driving School).
+    # Empty means name_template is formatted instead.
+    tier_names: tuple[str, ...] = ()
 
 # Submissions that pay out in tiers rather than once on completion. The plugin sends
 # base_slot + (tier - 1); a tier is reached at value_per_tier * tier of whatever that
@@ -31,9 +51,11 @@ SUBMISSION_TIERS = [
     SubmissionTier(56, 8,  "Trucking Level {tier}",      1,    "Badlands",   33),
     SubmissionTier(64, 5,  "Valet {value} Cars Parked",  0,    "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25)),
+    SubmissionTier(69, 12, "Driving School - {name}",   0,    "San Fierro", 39,
+                   tier_names=DRIVING_SCHOOL_TESTS),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 69
+SUBMISSION_TIER_SLOT_COUNT = 81
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -45,7 +67,8 @@ def build_tier_location_names() -> list[str]:
                 value = tier_spec.thresholds[tier - 1]
             else:
                 value = tier * tier_spec.value_per_tier
-            label = tier_spec.name_template.format(tier=tier, value=value)
+            name = tier_spec.tier_names[tier - 1] if tier_spec.tier_names else ""
+            label = tier_spec.name_template.format(tier=tier, value=value, name=name)
             names.append(f"{prefix} Mission: {label}")
     return names
 
