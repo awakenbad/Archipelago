@@ -1,7 +1,5 @@
 from .bases import GTASATestBase
 
-# Optional side content with unverified GXT keys: no locations, no story positions, and no
-# Progressive Mission spent (see OPTIONAL_MISSION_IDS in the mod's EntityIDs.h).
 HEIST_MISSION_NAMES = [
     "LV Mission: Architectural Espionage",
     "LV Mission: Key To Her Heart",
@@ -53,10 +51,29 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertIsNone(location.address)
         self.assertEqual(location.item.name, "Victory")
 
-    def test_the_heist_missions_have_no_locations(self) -> None:
-        for location_name in HEIST_MISSION_NAMES:
+    def test_the_heist_opens_off_explosive_situation(self) -> None:
+        progressive_missions = self.get_items_by_name("Progressive Mission")
+        for item in progressive_missions[:64]:
+            self.multiworld.state.collect(item)
+        for location_name in HEIST_MISSION_NAMES[:-1]:
             with self.subTest(location_name):
-                self.assertRaises(KeyError, self.world.get_location, location_name)
+                self.assertFalse(self.world.get_location(location_name).can_reach(self.multiworld.state))
+
+        self.multiworld.state.collect(progressive_missions[64])
+        for location_name in HEIST_MISSION_NAMES[:-1]:
+            with self.subTest(location_name):
+                self.assertTrue(self.world.get_location(location_name).can_reach(self.multiworld.state))
+
+    def test_breaking_the_bank_waits_for_saint_marks_bistro(self) -> None:
+        progressive_missions = self.get_items_by_name("Progressive Mission")
+        robbery = self.world.get_location(HEIST_MISSION_NAMES[-1])
+
+        for item in progressive_missions[:SAINT_MARKS_POSITION]:
+            self.multiworld.state.collect(item)
+        self.assertFalse(robbery.can_reach(self.multiworld.state))
+
+        self.multiworld.state.collect(progressive_missions[SAINT_MARKS_POSITION])
+        self.assertTrue(robbery.can_reach(self.multiworld.state))
 
     def test_madd_dogg_opens_off_the_meat_business(self) -> None:
         # Madd Dogg and Fish in a Barrel both open off The Meat Business, so Madd Dogg must not be
@@ -83,7 +100,9 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertTrue(goal.can_reach(self.multiworld.state))
 
     def test_saint_marks_bistro_comes_last_of_the_las_venturas_missions(self) -> None:
-        # It opens only once everything else is done, so nothing else may be gated above it.
+        from ..mission_list import get_optional_mission_requirements
+
+        optional_names = set(get_optional_mission_requirements())
         progressive_missions = self.get_items_by_name("Progressive Mission")
         for item in progressive_missions[:SAINT_MARKS_POSITION]:
             self.multiworld.state.collect(item)
@@ -91,7 +110,9 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         las_venturas_missions = [
             location
             for location in self.multiworld.get_locations(self.player)
-            if location.name.startswith("LV ") and location.name not in (SAINT_MARKS, GOAL)
+            if location.name.startswith("LV ")
+            and location.name not in (SAINT_MARKS, GOAL)
+            and location.name not in optional_names
         ]
         for location in las_venturas_missions:
             with self.subTest(location.name):

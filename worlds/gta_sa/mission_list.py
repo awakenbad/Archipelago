@@ -114,10 +114,6 @@ MISSION_DATA = [
     # Las Venturas story missions - the desert/Toreno arc through the casino arc. They sit in the
     # Las Venturas region rather than the Badlands because they unlock after San Fierro, which is
     # what the region gate models.
-    #
-    # The six Caligula's heist missions (96-101) are deliberately absent: optional side content
-    # whose GXT keys are not verified yet. They take no story position and spend no Progressive
-    # Mission - see OPTIONAL_MISSION_IDS in the mod's EntityIDs.h.
     (75, "Monster", "Las Venturas"),
     (76, "Highjack", "Las Venturas"),
     (77, "Interdiction", "Las Venturas"),
@@ -141,6 +137,14 @@ MISSION_DATA = [
     (95, "Madd Dogg", "Las Venturas"),
     # Starts in Las Venturas even though the mansion itself is in Los Santos.
     (102, "A Home in the Hills", "Las Venturas"),
+
+    # Optional Las Venturas side content: the Caligula's heist.
+    (96, "Architectural Espionage", "Las Venturas"),
+    (97, "Key To Her Heart", "Las Venturas"),
+    (98, "Dam And Blast", "Las Venturas"),
+    (99, "Cop Wheels", "Las Venturas"),
+    (100, "Up, Up and Away!", "Las Venturas"),
+    (101, "Breaking the Bank at Caligula's", "Las Venturas"),
 
     # Optional San Fierro side content.
     (71, "Back to School", "San Fierro"),
@@ -184,6 +188,8 @@ OPTIONAL_MISSION_BRANCHES = (
     # Driving school, off Deconstruction (story position 38).
     OptionalMissionBranch("Driving School", (71,), 39),
     OptionalMissionBranch("Wang Cars", (67, 68, 69, 70), 54),
+    OptionalMissionBranch("Caligula's Heist", (96, 97, 98, 99, 100), 65),
+    OptionalMissionBranch("Breaking the Bank", (101,), 75),
 )
 
 def get_optional_mission_ids() -> set[int]:
