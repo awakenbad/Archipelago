@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 from .mission_list import REGION_ABBREVIATIONS
 
-SUBMISSION_TIER_BASE_ID = 400
+SUBMISSION_TIER_BASE_ID = 1000
 
 DRIVING_SCHOOL_TESTS = (
     "The 360",
