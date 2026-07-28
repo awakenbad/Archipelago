@@ -9,6 +9,10 @@ from CommonClient import CommonContext, server_loop, console_loop, ClientCommand
 from NetUtils import ClientStatus
 from worlds.gta_sa.items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from worlds.gta_sa.shop_list import INCLUDED_SHOP_SLOTS
+from worlds.gta_sa.tag_list import TAG_COUNT
+from worlds.gta_sa.snapshot_list import SNAPSHOT_COUNT
+from worlds.gta_sa.horseshoe_list import HORSESHOE_COUNT
+from worlds.gta_sa.oyster_list import OYSTER_COUNT
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
@@ -99,25 +103,41 @@ ITEM_ID_TO_EFFECT = {
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
-    def _cmd_tag(self, number: str = ""):
-        """Highlight spray tag #<number> (1-100) on the in-game radar/map. Without a number, clears the highlight."""
+    def _locate(self, wire_type: str, label: str, count: int, number: str) -> None:
+        """Shared by the locate commands - they differ only in set, label and size."""
         if not self.ctx.plugin_writer:
             self.output("The game plugin is not connected.")
             return
         if not number:
-            self.ctx.send_to_plugin("LOCATE:TAG:-1\n")
-            self.output("Cleared the tag highlight.")
+            self.ctx.send_to_plugin(f"LOCATE:{wire_type}:-1\n")
+            self.output(f"Cleared the {label} highlight.")
             return
         try:
-            tag_number = int(number)
+            index = int(number)
         except ValueError:
             self.output(f"Not a number: {number}")
             return
-        if not 1 <= tag_number <= 100:
-            self.output("Tag number must be between 1 and 100.")
+        if not 1 <= index <= count:
+            self.output(f"{label} number must be between 1 and {count}.")
             return
-        self.ctx.send_to_plugin(f"LOCATE:TAG:{tag_number - 1}\n")
-        self.output(f"Highlighting LS Tag #{tag_number} on the in-game map.")
+        self.ctx.send_to_plugin(f"LOCATE:{wire_type}:{index - 1}\n")
+        self.output(f"Highlighting {label} #{index} on the in-game map.")
+
+    def _cmd_tag(self, number: str = ""):
+        """Highlight spray tag #<number> (1-100) on the in-game radar/map. Without a number, clears the highlight."""
+        self._locate("TAG", "LS Tag", TAG_COUNT, number)
+
+    def _cmd_snapshot(self, number: str = ""):
+        """Highlight snapshot #<number> (1-50) on the in-game radar/map. Without a number, clears the highlight."""
+        self._locate("SNAPSHOT", "SF Snapshot", SNAPSHOT_COUNT, number)
+
+    def _cmd_horseshoe(self, number: str = ""):
+        """Highlight horseshoe #<number> (1-50) on the in-game radar/map. Without a number, clears the highlight."""
+        self._locate("HORSESHOE", "LV Horseshoe", HORSESHOE_COUNT, number)
+
+    def _cmd_oyster(self, number: str = ""):
+        """Highlight oyster #<number> (1-50) on the in-game radar/map. Without a number, clears the highlight."""
+        self._locate("OYSTER", "Oyster", OYSTER_COUNT, number)
 
     def _cmd_showlocations(self):
         self.output(f"Missing locations: {sorted(self.ctx.missing_locations)}")
