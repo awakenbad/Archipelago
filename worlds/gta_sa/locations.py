@@ -11,6 +11,7 @@ from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION
 from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_LOCATION_NAMES, SNAPSHOT_REGION
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_LOCATION_NAMES, HORSESHOE_REGION
 from .export_list import EXPORT_BASE_ID, EXPORT_LOCATION_NAMES, EXPORT_REGION
+from .oyster_list import OYSTER_BASE_ID, OYSTER_LOCATION_NAMES, OYSTER_REGION
 from .shop_list import SHOP_BASE_ID, SHOP_LOCATION_NAMES, SHOP_REGION, INCLUDED_SHOP_SLOTS
 from .submission_tier_list import (
     SUBMISSION_TIER_BASE_ID,
@@ -42,6 +43,9 @@ LOCATION_NAME_TO_ID.update({
     name: EXPORT_BASE_ID + i for i, name in enumerate(EXPORT_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
+    name: OYSTER_BASE_ID + i for i, name in enumerate(OYSTER_LOCATION_NAMES)
+})
+LOCATION_NAME_TO_ID.update({
     name: SHOP_BASE_ID + i for i, name in enumerate(SHOP_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
@@ -66,6 +70,8 @@ def create_all_locations(world: GTASAWorld) -> None:
     if world.options.include_horseshoes:
         create_horseshoe_locations(world)
     create_export_locations(world)
+    if world.options.include_oysters:
+        create_oyster_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
 
@@ -129,6 +135,15 @@ def create_export_locations(world: GTASAWorld) -> None:
         return
     region = world.get_region(EXPORT_REGION)
     region.add_locations(get_location_names_with_ids(EXPORT_LOCATION_NAMES), GTASALocation)
+
+def create_oyster_locations(world: GTASAWorld) -> None:
+    if OYSTER_REGION not in mission_list.get_included_regions(world):
+        return
+    from .oyster_list import OYSTER_REQUIREMENT
+    if OYSTER_REQUIREMENT >= mission_list.get_story_mission_count(world):
+        return
+    region = world.get_region(OYSTER_REGION)
+    region.add_locations(get_location_names_with_ids(OYSTER_LOCATION_NAMES), GTASALocation)
 
 def create_horseshoe_locations(world: GTASAWorld) -> None:
     if HORSESHOE_REGION not in mission_list.get_included_regions(world):

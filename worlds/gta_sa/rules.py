@@ -152,6 +152,13 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(world.get_location(location_name),
                            Has("Progressive Mission", EXPORT_REQUIREMENT))
 
+    if world.options.include_oysters:
+        from .oyster_list import OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT
+        for location_name in OYSTER_LOCATION_NAMES:
+            if location_name in world.multiworld.regions.location_cache[world.player]:
+                world.set_rule(world.get_location(location_name),
+                               Has("Progressive Mission", OYSTER_REQUIREMENT))
+
     if world.options.include_horseshoes:
         from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
         for location_name in HORSESHOE_LOCATION_NAMES:

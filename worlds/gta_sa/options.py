@@ -71,6 +71,16 @@ class IncludeSubmissions(Choice):
 
     default = option_per_level
 
+class IncludeOysters(Toggle):
+    """
+    Whether to include all 50 oysters as individual location checks. They are scattered statewide
+    and underwater, so they only appear on goals that open the whole map (A Home in the Hills and later).
+    """
+
+    display_name = "Include Oysters"
+
+    default = 1
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -89,6 +99,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_tags: IncludeTags
     include_snapshots: IncludeSnapshots
     include_horseshoes: IncludeHorseshoes
+    include_oysters: IncludeOysters
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
@@ -96,7 +107,7 @@ class GTASAOptions(PerGameCommonOptions):
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes,
+        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes, IncludeOysters,
          IncludeAmmunationShop, TrapPercentage],
     ),
     OptionGroup(

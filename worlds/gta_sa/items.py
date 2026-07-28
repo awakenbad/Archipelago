@@ -39,6 +39,22 @@ TRAP_ITEMS = [
     "Car Fire Trap",
 ]
 
+WEAPON_MASTERY_SKILLS = [
+    "Pistol",
+    "Silenced Pistol",
+    "Desert Eagle",
+    "Shotgun",
+    "Sawn-off Shotgun",
+    "Combat Shotgun",
+    "Machine Pistol",
+    "SMG",
+    "AK-47",
+    "M4",
+    "Rifle",
+]
+
+WEAPON_MASTERY_ITEMS = [f"{name} Mastery" for name in WEAPON_MASTERY_SKILLS]
+
 UTILITY_FILLER_ITEMS = [
     "Full Armor",
     "Car Repair",
@@ -60,6 +76,8 @@ ITEM_NAME_TO_ID = {
     **{name: 40 + i for i, name in enumerate(TRAP_ITEMS)},
     # Utility fillers start at 50, after the trap block.
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
+    # Weapon mastery starts at 61, after the Kickboxing style at 60.
+    **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -76,6 +94,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.filler for name in WEAPON_FILLER_ITEMS},
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
+    **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
 }
 
 VICTORY_ITEM_NAME = "Victory"
@@ -129,5 +148,9 @@ def create_all_items(world: GTASAWorld) -> None:
             "Include Ammu-Nation Shop, or pick a later End Goal."
         )
 
-    itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
+    mastery_count = min(needed_number_of_filler_items, len(WEAPON_MASTERY_ITEMS))
+    for name in world.random.sample(WEAPON_MASTERY_ITEMS, mastery_count):
+        itempool.append(world.create_item(name))
+
+    itempool += [world.create_filler() for _ in range(needed_number_of_filler_items - mastery_count)]
     world.multiworld.itempool += itempool

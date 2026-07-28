@@ -1,0 +1,8 @@
+OYSTER_BASE_ID = 800
+OYSTER_COUNT = 50
+
+OYSTER_REGION = "Las Venturas"
+
+OYSTER_LOCATION_NAMES = [f"Oyster: #{i + 1}" for i in range(OYSTER_COUNT)]
+
+OYSTER_REQUIREMENT = 54

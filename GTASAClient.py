@@ -7,7 +7,7 @@ import websockets
 
 from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
-from worlds.gta_sa.items import WEAPON_FILLER_ITEMS
+from worlds.gta_sa.items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from worlds.gta_sa.shop_list import INCLUDED_SHOP_SLOTS
 
 def mission_check_to_location_id(mission_id: int) -> int:
@@ -25,6 +25,11 @@ def snapshot_check_to_location_id(snapshot_index: int) -> int:
 
 HORSESHOE_BASE_ID = 600
 EXPORT_BASE_ID = 700
+OYSTER_BASE_ID = 800
+
+def oyster_check_to_location_id(oyster_index: int) -> int:
+    return OYSTER_BASE_ID + oyster_index
+
 
 def export_check_to_location_id(export_index: int) -> int:
     return EXPORT_BASE_ID + export_index
@@ -80,6 +85,7 @@ ITEM_ID_TO_EFFECT = {
     10: ("boxing_style", None),
     3: ("kung_fu_style", None),
     60: ("kickboxing_style", None),
+    **{61 + i: ("weapon_mastery", name) for i, name in enumerate(WEAPON_MASTERY_SKILLS)},
     # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
     **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
     # Traps: 40 + index into items.py's TRAP_ITEMS.
@@ -358,6 +364,8 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
             location_id = horseshoe_check_to_location_id(check_id)
         elif check_type == "EXPORT":
             location_id = export_check_to_location_id(check_id)
+        elif check_type == "OYSTER":
+            location_id = oyster_check_to_location_id(check_id)
         elif check_type == "SHOP":
             location_id = shop_check_to_location_id(check_id)
         elif check_type == "SUBLEVEL":
