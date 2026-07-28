@@ -21,6 +21,7 @@ class TestLocationIdsAreUnique(unittest.TestCase):
         self.assertEqual(collisions, {}, f"location IDs are shared: {collisions}")
 
     def test_each_block_stays_inside_its_own_range(self) -> None:
+        from ..export_list import EXPORT_BASE_ID, EXPORT_COUNT
         from ..horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT
         from ..snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_COUNT
         from ..submission_tier_list import SUBMISSION_TIER_BASE_ID, SUBMISSION_TIER_SLOT_COUNT
@@ -30,6 +31,7 @@ class TestLocationIdsAreUnique(unittest.TestCase):
             ("tags", TAG_BASE_ID, TAG_COUNT),
             ("snapshots", SNAPSHOT_BASE_ID, SNAPSHOT_COUNT),
             ("horseshoes", HORSESHOE_BASE_ID, HORSESHOE_COUNT),
+            ("exports", EXPORT_BASE_ID, EXPORT_COUNT),
             ("submission tiers", SUBMISSION_TIER_BASE_ID, SUBMISSION_TIER_SLOT_COUNT),
         ]
         spans = [(base, base + count - 1, name) for name, base, count in blocks]

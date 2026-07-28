@@ -147,6 +147,10 @@ MISSION_DATA = [
     (72, "Air Raid", "San Fierro"),
     (73, "Supply Lines...", "San Fierro"),
     (74, "New Model Army", "San Fierro"),
+    (67, "Zeroing In", "San Fierro"),
+    (68, "Test Drive", "San Fierro"),
+    (69, "Customs Fast Track", "San Fierro"),
+    (70, "Puncture Wounds", "San Fierro"),
 
     # Paramedic (122), Firefighter (123), Vigilante (124), Taxi (121) and Burglary (125) are
     # deliberately absent: they pay out per tier rather than once on completion, so their
@@ -179,10 +183,19 @@ OPTIONAL_MISSION_BRANCHES = (
     OptionalMissionBranch("Zero", (72, 73, 74), 37),
     # Driving school, off Deconstruction (story position 38).
     OptionalMissionBranch("Driving School", (71,), 39),
+    OptionalMissionBranch("Wang Cars", (67, 68, 69, 70), 54),
 )
 
 def get_optional_mission_ids() -> set[int]:
     return {mission_id for branch in OPTIONAL_MISSION_BRANCHES for mission_id in branch.mission_ids}
+
+def get_optional_branch_requirements_by_id() -> dict[int, int]:
+    """Mission ID -> Progressive Missions needed, for every optional branch."""
+    return {
+        mission_id: branch.required_progressive_missions
+        for branch in OPTIONAL_MISSION_BRANCHES
+        for mission_id in branch.mission_ids
+    }
 
 def get_optional_mission_requirements() -> dict[str, int]:
     """Location name -> Progressive Missions needed, for every optional branch."""

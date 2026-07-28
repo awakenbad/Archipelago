@@ -24,6 +24,11 @@ def snapshot_check_to_location_id(snapshot_index: int) -> int:
     return SNAPSHOT_BASE_ID + snapshot_index
 
 HORSESHOE_BASE_ID = 600
+EXPORT_BASE_ID = 700
+
+def export_check_to_location_id(export_index: int) -> int:
+    return EXPORT_BASE_ID + export_index
+
 
 def horseshoe_check_to_location_id(horseshoe_index: int) -> int:
     return HORSESHOE_BASE_ID + horseshoe_index
@@ -351,6 +356,8 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
             location_id = snapshot_check_to_location_id(check_id)
         elif check_type == "HORSESHOE":
             location_id = horseshoe_check_to_location_id(check_id)
+        elif check_type == "EXPORT":
+            location_id = export_check_to_location_id(check_id)
         elif check_type == "SHOP":
             location_id = shop_check_to_location_id(check_id)
         elif check_type == "SUBLEVEL":

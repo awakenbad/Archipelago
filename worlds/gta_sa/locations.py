@@ -10,6 +10,7 @@ from .mission_list import REGION_ABBREVIATIONS, MISSION_DATA
 from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION
 from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_LOCATION_NAMES, SNAPSHOT_REGION
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_LOCATION_NAMES, HORSESHOE_REGION
+from .export_list import EXPORT_BASE_ID, EXPORT_LOCATION_NAMES, EXPORT_REGION
 from .shop_list import SHOP_BASE_ID, SHOP_LOCATION_NAMES, SHOP_REGION, INCLUDED_SHOP_SLOTS
 from .submission_tier_list import (
     SUBMISSION_TIER_BASE_ID,
@@ -38,6 +39,9 @@ LOCATION_NAME_TO_ID.update({
     name: HORSESHOE_BASE_ID + i for i, name in enumerate(HORSESHOE_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
+    name: EXPORT_BASE_ID + i for i, name in enumerate(EXPORT_LOCATION_NAMES)
+})
+LOCATION_NAME_TO_ID.update({
     name: SHOP_BASE_ID + i for i, name in enumerate(SHOP_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
@@ -61,6 +65,7 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_snapshot_locations(world)
     if world.options.include_horseshoes:
         create_horseshoe_locations(world)
+    create_export_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
 
@@ -88,10 +93,15 @@ def create_submission_tier_locations(world: GTASAWorld) -> None:
 def create_regular_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)
     goal_mission_id = mission_list.get_goal_mission_id(world)
+    story_mission_count = mission_list.get_story_mission_count(world)
+    optional_requirements = mission_list.get_optional_branch_requirements_by_id()
+
     for mission_id, name, region_name in MISSION_DATA:
         if region_name not in included_regions:
             continue
         if mission_id == goal_mission_id:
+            continue
+        if optional_requirements.get(mission_id, 0) >= story_mission_count:
             continue
         region = world.get_region(region_name)
         location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
@@ -110,6 +120,15 @@ def create_snapshot_locations(world: GTASAWorld) -> None:
         return
     region = world.get_region(SNAPSHOT_REGION)
     region.add_locations(get_location_names_with_ids(SNAPSHOT_LOCATION_NAMES), GTASALocation)
+
+def create_export_locations(world: GTASAWorld) -> None:
+    if EXPORT_REGION not in mission_list.get_included_regions(world):
+        return
+    from .export_list import EXPORT_REQUIREMENT
+    if EXPORT_REQUIREMENT >= mission_list.get_story_mission_count(world):
+        return
+    region = world.get_region(EXPORT_REGION)
+    region.add_locations(get_location_names_with_ids(EXPORT_LOCATION_NAMES), GTASALocation)
 
 def create_horseshoe_locations(world: GTASAWorld) -> None:
     if HORSESHOE_REGION not in mission_list.get_included_regions(world):

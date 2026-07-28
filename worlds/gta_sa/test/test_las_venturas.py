@@ -28,6 +28,17 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         "end_goal": "a_home_in_the_hills",
     }
 
+    def test_wang_cars_exists_and_needs_yay_ka_boom_boom(self) -> None:
+        location = self.world.get_location("SF Mission: Zeroing In")
+        progressive_missions = self.get_items_by_name("Progressive Mission")
+
+        for item in progressive_missions[:53]:
+            self.multiworld.state.collect(item)
+        self.assertFalse(location.can_reach(self.multiworld.state))
+
+        self.multiworld.state.collect(progressive_missions[53])
+        self.assertTrue(location.can_reach(self.multiworld.state))
+
     def test_las_venturas_missions_exist(self) -> None:
         for location_name in ("LV Mission: Monster", "LV Mission: Learning to Fly",
                               "LV Mission: Fish in a Barrel", MADD_DOGG):
