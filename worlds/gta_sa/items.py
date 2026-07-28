@@ -54,6 +54,7 @@ ITEM_NAME_TO_ID = {
     "Taxi Nitro": 9,
     "Boxing Style": 10,
     "Kung Fu Style": 3,
+    "Kickboxing Style": 60,
     **{name: 11 + i for i, name in enumerate(WEAPON_FILLER_ITEMS)},
     # Weapons occupy 11-31; traps start at 40 to leave room for more weapons.
     **{name: 40 + i for i, name in enumerate(TRAP_ITEMS)},
@@ -71,6 +72,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Taxi Nitro": ItemClassification.useful,
     "Boxing Style": ItemClassification.useful,
     "Kung Fu Style": ItemClassification.useful,
+    "Kickboxing Style": ItemClassification.useful,
     **{name: ItemClassification.filler for name in WEAPON_FILLER_ITEMS},
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
@@ -109,8 +111,11 @@ def create_all_items(world: GTASAWorld) -> None:
         ]
     )
     from .mission_list import get_included_regions
-    if "San Fierro" in get_included_regions(world):
+    included_regions = get_included_regions(world)
+    if "San Fierro" in included_regions:
         itempool.append(world.create_item("Kung Fu Style"))
+    if "Las Venturas" in included_regions:
+        itempool.append(world.create_item("Kickboxing Style"))
 
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))

@@ -33,7 +33,7 @@ SHOP_BASE_ID = 300
 def shop_check_to_location_id(slot_index: int) -> int:
     return SHOP_BASE_ID + slot_index
 
-SUBMISSION_TIER_BASE_ID = 400
+SUBMISSION_TIER_BASE_ID = 1000
 
 def submission_tier_check_to_location_id(slot_index: int) -> int:
     return SUBMISSION_TIER_BASE_ID + slot_index
@@ -74,6 +74,7 @@ ITEM_ID_TO_EFFECT = {
     9: ("taxi_nitro", None),
     10: ("boxing_style", None),
     3: ("kung_fu_style", None),
+    60: ("kickboxing_style", None),
     # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
     **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
     # Traps: 40 + index into items.py's TRAP_ITEMS.

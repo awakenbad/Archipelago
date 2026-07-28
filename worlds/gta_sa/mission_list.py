@@ -153,6 +153,7 @@ MISSION_DATA = [
     # locations live in submission_tier_list.py.
     (114, "Los Santos Gym Fight School", "Los Santos"),
     (115, "San Fierro Gym Fight School", "San Fierro"),
+    (116, "Las Venturas Gym Fight School", "Las Venturas"),
 ]
 
 MISSION_ID_TO_LOCATION_NAME = {
