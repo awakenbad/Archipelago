@@ -92,9 +92,10 @@ SUBMISSION_TIERS = [
                    tier_names=BOAT_SCHOOL_TESTS),
     SubmissionTier(106, 6, "Bike School - {name}",       0,    "Las Venturas", 54,
                    tier_names=BIKE_SCHOOL_TESTS),
+    SubmissionTier(112, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 112
+SUBMISSION_TIER_SLOT_COUNT = 119
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
