@@ -14,105 +14,34 @@ def set_all_rules(world: GTASAWorld) -> None:
     set_completion_condition(world)
 
 def set_all_entrance_rules(world: GTASAWorld) -> None:
+    from .mission_list import get_missions_required
+
     los_santos_to_badlands = world.get_entrance("Los Santos to Badlands")
     badlands_to_san_fierro = world.get_entrance("Badlands to San Fierro")
     san_fierro_to_las_venturas = world.get_entrance("San Fierro to Las Venturas")
 
     # Badlands opens when The Green Sabre (story position 26) has actually been completed.
-    world.set_rule(los_santos_to_badlands, Has("Progressive Mission", 27))
+    world.set_rule(los_santos_to_badlands, Has("Progressive Mission", get_missions_required(world, 27)))
     # San Fierro opens when Are You Going to San Fierro? (story position 35) is done.
-    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", 36))
+    world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", get_missions_required(world, 36)))
     # Las Venturas opens when Yay Ka-Boom-Boom (story position 53) is done.
-    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", 54))
+    world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", get_missions_required(world, 54)))
 
 def set_all_location_rules(world: GTASAWorld) -> None:
-    story_mission_order = [
-        "LS Mission: Big Smoke",                  # 0
-        "LS Mission: Ryder",                      # 1
-        "LS Mission: Tagging Up Turf",            # 2
-        "LS Mission: Cleaning The Hood",          # 3
-        "LS Mission: Drive-Thru",                 # 4
-        "LS Mission: Nines And AK's",             # 5  - opens the parallel strands
-        "LS Mission: Drive-By",                   # 6
-        "LS Mission: Sweet's Girl",               # 7
-        "LS Mission: Cesar Vialpando",            # 8
-        "LS Mission: Lowrider (High Stakes)",     # 9  - only needs Cesar Vialpando
-        "LS Mission: OG Loc",                     # 10
-        "LS Mission: Running Dog",                # 11
-        "LS Mission: Wrong Side of the Tracks",   # 12
-        "LS Mission: Just Business",              # 13
-        "LS Mission: Home Invasion",              # 14
-        "LS Mission: Catalyst",                   # 15
-        "LS Mission: Robbing Uncle Sam",          # 16
-        "LS Mission: Life's a Beach",             # 17
-        "LS Mission: Madd Dogg's Rhymes",         # 18
-        "LS Mission: Management Issues",          # 19
-        "LS Mission: House Party",                # 20
-        "LS Mission: Burning Desire",             # 21 - needs Madd Dogg's Rhymes
-        "LS Mission: Gray Imports",               # 22 - needs Burning Desire
-        "LS Mission: Doberman",                   # 23 - needs Cesar Vialpando + Burning Desire
-        "LS Mission: Los Sepulcros",              # 24 - needs Doberman
-        "LS Mission: Reuniting The Families",     # 25
-        "LS Mission: The Green Sabre",            # 26
+    from .mission_list import (
+        STORY_MISSION_LOCATION_ORDER,
+        get_missions_required,
+        get_start_index,
+        get_story_mission_count,
+    )
 
-        "BD Mission: Badlands",                   # 27
-        "BD Mission: Local Liquor Store",         # 28
-        "BD Mission: Body Harvest",               # 29
-        "BD Mission: Small Town Bank",            # 30
-        "BD Mission: Wu Zi Mu",                   # 31 - unlocks after 2 robberies
-        "BD Mission: Tanker Commander",           # 32
-        "BD Mission: Against All Odds",           # 33
-        "BD Mission: Farewell, My Love...",       # 34
-        "BD Mission: Are You Going to San Fierro?", # 35
+    start_index = get_start_index(world)
 
-        "SF Mission: Wear Flowers in Your Hair",  # 36 - first SF mission, opens the garage
-        "SF Mission: 555 WE TIP",                 # 37
-        "SF Mission: Deconstruction",             # 38
-        "SF Mission: Photo Opportunity",          # 39
-        "SF Mission: Jizzy",                      # 40
-        "SF Mission: T-Bone Mendez",              # 41
-        "SF Mission: Mountain Cloud Boys",        # 42
-        "SF Mission: Mike Toreno",                # 43
-        "SF Mission: Ran Fa Li",                  # 44
-        "SF Mission: Outrider",                   # 45
-        "SF Mission: Lure",                       # 46
-        "SF Mission: Snail Trail",                # 47
-        "SF Mission: Amphibious Assault",         # 48
-        "SF Mission: Ice Cold Killa",             # 49
-        "SF Mission: The Da Nang Thang",          # 50
-        "SF Mission: Pier 69",                    # 51
-        "SF Mission: Toreno's Last Flight",       # 52
-        "SF Mission: Yay Ka-Boom-Boom",           # 53 - ends San Fierro
-
-        "LV Mission: Monster",                    # 54 - first of Toreno's desert arc
-        "LV Mission: Highjack",                   # 55
-        "LV Mission: Interdiction",               # 56
-        "LV Mission: Verdant Meadows",            # 57 - buys the airstrip
-        "LV Mission: Learning to Fly",            # 58 - flight school, gates every mission after it
-        "LV Mission: N.O.E.",                     # 59
-        "LV Mission: Stowaway",                   # 60
-        "LV Mission: Black Project",              # 61
-        "LV Mission: Green Goo",                  # 62
-        "LV Mission: Fender Ketchup",             # 63 - casino arc starts
-        "LV Mission: Explosive Situation",        # 64
-        "LV Mission: You've Had Your Chips",      # 65
-        "LV Mission: Don Peyote",                 # 66
-        "LV Mission: Intensive Care",             # 67
-        "LV Mission: The Meat Business",          # 68
-        "LV Mission: Fish in a Barrel",           # 69 - opens off The Meat Business
-        "LV Mission: Madd Dogg",                  # 70 - also opens off The Meat Business
-        "LV Mission: Misappropriation",           # 71 - needs Intensive Care
-        "LV Mission: Freefall",                   # 72
-        "LV Mission: High Noon",                  # 73 - needs Misappropriation + Freefall
-        "LV Mission: Saint Mark's Bistro",        # 74 - needs every other Las Venturas mission
-        "LV Mission: A Home in the Hills",        # 75
-    ]
-    from .mission_list import get_story_mission_count
-
-    for index, location_name in enumerate(story_mission_order[:get_story_mission_count(world)]):
+    for index, location_name in enumerate(STORY_MISSION_LOCATION_ORDER[:get_story_mission_count(world)]):
+        if index < start_index:
+            continue
         location = world.get_location(location_name)
-        required_count = index
-        world.set_rule(location, Has("Progressive Mission", required_count))
+        world.set_rule(location, Has("Progressive Mission", get_missions_required(world, index)))
 
     # Tiered submissions. Every tier carries the same requirement as starting the activity
     # itself - Has(1) for the ones available from the off, more for Trucking, which needs
@@ -123,41 +52,42 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         if location_name not in world.multiworld.regions.location_cache[world.player]:
             continue
         location = world.get_location(location_name)
-        world.set_rule(location, Has("Progressive Mission", required_count))
+        world.set_rule(location, Has("Progressive Mission", get_missions_required(world, required_count)))
 
     # The gym is the only submission that isn't enterable until Drive-thru (position 4)
     world.set_rule(
         world.get_location("LS Mission: Los Santos Gym Fight School"),
-        Has("Progressive Mission", 5),
+        Has("Progressive Mission", get_missions_required(world, 5)),
     )
 
     sf_gym = "SF Mission: San Fierro Gym Fight School"
     if sf_gym in world.multiworld.regions.location_cache[world.player]:
-        world.set_rule(world.get_location(sf_gym), Has("Progressive Mission", 36))
+        world.set_rule(world.get_location(sf_gym), Has("Progressive Mission", get_missions_required(world, 36)))
 
     lv_gym = "LV Mission: Las Venturas Gym Fight School"
     if lv_gym in world.multiworld.regions.location_cache[world.player]:
-        world.set_rule(world.get_location(lv_gym), Has("Progressive Mission", 54))
+        world.set_rule(world.get_location(lv_gym), Has("Progressive Mission", get_missions_required(world, 54)))
 
     from .mission_list import get_optional_mission_requirements
 
     for location_name, required_count in get_optional_mission_requirements().items():
         if location_name not in world.multiworld.regions.location_cache[world.player]:
             continue
-        world.set_rule(world.get_location(location_name), Has("Progressive Mission", required_count))
+        world.set_rule(world.get_location(location_name),
+                       Has("Progressive Mission", get_missions_required(world, required_count)))
 
     from .export_list import EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT
     for location_name in EXPORT_LOCATION_NAMES:
         if location_name in world.multiworld.regions.location_cache[world.player]:
             world.set_rule(world.get_location(location_name),
-                           Has("Progressive Mission", EXPORT_REQUIREMENT))
+                           Has("Progressive Mission", get_missions_required(world, EXPORT_REQUIREMENT)))
 
     if world.options.include_oysters:
         from .oyster_list import OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT
         for location_name in OYSTER_LOCATION_NAMES:
             if location_name in world.multiworld.regions.location_cache[world.player]:
                 world.set_rule(world.get_location(location_name),
-                               Has("Progressive Mission", OYSTER_REQUIREMENT))
+                               Has("Progressive Mission", get_missions_required(world, OYSTER_REQUIREMENT)))
 
     if world.options.include_horseshoes:
         from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
@@ -165,13 +95,13 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             if location_name not in world.multiworld.regions.location_cache[world.player]:
                 continue
             world.set_rule(world.get_location(location_name),
-                           Has("Progressive Mission", HORSESHOE_REQUIREMENT))
+                           Has("Progressive Mission", get_missions_required(world, HORSESHOE_REQUIREMENT)))
 
     if world.options.include_ammunation_shop:
         from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS
         for slot, required_count in INCLUDED_SHOP_SLOTS.items():
             location = world.get_location(SHOP_LOCATION_NAMES[slot])
-            world.set_rule(location, Has("Progressive Mission", required_count))
+            world.set_rule(location, Has("Progressive Mission", get_missions_required(world, required_count)))
 
 def set_completion_condition(world: GTASAWorld) -> None:
     from .items import VICTORY_ITEM_NAME

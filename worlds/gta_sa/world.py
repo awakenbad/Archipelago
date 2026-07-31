@@ -1,4 +1,5 @@
-﻿from worlds.AutoWorld import World
+﻿from Options import OptionError
+from worlds.AutoWorld import World
 
 from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
@@ -21,6 +22,16 @@ class GTASAWorld(World):
     item_name_to_id = items.ITEM_NAME_TO_ID
 
     origin_region_name = "Los Santos"
+
+    def generate_early(self) -> None:
+        start = mission_list.get_start(self)
+        goal = mission_list.get_goal(self)
+        if start.story_index >= goal.story_index:
+            raise OptionError(
+                f"Grand Theft Auto: San Andreas ({self.player_name}): Starting Point "
+                f"'{self.options.starting_point.current_key}' is not before End Goal "
+                f"'{self.options.end_goal.current_key}', so the seed would have no story missions in it."
+            )
 
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)

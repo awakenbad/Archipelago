@@ -7,7 +7,7 @@ from BaseClasses import ItemClassification, Location
 from . import items
 from . import mission_list
 from .mission_list import REGION_ABBREVIATIONS, MISSION_DATA
-from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION
+from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION, get_earnable_tag_names
 from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_LOCATION_NAMES, SNAPSHOT_REGION
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_LOCATION_NAMES, HORSESHOE_REGION
 from .export_list import EXPORT_BASE_ID, EXPORT_LOCATION_NAMES, EXPORT_REGION
@@ -100,6 +100,7 @@ def create_regular_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)
     goal_mission_id = mission_list.get_goal_mission_id(world)
     story_mission_count = mission_list.get_story_mission_count(world)
+    start_index = mission_list.get_start_index(world)
     optional_requirements = mission_list.get_optional_branch_requirements_by_id()
 
     for mission_id, name, region_name in MISSION_DATA:
@@ -109,6 +110,9 @@ def create_regular_locations(world: GTASAWorld) -> None:
             continue
         if optional_requirements.get(mission_id, 0) >= story_mission_count:
             continue
+        story_index = mission_list.get_story_index(mission_id)
+        if story_index is not None and story_index < start_index:
+            continue
         region = world.get_region(region_name)
         location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
         location_id = LOCATION_NAME_TO_ID[location_name]
@@ -116,8 +120,8 @@ def create_regular_locations(world: GTASAWorld) -> None:
 
 def create_tag_locations(world: GTASAWorld) -> None:
     region = world.get_region(TAG_REGION)
-    tag_locations = get_location_names_with_ids(TAG_LOCATION_NAMES)
-    region.add_locations(tag_locations, GTASALocation)
+    earnable = get_earnable_tag_names(mission_list.get_start_index(world))
+    region.add_locations(get_location_names_with_ids(earnable), GTASALocation)
 
 def create_snapshot_locations(world: GTASAWorld) -> None:
     # San Fierro is only generated for goals that reach it, so an out-of-scope seed simply has no

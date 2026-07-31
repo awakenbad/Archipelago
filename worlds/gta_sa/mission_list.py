@@ -7,40 +7,82 @@ REGION_ABBREVIATIONS = {
     "Las Venturas": "LV",
 }
 
-class GoalSpec(NamedTuple):
-    option_value: str
+class StoryMilestone(NamedTuple):
+    """One cut point on the story order, usable as a starting point, a goal, or both.
 
-    # The mission that ends the run. It becomes the Victory event location.
-    mission_id: int
+    Adding a milestone is one row here plus the matching option value - it becomes available as
+    both ends of a seed at once, which is what keeps start/goal from drifting into two tables
+    that have to be kept in sync by hand.
+    """
 
-    # Regions the seed generates.
+    # Story positions completed at this point. As a goal that is the Progressive Mission pool
+    # size; as a starting point it is how many positions the shipped save has already spent.
+    story_index: int
+
+    # Names where the player begins. None when this milestone cannot be a starting point -
+    # the last one can't, since there is no goal beyond it.
+    start_option_value: str | None
+
+    # Names the mission that ends the run, and that mission's id - it becomes the Victory event
+    # location. Both None when this milestone cannot be a goal (the game's opening).
+    goal_option_value: str | None
+    goal_mission_id: int | None
+
+    # Regions the seed generates when this is the goal. Independent of the starting point:
+    # map access is cumulative and Los Santos never re-locks, so a later start needs the same
+    # regions, just fewer story missions inside them.
     regions_in_scope: tuple[str, ...]
 
-    # Progressive Mission pool size.
-    story_mission_count: int
-
-GOALS = (
-    GoalSpec("the_green_sabre", 38, ("Los Santos",), 27),
-    GoalSpec("are_you_going_to_san_fierro", 47, ("Los Santos", "Badlands"), 36),
-    GoalSpec("yay_ka_boom_boom", 63, ("Los Santos", "Badlands", "San Fierro"), 54),
-    GoalSpec("a_home_in_the_hills", 102,
-             ("Los Santos", "Badlands", "San Fierro", "Las Venturas"), 76),
+MILESTONES = (
+    StoryMilestone(0,  "los_santos",   None,                          None, ("Los Santos",)),
+    StoryMilestone(27, "badlands",     "the_green_sabre",               38, ("Los Santos",)),
+    StoryMilestone(36, "san_fierro",   "are_you_going_to_san_fierro",   47, ("Los Santos", "Badlands")),
+    StoryMilestone(54, "las_venturas", "yay_ka_boom_boom",              63, ("Los Santos", "Badlands", "San Fierro")),
+    StoryMilestone(76, None,           "a_home_in_the_hills",          102,
+                   ("Los Santos", "Badlands", "San Fierro", "Las Venturas")),
 )
 
-def get_goal(world) -> GoalSpec:
-    for goal in GOALS:
-        if world.options.end_goal == goal.option_value:
-            return goal
-    raise ValueError(f"No GoalSpec for end_goal {world.options.end_goal!r} - options.py and GOALS disagree")
+def get_goal(world) -> StoryMilestone:
+    for milestone in MILESTONES:
+        if milestone.goal_option_value is not None and world.options.end_goal == milestone.goal_option_value:
+            return milestone
+    raise ValueError(f"No milestone for end_goal {world.options.end_goal!r} - options.py and MILESTONES disagree")
+
+def get_start(world) -> StoryMilestone:
+    for milestone in MILESTONES:
+        if milestone.start_option_value is not None and world.options.starting_point == milestone.start_option_value:
+            return milestone
+    raise ValueError(
+        f"No milestone for starting_point {world.options.starting_point!r} - options.py and MILESTONES disagree"
+    )
 
 def get_included_regions(world) -> set[str]:
     return set(get_goal(world).regions_in_scope)
 
 def get_story_mission_count(world) -> int:
-    return get_goal(world).story_mission_count
+    """Absolute story positions the goal covers - what scoping guards compare requirements against.
+
+    NOT the item pool size once a starting point is in play; see get_progressive_mission_pool_size.
+    """
+    return get_goal(world).story_index
+
+def get_start_index(world) -> int:
+    return get_start(world).story_index
+
+def get_progressive_mission_pool_size(world) -> int:
+    return get_story_mission_count(world) - get_start_index(world)
+
+def get_missions_required(world, absolute_index: int) -> int:
+    """Progressive Missions the player must hold to reach an absolute story position.
+
+    The single place the starting point is subtracted. Everything else - the data tables, the
+    scoping guards - stays in absolute story space, so a later start cannot silently shift what
+    a seed generates.
+    """
+    return max(0, absolute_index - get_start_index(world))
 
 def get_goal_mission_id(world) -> int:
-    return get_goal(world).mission_id
+    return get_goal(world).goal_mission_id
 
 def get_goal_region(world) -> str:
     return get_mission_region(get_goal_mission_id(world))
@@ -176,6 +218,98 @@ def get_mission_location_name(mission_id: int) -> str:
 
 def get_mission_region(mission_id: int) -> str:
     return MISSION_ID_TO_REGION[mission_id]
+
+LOCATION_NAME_TO_MISSION_ID = {name: mission_id for mission_id, name in MISSION_ID_TO_LOCATION_NAME.items()}
+
+STORY_MISSION_LOCATION_ORDER = (
+    "LS Mission: Big Smoke",                    # 0
+    "LS Mission: Ryder",                        # 1
+    "LS Mission: Tagging Up Turf",              # 2
+    "LS Mission: Cleaning The Hood",            # 3
+    "LS Mission: Drive-Thru",                   # 4
+    "LS Mission: Nines And AK's",               # 5  - opens the parallel strands
+    "LS Mission: Drive-By",                     # 6
+    "LS Mission: Sweet's Girl",                 # 7
+    "LS Mission: Cesar Vialpando",              # 8
+    "LS Mission: Lowrider (High Stakes)",       # 9  - only needs Cesar Vialpando
+    "LS Mission: OG Loc",                       # 10
+    "LS Mission: Running Dog",                  # 11
+    "LS Mission: Wrong Side of the Tracks",     # 12
+    "LS Mission: Just Business",                # 13
+    "LS Mission: Home Invasion",                # 14
+    "LS Mission: Catalyst",                     # 15
+    "LS Mission: Robbing Uncle Sam",            # 16
+    "LS Mission: Life's a Beach",               # 17
+    "LS Mission: Madd Dogg's Rhymes",           # 18
+    "LS Mission: Management Issues",            # 19
+    "LS Mission: House Party",                  # 20
+    "LS Mission: Burning Desire",               # 21 - needs Madd Dogg's Rhymes
+    "LS Mission: Gray Imports",                 # 22 - needs Burning Desire
+    "LS Mission: Doberman",                     # 23 - needs Cesar Vialpando + Burning Desire
+    "LS Mission: Los Sepulcros",                # 24 - needs Doberman
+    "LS Mission: Reuniting The Families",       # 25
+    "LS Mission: The Green Sabre",              # 26
+
+    "BD Mission: Badlands",                     # 27
+    "BD Mission: Local Liquor Store",           # 28
+    "BD Mission: Body Harvest",                 # 29
+    "BD Mission: Small Town Bank",              # 30
+    "BD Mission: Wu Zi Mu",                     # 31 - unlocks after 2 robberies
+    "BD Mission: Tanker Commander",             # 32
+    "BD Mission: Against All Odds",             # 33
+    "BD Mission: Farewell, My Love...",         # 34
+    "BD Mission: Are You Going to San Fierro?", # 35
+
+    "SF Mission: Wear Flowers in Your Hair",    # 36 - first SF mission, opens the garage
+    "SF Mission: 555 WE TIP",                   # 37
+    "SF Mission: Deconstruction",               # 38
+    "SF Mission: Photo Opportunity",            # 39
+    "SF Mission: Jizzy",                        # 40
+    "SF Mission: T-Bone Mendez",                # 41
+    "SF Mission: Mountain Cloud Boys",          # 42
+    "SF Mission: Mike Toreno",                  # 43
+    "SF Mission: Ran Fa Li",                    # 44
+    "SF Mission: Outrider",                     # 45
+    "SF Mission: Lure",                         # 46
+    "SF Mission: Snail Trail",                  # 47
+    "SF Mission: Amphibious Assault",           # 48
+    "SF Mission: Ice Cold Killa",               # 49
+    "SF Mission: The Da Nang Thang",            # 50
+    "SF Mission: Pier 69",                      # 51
+    "SF Mission: Toreno's Last Flight",         # 52
+    "SF Mission: Yay Ka-Boom-Boom",             # 53 - ends San Fierro
+
+    "LV Mission: Monster",                      # 54 - first of Toreno's desert arc
+    "LV Mission: Highjack",                     # 55
+    "LV Mission: Interdiction",                 # 56
+    "LV Mission: Verdant Meadows",              # 57 - buys the airstrip
+    "LV Mission: Learning to Fly",              # 58 - flight school, gates every mission after it
+    "LV Mission: N.O.E.",                       # 59
+    "LV Mission: Stowaway",                     # 60
+    "LV Mission: Black Project",                # 61
+    "LV Mission: Green Goo",                    # 62
+    "LV Mission: Fender Ketchup",               # 63 - casino arc starts
+    "LV Mission: Explosive Situation",          # 64
+    "LV Mission: You've Had Your Chips",        # 65
+    "LV Mission: Don Peyote",                   # 66
+    "LV Mission: Intensive Care",               # 67
+    "LV Mission: The Meat Business",            # 68
+    "LV Mission: Fish in a Barrel",             # 69 - opens off The Meat Business
+    "LV Mission: Madd Dogg",                    # 70 - also opens off The Meat Business
+    "LV Mission: Misappropriation",             # 71 - needs Intensive Care
+    "LV Mission: Freefall",                     # 72
+    "LV Mission: High Noon",                    # 73 - needs Misappropriation + Freefall
+    "LV Mission: Saint Mark's Bistro",          # 74 - needs every other Las Venturas mission
+    "LV Mission: A Home in the Hills",          # 75
+)
+
+STORY_MISSION_ORDER = tuple(LOCATION_NAME_TO_MISSION_ID[name] for name in STORY_MISSION_LOCATION_ORDER)
+
+STORY_INDEX_BY_MISSION_ID = {mission_id: index for index, mission_id in enumerate(STORY_MISSION_ORDER)}
+
+def get_story_index(mission_id: int) -> int | None:
+    """The mission's position in the story, or None when it isn't a story mission."""
+    return STORY_INDEX_BY_MISSION_ID.get(mission_id)
 
 class OptionalMissionBranch(NamedTuple):
     name: str

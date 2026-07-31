@@ -2,7 +2,28 @@ from dataclasses import dataclass
 
 from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle
 
-# A Choice is an option with multiple discrete choices. This will be represented by a dropdown on the website.
+class StartingPoint(Choice):
+    """
+    Where your game begins.
+
+    Anything past Los Santos requires loading the matching save file that ships with the mod -
+    the story missions before that point are dropped from the pool entirely.
+
+    Note: This option does not affect collectibles. I.e., starting in Badlands and leaving Include
+    Tags on will keep all tags in the pool.
+
+    Must be earlier than your End Goal.
+    """
+
+    display_name = "Starting Point"
+
+    option_los_santos = 0
+    option_badlands = 1
+    option_san_fierro = 2
+    option_las_venturas = 3
+
+    default = option_los_santos
+
 class EndGoal(Choice):
     """
     What mission you need to complete to finish your game.
@@ -94,6 +115,7 @@ class TrapPercentage(Range):
 
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
+    starting_point: StartingPoint
     end_goal: EndGoal
     death_link: DeathLink
     include_tags: IncludeTags
@@ -107,7 +129,7 @@ class GTASAOptions(PerGameCommonOptions):
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes, IncludeOysters,
+        [StartingPoint, EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes, IncludeOysters,
          IncludeAmmunationShop, TrapPercentage],
     ),
     OptionGroup(
