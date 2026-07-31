@@ -13,6 +13,7 @@ from worlds.gta_sa.tag_list import TAG_COUNT
 from worlds.gta_sa.snapshot_list import SNAPSHOT_COUNT
 from worlds.gta_sa.horseshoe_list import HORSESHOE_COUNT
 from worlds.gta_sa.oyster_list import OYSTER_COUNT
+from worlds.gta_sa.export_list import EXPORT_COUNT
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
@@ -41,6 +42,14 @@ def export_check_to_location_id(export_index: int) -> int:
 
 def horseshoe_check_to_location_id(horseshoe_index: int) -> int:
     return HORSESHOE_BASE_ID + horseshoe_index
+
+COLLECTIBLE_BLOCKS = (
+    ("TAG", TAG_BASE_ID, TAG_COUNT),
+    ("SNAPSHOT", SNAPSHOT_BASE_ID, SNAPSHOT_COUNT),
+    ("HORSESHOE", HORSESHOE_BASE_ID, HORSESHOE_COUNT),
+    ("EXPORT", EXPORT_BASE_ID, EXPORT_COUNT),
+    ("OYSTER", OYSTER_BASE_ID, OYSTER_COUNT),
+)
 
 SHOP_BASE_ID = 300
 
@@ -225,6 +234,18 @@ class GTASAContext(CommonContext):
     def send_death_link_config(self) -> None:
         self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
 
+    def send_collectible_config(self) -> None:
+        # Tell the plugin which collectible sets this seed has locations for, so it blips no others.
+        known = self.missing_locations | self.checked_locations
+        if not known:
+            return
+
+        included = [
+            name for name, base, count in COLLECTIBLE_BLOCKS
+            if not known.isdisjoint(range(base, base + count))
+        ]
+        self.send_to_plugin(f"CTRL:collectibles:{','.join(included)}\n")
+
     def scout_shop_locations(self) -> None:
         """Ask the server what item sits at each Ammu-Nation slot, so the plugin can display it."""
         shop_ids = [SHOP_BASE_ID + slot for slot in INCLUDED_SHOP_SLOTS]
@@ -298,6 +319,7 @@ class GTASAContext(CommonContext):
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.send_death_link_config()
+            self.send_collectible_config()
             self.scout_shop_locations()
         elif cmd == "RoomUpdate":
             self.push_shop_contents()
@@ -321,6 +343,7 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     ctx.items_applied_count = 0
     ctx.apply_pending_items()
     ctx.send_death_link_config()
+    ctx.send_collectible_config()
     ctx.push_shop_contents()
     try:
         await read_plugin_messages(reader, ctx)
