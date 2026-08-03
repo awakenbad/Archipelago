@@ -16,9 +16,10 @@ def create_all_regions(world: GTASAWorld) -> None:
     san_fierro = Region("San Fierro", world.player, world.multiworld)
     las_venturas = Region("Las Venturas", world.player, world.multiworld)
     badlands = Region("Badlands", world.player, world.multiworld)
+    return_to_los_santos = Region("Return to Los Santos", world.player, world.multiworld)
 
     # Let's put all these regions in a list.
-    regions = [los_santos, san_fierro, las_venturas, badlands]
+    regions = [los_santos, san_fierro, las_venturas, badlands, return_to_los_santos]
 
     # We now need to add these regions to multiworld.regions so that AP knows about their existence.
     world.multiworld.regions += regions
@@ -45,6 +46,7 @@ def connect_regions(world: GTASAWorld) -> None:
     las_venturas.exits.append(las_venturas_to_los_santos)
     las_venturas_to_los_santos.connect(los_santos)
 
-    # An even easier way is to use the region.connect helper.
-    #overworld.connect(right_room, "Overworld to Right Room")
-    #right_room.connect(final_boss_room, "Right Room to Final Boss Room")
+    return_to_los_santos = world.get_region("Return to Los Santos")
+    las_venturas_to_return = Entrance(world.player, "Las Venturas to Return to Los Santos", parent=las_venturas)
+    las_venturas.exits.append(las_venturas_to_return)
+    las_venturas_to_return.connect(return_to_los_santos)

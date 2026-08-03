@@ -26,6 +26,9 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
     world.set_rule(badlands_to_san_fierro, Has("Progressive Mission", get_missions_required(world, 36)))
     # Las Venturas opens when Yay Ka-Boom-Boom (story position 53) is done.
     world.set_rule(san_fierro_to_las_venturas, Has("Progressive Mission", get_missions_required(world, 54)))
+    # The Los Santos endgame opens when A Home in the Hills (story position 75) is done.
+    world.set_rule(world.get_entrance("Las Venturas to Return to Los Santos"),
+                   Has("Progressive Mission", get_missions_required(world, 76)))
 
 def set_all_location_rules(world: GTASAWorld) -> None:
     from .mission_list import (

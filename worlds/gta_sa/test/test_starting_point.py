@@ -64,17 +64,27 @@ class TestStartingPointGrid(unittest.TestCase):
 class TestFlyingSchoolBoundary(unittest.TestCase):
     """Learning to Fly is the one story mission that also pays out as submission tiers.
 
-    A starting point past it would leave the ten Flying School lesson locations in the seed with
-    no way to check them, since passing the mission is passing every lesson.
+    Passing the mission passes every lesson, so a start beyond it must not create those ten
+    locations - they would be unearnable, and fill could put progression behind them.
     """
 
-    def test_no_starting_point_is_past_learning_to_fly(self) -> None:
+    def test_lessons_are_dropped_only_past_learning_to_fly(self) -> None:
         learning_to_fly = STORY_MISSION_LOCATION_ORDER.index("LV Mission: Learning to Fly")
-        for milestone in MILESTONES:
-            if milestone.start_option_value is None:
+        for start, goal in get_valid_start_goal_pairs():
+            if goal.story_index <= learning_to_fly:
                 continue
-            with self.subTest(start=milestone.start_option_value):
-                self.assertLessEqual(milestone.story_index, learning_to_fly)
+            with self.subTest(start=start.start_option_value, goal=goal.goal_option_value):
+                multiworld = setup_multiworld(GTASAWorld, options={
+                    "starting_point": start.start_option_value,
+                    "end_goal": goal.goal_option_value,
+                    "include_submissions": "per_level",
+                })
+                created = {location.name for location in multiworld.get_locations(1)}
+                lessons = {name for name in created if "Flying School" in name}
+                if start.story_index > learning_to_fly:
+                    self.assertEqual(lessons, set())
+                else:
+                    self.assertEqual(len(lessons), 10)
 
 
 class TestMissionSprayedTags(unittest.TestCase):
@@ -88,7 +98,7 @@ class TestMissionSprayedTags(unittest.TestCase):
             with self.subTest(start=milestone.start_option_value):
                 multiworld = setup_multiworld(GTASAWorld, options={
                     "starting_point": milestone.start_option_value,
-                    "end_goal": "a_home_in_the_hills",
+                    "end_goal": "end_of_the_line",
                     "include_tags": True,
                 })
                 created = {location.name for location in multiworld.get_locations(1)}

@@ -89,7 +89,7 @@ def create_submission_tier_locations(world: GTASAWorld) -> None:
     included_regions = mission_list.get_included_regions(world)
     story_mission_count = mission_list.get_story_mission_count(world)
     for region_name, location_names in get_included_tier_names_by_region(
-        world.options, story_mission_count
+        world.options, story_mission_count, mission_list.get_start_index(world)
     ).items():
         if region_name not in included_regions:
             continue

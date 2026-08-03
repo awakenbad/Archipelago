@@ -21,6 +21,7 @@ class StartingPoint(Choice):
     option_badlands = 1
     option_san_fierro = 2
     option_las_venturas = 3
+    option_return_to_los_santos = 4
 
     default = option_los_santos
 
@@ -35,6 +36,7 @@ class EndGoal(Choice):
     option_are_you_going_to_san_fierro = 1
     option_yay_ka_boom_boom = 2
     option_a_home_in_the_hills = 3
+    option_end_of_the_line = 4
 
     default = option_the_green_sabre
 

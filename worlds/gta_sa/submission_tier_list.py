@@ -67,6 +67,11 @@ class SubmissionTier(NamedTuple):
     # Empty means name_template is formatted instead.
     tier_names: tuple[str, ...] = ()
 
+    # Story position that completes this activity outright, for the one submission that doubles as
+    # a story mission. A start past it has already passed every tier, so they can never be checked.
+    # -1 means nothing consumes it and it stays available at any starting point.
+    consumed_at_story_index: int = -1
+
 # Submissions that pay out in tiers rather than once on completion. The plugin sends
 # base_slot + (tier - 1); a tier is reached at value_per_tier * tier of whatever that
 # submission measures.
@@ -86,8 +91,9 @@ SUBMISSION_TIERS = [
     SubmissionTier(69, 12, "Driving School - {name}",    0,    "San Fierro", 39,
                    tier_names=DRIVING_SCHOOL_TESTS),
     SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 1),
+    # Learning to Fly (story position 58) is Flying School - passing the mission passes every lesson.
     SubmissionTier(91, 10, "Flying School - {name}",     0,    "Las Venturas", 58,
-                   tier_names=FLYING_SCHOOL_LESSONS),
+                   tier_names=FLYING_SCHOOL_LESSONS, consumed_at_story_index=58),
     SubmissionTier(101, 5, "Boat School - {name}",       0,    "San Fierro", 54,
                    tier_names=BOAT_SCHOOL_TESTS),
     SubmissionTier(106, 6, "Bike School - {name}",       0,    "Las Venturas", 54,
@@ -119,8 +125,9 @@ def get_tier_names(tier_spec: SubmissionTier) -> list[str]:
     start = tier_spec.base_slot
     return SUBMISSION_TIER_LOCATION_NAMES[start:start + tier_spec.tier_count]
 
-def get_included_tier_names_by_region(options, story_mission_count: int) -> dict[str, list[str]]:
-    """Location names grouped by region, honouring Include Submissions and this seed's goal.
+def get_included_tier_names_by_region(options, story_mission_count: int,
+                                      start_index: int = 0) -> dict[str, list[str]]:
+    """Location names grouped by region, honouring Include Submissions and this seed's span.
 
     on_completion keeps only each submission's final tier - reaching that one means the whole
     activity is done, so no extra location IDs are needed for it.
@@ -130,6 +137,9 @@ def get_included_tier_names_by_region(options, story_mission_count: int) -> dict
     grouped: dict[str, list[str]] = {}
     for tier_spec in SUBMISSION_TIERS:
         if tier_spec.required_progressive_missions >= story_mission_count:
+            continue
+        # Already finished by the save this starting point expects, so no tier can be earned.
+        if 0 <= tier_spec.consumed_at_story_index < start_index:
             continue
 
         names = get_tier_names(tier_spec)

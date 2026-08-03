@@ -5,6 +5,7 @@ REGION_ABBREVIATIONS = {
     "Badlands": "BD",
     "San Fierro": "SF",
     "Las Venturas": "LV",
+    "Return to Los Santos": "RTLS",
 }
 
 class StoryMilestone(NamedTuple):
@@ -38,8 +39,10 @@ MILESTONES = (
     StoryMilestone(27, "badlands",     "the_green_sabre",               38, ("Los Santos",)),
     StoryMilestone(36, "san_fierro",   "are_you_going_to_san_fierro",   47, ("Los Santos", "Badlands")),
     StoryMilestone(54, "las_venturas", "yay_ka_boom_boom",              63, ("Los Santos", "Badlands", "San Fierro")),
-    StoryMilestone(76, None,           "a_home_in_the_hills",          102,
+    StoryMilestone(76, "return_to_los_santos", "a_home_in_the_hills",  102,
                    ("Los Santos", "Badlands", "San Fierro", "Las Venturas")),
+    StoryMilestone(84, None,           "end_of_the_line",              112,
+                   ("Los Santos", "Badlands", "San Fierro", "Las Venturas", "Return to Los Santos")),
 )
 
 def get_goal(world) -> StoryMilestone:
@@ -180,6 +183,16 @@ MISSION_DATA = [
     # Starts in Las Venturas even though the mansion itself is in Los Santos.
     (102, "A Home in the Hills", "Las Venturas"),
 
+    # Return to Los Santos story missions
+    (103, "Vertical Bird", "Return to Los Santos"),
+    (104, "Home Coming", "Return to Los Santos"),
+    (105, "Cut Throat Business", "Return to Los Santos"),
+    (106, "Beat Down on B Dup", "Return to Los Santos"),
+    (107, "Grove 4 Life", "Return to Los Santos"),
+    (108, "Riot", "Return to Los Santos"),
+    (109, "Los Desperados", "Return to Los Santos"),
+    (112, "End of the Line", "Return to Los Santos"),
+
     # Optional Las Venturas side content: the Caligula's heist.
     (96, "Architectural Espionage", "Las Venturas"),
     (97, "Key To Her Heart", "Las Venturas"),
@@ -300,7 +313,16 @@ STORY_MISSION_LOCATION_ORDER = (
     "LV Mission: Freefall",                     # 72
     "LV Mission: High Noon",                    # 73 - needs Misappropriation + Freefall
     "LV Mission: Saint Mark's Bistro",          # 74 - needs every other Las Venturas mission
-    "LV Mission: A Home in the Hills",          # 75
+    "LV Mission: A Home in the Hills",          # 75 - opens the Los Santos endgame
+
+    "RTLS Mission: Vertical Bird",              # 76
+    "RTLS Mission: Home Coming",                # 77
+    "RTLS Mission: Cut Throat Business",        # 78
+    "RTLS Mission: Beat Down on B Dup",         # 79
+    "RTLS Mission: Grove 4 Life",               # 80
+    "RTLS Mission: Riot",                       # 81
+    "RTLS Mission: Los Desperados",             # 82
+    "RTLS Mission: End of the Line",            # 83
 )
 
 STORY_MISSION_ORDER = tuple(LOCATION_NAME_TO_MISSION_ID[name] for name in STORY_MISSION_LOCATION_ORDER)
