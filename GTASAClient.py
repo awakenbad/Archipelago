@@ -417,12 +417,9 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
             logger.warning(f"Unknown check type from plugin: {check_type}")
             continue
 
+        ctx.locations_checked.add(location_id)
         if not ctx.is_connected_to_server():
-            logger.warning(
-                f"Not connected to the Archipelago server - check {location_id} was not sent. "
-                "Re-do it once reconnected."
-            )
-            continue
+            logger.info(f"Not connected to the server - check {location_id} will be sent on reconnect.")
         await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [location_id]}])
 
 async def main():
