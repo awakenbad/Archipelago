@@ -1,19 +1,22 @@
 ﻿import asyncio
+import functools
+import importlib.resources
+import os
 import sys
-from Utils import init_logging
-init_logging("GTASAClient")
+import tempfile
 
 import websockets
 
-from CommonClient import CommonContext, server_loop, console_loop, ClientCommandProcessor, logger
+from Utils import init_logging
+from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
-from worlds.gta_sa.items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
-from worlds.gta_sa.shop_list import INCLUDED_SHOP_SLOTS
-from worlds.gta_sa.tag_list import TAG_COUNT
-from worlds.gta_sa.snapshot_list import SNAPSHOT_COUNT
-from worlds.gta_sa.horseshoe_list import HORSESHOE_COUNT
-from worlds.gta_sa.oyster_list import OYSTER_COUNT
-from worlds.gta_sa.export_list import EXPORT_COUNT
+from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
+from .shop_list import INCLUDED_SHOP_SLOTS
+from .tag_list import TAG_COUNT
+from .snapshot_list import SNAPSHOT_COUNT
+from .horseshoe_list import HORSESHOE_COUNT
+from .oyster_list import OYSTER_COUNT
+from .export_list import EXPORT_COUNT
 
 def mission_check_to_location_id(mission_id: int) -> int:
     return mission_id
@@ -151,6 +154,17 @@ class GTASACommandProcessor(ClientCommandProcessor):
     def _cmd_showlocations(self):
         self.output(f"Missing locations: {sorted(self.ctx.missing_locations)}")
 
+def _set_window_icon(manager) -> None:
+    try:
+        icon_bytes = importlib.resources.files(__package__).joinpath("icon.png").read_bytes()
+    except Exception:
+        return
+    handle, path = tempfile.mkstemp(suffix="_gta_sa_icon.png")
+    with os.fdopen(handle, "wb") as file:
+        file.write(icon_bytes)
+    manager.icon = path
+
+
 class GTASAContext(CommonContext):
     game = "Grand Theft Auto: San Andreas"
     items_handling = 0b111
@@ -160,6 +174,19 @@ class GTASAContext(CommonContext):
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     shop_slot_contents: dict = {}
+
+    def make_gui(self):
+        ui = super().make_gui()
+
+        class GTASAManager(ui):
+            base_title = "Archipelago GTA: San Andreas Client"
+
+            def build(self):
+                container = super().build()
+                _set_window_icon(self)
+                return container
+
+        return GTASAManager
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
@@ -422,27 +449,34 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
             logger.info(f"Not connected to the server - check {location_id} will be sent on reconnect.")
         await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [location_id]}])
 
-async def main():
-    ctx = GTASAContext(None, None)
+def launch(*args):
+    async def main():
+        ctx = GTASAContext(None, None)
 
-    ctx.server_task = asyncio.create_task(server_loop(ctx), name="server loop")
-    input_task = asyncio.create_task(console_loop(ctx), name="input loop")
+        ctx.server_task = asyncio.create_task(server_loop(ctx), name="server loop")
 
-    try:
-        plugin_server = await asyncio.start_server(
-            lambda r, w: handle_plugin_connection(r, w, ctx),
-            "127.0.0.1", 12345
-        )
-    except Exception as e:
-        logger.error(f"Failed to start the plugin socket server: {e!r}")
-        raise
+        try:
+            plugin_server = await asyncio.start_server(
+                functools.partial(handle_plugin_connection, ctx=ctx),
+                "127.0.0.1", 12345
+            )
+        except Exception as e:
+            logger.error(f"Failed to start the plugin socket server: {e!r}")
+            raise
 
-    asyncio.create_task(plugin_server.serve_forever())
+        asyncio.create_task(plugin_server.serve_forever())
 
-    await ctx.exit_event.wait()
+        if gui_enabled:
+            ctx.run_gui()
+        ctx.run_cli()
 
-    ctx.server_address = None
-    await ctx.shutdown()
+        await ctx.exit_event.wait()
 
-if __name__ == "__main__":
+        ctx.server_address = None
+        await ctx.shutdown()
+
+    init_logging("GTASAClient")
+    import colorama
+    colorama.just_fix_windows_console()
     asyncio.run(main())
+    colorama.deinit()
