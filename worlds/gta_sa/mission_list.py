@@ -39,7 +39,7 @@ MILESTONES = (
     StoryMilestone(27, "badlands",     "the_green_sabre",               38, ("Los Santos",)),
     StoryMilestone(36, "san_fierro",   "are_you_going_to_san_fierro",   47, ("Los Santos", "Badlands")),
     StoryMilestone(54, "las_venturas", "yay_ka_boom_boom",              63, ("Los Santos", "Badlands", "San Fierro")),
-    StoryMilestone(76, "return_to_los_santos", "a_home_in_the_hills",  102,
+    StoryMilestone(76, None, "a_home_in_the_hills",  102,
                    ("Los Santos", "Badlands", "San Fierro", "Las Venturas")),
     StoryMilestone(84, None,           "end_of_the_line",              112,
                    ("Los Santos", "Badlands", "San Fierro", "Las Venturas", "Return to Los Santos")),

@@ -24,21 +24,19 @@ SHOP_ITEM_NAMES = [
 
 SHOP_LOCATION_NAMES = [f"Ammu-Nation: {name}" for name in SHOP_ITEM_NAMES]
 
-# Only the stock reachable in the current Los Santos-only scope (goal: The Green Sabre) is
-# included as locations. Vanilla unlocks the rest after San Fierro+ missions (AK-47 after
-# Lure, Sniper after Pier 69, M4 after Yay Ka-Boom-Boom, Desert Eagle after Black Project,
-# Combat Shotgun after Don Peyote, Country Rifle after Body Harvest, Satchel Charge after
-# Against All Odds) - add them with proper gates when those regions get populated.
-# Value = Progressive Mission count required, following rules.py's story-order convention:
-# the shop itself opens after Doberman (story index 10 -> 11), Silenced Pistol needs Gray
-# Imports (11 -> 12), Sawn-off Shotgun needs Just Business (18 -> 19).
+from .mission_list import LOCATION_NAME_TO_MISSION_ID, get_story_index
+
+def gate_after(mission_location_name: str) -> int:
+    return get_story_index(LOCATION_NAME_TO_MISSION_ID[mission_location_name]) + 1
+
+_STOCKED_AFTER = gate_after("LS Mission: Doberman")
 INCLUDED_SHOP_SLOTS = {
-    0: 11,   # Pistol - base stock
-    1: 12,   # Silenced Pistol - after Gray Imports
-    3: 11,   # Grenade - base stock
-    4: 11,   # Shotgun - base stock
-    6: 19,   # Sawn-off Shotgun - after Just Business
-    7: 11,   # Micro Uzi - base stock
-    8: 11,   # Tec-9 - base stock
-    15: 11,  # Armor - base stock
+    0: _STOCKED_AFTER,   # Pistol
+    1: _STOCKED_AFTER,   # Silenced Pistol
+    3: _STOCKED_AFTER,   # Grenade
+    4: _STOCKED_AFTER,   # Shotgun
+    6: _STOCKED_AFTER,   # Sawn-off Shotgun
+    7: _STOCKED_AFTER,   # Micro Uzi
+    8: _STOCKED_AFTER,   # Tec-9
+    15: _STOCKED_AFTER,  # Armor
 }

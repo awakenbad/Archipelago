@@ -1,9 +1,13 @@
 ﻿from Options import OptionError
-from worlds.AutoWorld import World
+from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
 from .. import gta_sa
+
+
+class GTASAWeb(WebWorld):
+    option_groups = gtasa_options.option_groups
 
 
 class GTASAWorld(World):
@@ -14,6 +18,8 @@ class GTASAWorld(World):
     """
 
     game = "Grand Theft Auto: San Andreas"
+
+    web = GTASAWeb()
 
     options_dataclass = gtasa_options.GTASAOptions
     options: gtasa_options.GTASAOptions

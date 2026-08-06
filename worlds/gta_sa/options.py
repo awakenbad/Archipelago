@@ -21,7 +21,8 @@ class StartingPoint(Choice):
     option_badlands = 1
     option_san_fierro = 2
     option_las_venturas = 3
-    option_return_to_los_santos = 4
+    # No Return to Los Santos start yet - it needs a shipped save file that doesn't exist. Re-add it
+    # here (value 4) and on its MILESTONES row once that save is made.
 
     default = option_los_santos
 
@@ -94,6 +95,72 @@ class IncludeSubmissions(Choice):
 
     default = option_per_level
 
+class ParamedicChecks(Range):
+    """How many Paramedic levels send a check, in Per Level mode."""
+    display_name = "Paramedic Checks"
+    range_start = 1
+    range_end = 12
+    default = 12
+
+class FirefighterChecks(Range):
+    """How many Firefighter levels send a check, in Per Level mode."""
+    display_name = "Firefighter Checks"
+    range_start = 1
+    range_end = 12
+    default = 12
+
+class VigilanteChecks(Range):
+    """How many Vigilante levels send a check, in Per Level mode."""
+    display_name = "Vigilante Checks"
+    range_start = 1
+    range_end = 12
+    default = 12
+
+class TaxiChecks(Range):
+    """How many Taxi fare milestones send a check, in Per Level mode. Each milestone is 5 fares, so
+    e.g. 3 sends checks at 5, 10 and 15 fares."""
+    display_name = "Taxi Checks"
+    range_start = 1
+    range_end = 10
+    default = 10
+
+class BurglaryChecks(Range):
+    """How many Burglary milestones send a check, in Per Level mode. Each milestone is $1000 stolen,
+    so e.g. 3 sends checks at $1000, $2000 and $3000."""
+    display_name = "Burglary Checks"
+    range_start = 1
+    range_end = 10
+    default = 10
+
+class TruckingChecks(Range):
+    """How many Trucking levels send a check, in Per Level mode."""
+    display_name = "Trucking Checks"
+    range_start = 1
+    range_end = 8
+    default = 8
+
+class ValetChecks(Range):
+    """How many Valet milestones send a check, in Per Level mode. The milestones are at 3, 7, 12, 18
+    and 25 cars, so e.g. 3 sends checks at 3, 7 and 12 cars."""
+    display_name = "Valet Checks"
+    range_start = 1
+    range_end = 5
+    default = 5
+
+class PimpingChecks(Range):
+    """How many Pimping levels send a check, in Per Level mode."""
+    display_name = "Pimping Checks"
+    range_start = 1
+    range_end = 10
+    default = 10
+
+class QuarryChecks(Range):
+    """How many Quarry missions send a check, in Per Level mode."""
+    display_name = "Quarry Checks"
+    range_start = 1
+    range_end = 7
+    default = 7
+
 class IncludeOysters(Toggle):
     """
     Whether to include all 50 oysters as individual location checks. They are scattered statewide
@@ -127,6 +194,15 @@ class GTASAOptions(PerGameCommonOptions):
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
+    paramedic_checks: ParamedicChecks
+    firefighter_checks: FirefighterChecks
+    vigilante_checks: VigilanteChecks
+    taxi_checks: TaxiChecks
+    burglary_checks: BurglaryChecks
+    trucking_checks: TruckingChecks
+    valet_checks: ValetChecks
+    pimping_checks: PimpingChecks
+    quarry_checks: QuarryChecks
 
 option_groups = [
     OptionGroup(
@@ -136,7 +212,8 @@ option_groups = [
     ),
     OptionGroup(
         "Submission Options",
-        [IncludeSubmissions],
+        [IncludeSubmissions, ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
+         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks],
     ),
 ]
 
