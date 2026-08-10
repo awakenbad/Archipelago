@@ -11,6 +11,7 @@ from Utils import init_logging
 from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger
 from NetUtils import ClientStatus
 from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
+from .branches import BRANCHES
 from .shop_list import INCLUDED_SHOP_SLOTS
 from .tag_list import TAG_COUNT
 from .snapshot_list import SNAPSHOT_COUNT
@@ -38,10 +39,8 @@ OYSTER_BASE_ID = 800
 def oyster_check_to_location_id(oyster_index: int) -> int:
     return OYSTER_BASE_ID + oyster_index
 
-
 def export_check_to_location_id(export_index: int) -> int:
     return EXPORT_BASE_ID + export_index
-
 
 def horseshoe_check_to_location_id(horseshoe_index: int) -> int:
     return HORSESHOE_BASE_ID + horseshoe_index
@@ -92,7 +91,6 @@ PICKUP_INDEX_TO_LOCATION_ID = {
 }
 ITEM_ID_TO_EFFECT = {
     2: ("money", 500),
-    4: ("progressive_mission", None),
     5: ("health_upgrade", None),
     6: ("armor_upgrade", None),
     7: ("fire_immunity", None),
@@ -104,6 +102,7 @@ ITEM_ID_TO_EFFECT = {
     **{61 + i: ("weapon_mastery", name) for i, name in enumerate(WEAPON_MASTERY_SKILLS)},
     # IDs must match items.py's ITEM_NAME_TO_ID scheme exactly (11 + index into the same list).
     **{11 + i: ("weapon", name) for i, name in enumerate(WEAPON_FILLER_ITEMS)},
+    **{100 + i: ("progressive_mission", branch.name) for i, branch in enumerate(BRANCHES)},
     # Traps: 40 + index into items.py's TRAP_ITEMS.
     40: ("trap_tires", None),
     41: ("trap_fat", None),
@@ -163,7 +162,6 @@ def _set_window_icon(manager) -> None:
     with os.fdopen(handle, "wb") as file:
         file.write(icon_bytes)
     manager.icon = path
-
 
 class GTASAContext(CommonContext):
     game = "Grand Theft Auto: San Andreas"

@@ -63,26 +63,10 @@ def get_included_regions(world) -> set[str]:
     return set(get_goal(world).regions_in_scope)
 
 def get_story_mission_count(world) -> int:
-    """Absolute story positions the goal covers - what scoping guards compare requirements against.
-
-    NOT the item pool size once a starting point is in play; see get_progressive_mission_pool_size.
-    """
     return get_goal(world).story_index
 
 def get_start_index(world) -> int:
     return get_start(world).story_index
-
-def get_progressive_mission_pool_size(world) -> int:
-    return get_story_mission_count(world) - get_start_index(world)
-
-def get_missions_required(world, absolute_index: int) -> int:
-    """Progressive Missions the player must hold to reach an absolute story position.
-
-    The single place the starting point is subtracted. Everything else - the data tables, the
-    scoping guards - stays in absolute story space, so a later start cannot silently shift what
-    a seed generates.
-    """
-    return max(0, absolute_index - get_start_index(world))
 
 def get_goal_mission_id(world) -> int:
     return get_goal(world).goal_mission_id

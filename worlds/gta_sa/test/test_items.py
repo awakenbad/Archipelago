@@ -1,5 +1,9 @@
 from .bases import GTASATestBase
-from ..items import TRAP_ITEMS, UTILITY_FILLER_ITEMS, WEAPON_FILLER_ITEMS
+from ..branches import branch_pool_counts
+from ..items import PROGRESSIVE_BRANCH_ITEMS, TRAP_ITEMS, UTILITY_FILLER_ITEMS, WEAPON_FILLER_ITEMS
+
+def _progressive_pool_total(test) -> int:
+    return sum(len(test.get_items_by_name(name)) for name in PROGRESSIVE_BRANCH_ITEMS.values())
 
 SUBMISSION_REWARD_ITEMS = [
     "Max Health Upgrade",
@@ -10,25 +14,20 @@ SUBMISSION_REWARD_ITEMS = [
     "Boxing Style",
 ]
 
-
 class TestProgressiveMissionItem(GTASATestBase):
-    def test_pool_contains_27_progressive_missions_for_the_los_santos_goal(self) -> None:
-        # Default goal is The Green Sabre, so only the Los Santos positions (0-26) are in play.
-        self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 27)
+    def test_pool_matches_the_los_santos_branch_missions(self) -> None:
+        self.assertEqual(_progressive_pool_total(self), sum(branch_pool_counts(0, 27).values()))
 
-    def test_progressive_mission_is_progression_not_useful(self) -> None:
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        self.assertTrue(all(item.advancement for item in progressive_missions))
-        self.assertFalse(any(item.useful for item in progressive_missions))
-
+    def test_progressive_items_are_progression_not_useful(self) -> None:
+        items = self.get_items_by_name(list(PROGRESSIVE_BRANCH_ITEMS.values()))
+        self.assertTrue(all(item.advancement for item in items))
+        self.assertFalse(any(item.useful for item in items))
 
 class TestProgressiveMissionItemWithBadlandsGoal(GTASATestBase):
     options = {"end_goal": "are_you_going_to_san_fierro"}
 
-    def test_pool_grows_to_36_progressive_missions(self) -> None:
-        # Los Santos 0-26 plus Badlands 27-35.
-        self.assertEqual(len(self.get_items_by_name("Progressive Mission")), 36)
-
+    def test_pool_grows_to_include_badlands_branches(self) -> None:
+        self.assertEqual(_progressive_pool_total(self), sum(branch_pool_counts(0, 36).values()))
 
 class TestSubmissionRewardItems(GTASATestBase):
     def test_each_submission_reward_item_appears_exactly_once(self) -> None:
@@ -40,7 +39,6 @@ class TestSubmissionRewardItems(GTASATestBase):
         reward_items = self.get_items_by_name(SUBMISSION_REWARD_ITEMS)
         self.assertTrue(all(item.useful for item in reward_items))
         self.assertFalse(any(item.advancement for item in reward_items))
-
 
 class TestFillerItems(GTASATestBase):
     def test_money_is_filler(self) -> None:

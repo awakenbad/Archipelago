@@ -73,9 +73,17 @@ class SubmissionTier(NamedTuple):
     consumed_at_story_index: int = -1
 
     # GTASAOptions attribute of this submission's length slider (Per Level mode), or "" for the
-    # uncapped schools. The slider's value is measured progress (levels/fares/dollars/cars);
-    # tiers_within_value maps it to a tier count.
     option_attr: str = ""
+
+    percentage_slider: bool = False
+
+    on_completion_tier: int = 0
+
+    def included_tier_count(self, options) -> int:
+        slider = getattr(options, self.option_attr).value
+        if self.percentage_slider:
+            return slider // self.value_per_tier
+        return slider
 
 # Submissions that pay out in tiers rather than once on completion. The plugin sends
 # base_slot + (tier - 1); a tier is reached at value_per_tier * tier of whatever that
@@ -85,17 +93,17 @@ class SubmissionTier(NamedTuple):
 # same base slots, same tier counts, same value per tier. Append new entries at the end;
 # inserting in the middle renumbers every slot after it and invalidates existing seeds.
 SUBMISSION_TIERS = [
-    SubmissionTier(0,  12, "Paramedic Level {tier}",     1,    "Los Santos", 1, option_attr="paramedic_checks"),
-    SubmissionTier(12, 12, "Firefighter Level {tier}",   1,    "Los Santos", 1, option_attr="firefighter_checks"),
-    SubmissionTier(24, 12, "Vigilante Level {tier}",     1,    "Los Santos", 1, option_attr="vigilante_checks"),
-    SubmissionTier(36, 10, "Taxi Driver {value} Fares",  5,    "Los Santos", 1, option_attr="taxi_checks"),
-    SubmissionTier(46, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 1, option_attr="burglary_checks"),
+    SubmissionTier(0,  12, "Paramedic Level {tier}",     1,    "Los Santos", 0, option_attr="paramedic_checks"),
+    SubmissionTier(12, 12, "Firefighter Level {tier}",   1,    "Los Santos", 0, option_attr="firefighter_checks"),
+    SubmissionTier(24, 12, "Vigilante Level {tier}",     1,    "Los Santos", 0, option_attr="vigilante_checks"),
+    SubmissionTier(36, 10, "Taxi Driver {value} Fares",  5,    "Los Santos", 0, option_attr="taxi_checks"),
+    SubmissionTier(46, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 0, option_attr="burglary_checks"),
     SubmissionTier(56, 8,  "Trucking Level {tier}",      1,    "Badlands",   33, option_attr="trucking_checks"),
     SubmissionTier(64, 5,  "Valet {value} Cars Parked",  0,    "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks"),
     SubmissionTier(69, 12, "Driving School - {name}",    0,    "San Fierro", 39,
                    tier_names=DRIVING_SCHOOL_TESTS),
-    SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 1, option_attr="pimping_checks"),
+    SubmissionTier(81, 10, "Pimping Level {tier}",       1,    "Los Santos", 0, option_attr="pimping_checks"),
     # Learning to Fly (story position 58) is Flying School - passing the mission passes every lesson.
     SubmissionTier(91, 10, "Flying School - {name}",     0,    "Las Venturas", 58,
                    tier_names=FLYING_SCHOOL_LESSONS, consumed_at_story_index=58),
@@ -104,9 +112,11 @@ SUBMISSION_TIERS = [
     SubmissionTier(106, 6, "Bike School - {name}",       0,    "Las Venturas", 54,
                    tier_names=BIKE_SCHOOL_TESTS),
     SubmissionTier(112, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
+    SubmissionTier(119, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
+                   option_attr="gang_territory_target", percentage_slider=True, on_completion_tier=7),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 119
+SUBMISSION_TIER_SLOT_COUNT = 139
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -134,8 +144,9 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
                                       start_index: int = 0) -> dict[str, list[str]]:
     """Location names grouped by region, honouring Include Submissions and this seed's span.
 
-    on_completion keeps only each submission's final tier - reaching that one means the whole
-    activity is done, so no extra location IDs are needed for it.
+    on_completion keeps only each submission's completion tier - reaching that one means the activity
+    is done, so no extra location IDs are needed. That's the final tier for most, but the
+    story-required 35% for gang territory (see on_completion_tier).
     """
     on_completion_only = options.include_submissions == "on_completion"
 
@@ -149,10 +160,10 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
 
         names = get_tier_names(tier_spec)
         if on_completion_only:
-            names = names[-1:]
+            tier = tier_spec.on_completion_tier or tier_spec.tier_count
+            names = names[tier - 1:tier]
         elif tier_spec.option_attr:
-            # The slider is a count of leading tiers to keep (1..tier_count).
-            names = names[:getattr(options, tier_spec.option_attr).value]
+            names = names[:tier_spec.included_tier_count(options)]
         grouped.setdefault(tier_spec.region, []).extend(names)
     return grouped
 

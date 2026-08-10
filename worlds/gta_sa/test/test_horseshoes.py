@@ -1,6 +1,5 @@
 from .bases import GTASATestBase
 
-
 class TestHorseshoesEnabled(GTASATestBase):
     options = {
         "end_goal": "a_home_in_the_hills",
@@ -17,15 +16,12 @@ class TestHorseshoesEnabled(GTASATestBase):
 
     def test_horseshoes_need_las_venturas_open(self) -> None:
         horseshoe = self.world.get_location("LV Horseshoe: #1")
-        progressive_missions = self.get_items_by_name("Progressive Mission")
 
-        for item in progressive_missions[:53]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(63, hold_back="Triads")
         self.assertFalse(horseshoe.can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[53])
+        self.collect_mission_requirement(63)
         self.assertTrue(horseshoe.can_reach(self.multiworld.state))
-
 
 class TestHorseshoesDisabled(GTASATestBase):
     options = {
@@ -35,7 +31,6 @@ class TestHorseshoesDisabled(GTASATestBase):
 
     def test_no_horseshoe_locations_exist(self) -> None:
         self.assertRaises(KeyError, self.world.get_location, "LV Horseshoe: #1")
-
 
 class TestHorseshoesOutOfScope(GTASATestBase):
     """A Los Santos goal never reaches Las Venturas, so the option has nothing to create."""

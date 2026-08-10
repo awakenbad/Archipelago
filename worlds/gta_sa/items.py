@@ -5,8 +5,12 @@ from typing import TYPE_CHECKING
 from BaseClasses import Item, ItemClassification
 from Options import OptionError
 
+from .branches import BRANCHES
+
 if TYPE_CHECKING:
     from .world import GTASAWorld
+
+PROGRESSIVE_BRANCH_ITEMS = {branch.name: f"Progressive {branch.name} Mission" for branch in BRANCHES}
 
 WEAPON_FILLER_ITEMS = [
     "Pistol",
@@ -62,7 +66,7 @@ UTILITY_FILLER_ITEMS = [
 
 ITEM_NAME_TO_ID = {
     "Money": 2,
-    "Progressive Mission": 4,
+    **{PROGRESSIVE_BRANCH_ITEMS[branch.name]: 100 + i for i, branch in enumerate(BRANCHES)},
     "Max Health Upgrade": 5,
     "Max Armor Upgrade": 6,
     "Fire Immunity": 7,
@@ -82,7 +86,7 @@ ITEM_NAME_TO_ID = {
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Money": ItemClassification.filler,
-    "Progressive Mission": ItemClassification.progression,
+    **{name: ItemClassification.progression for name in PROGRESSIVE_BRANCH_ITEMS.values()},
     "Max Health Upgrade": ItemClassification.useful,
     "Max Armor Upgrade": ItemClassification.useful,
     "Fire Immunity": ItemClassification.useful,
@@ -115,21 +119,23 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 def create_all_items(world: GTASAWorld) -> None:
-    from .mission_list import get_progressive_mission_pool_size
+    from .branches import branch_pool_counts
+    from .mission_list import get_goal, get_included_regions, get_start
 
-    itempool: list[Item] = (
-        # One per story mission position between the starting point and the goal (see rules.py).
-        [world.create_item("Progressive Mission") for _ in range(get_progressive_mission_pool_size(world))]
-        + [
-            world.create_item("Max Health Upgrade"),
-            world.create_item("Max Armor Upgrade"),
-            world.create_item("Fire Immunity"),
-            world.create_item("Infinite Sprint"),
-            world.create_item("Taxi Nitro"),
-            world.create_item("Boxing Style"),
-        ]
-    )
-    from .mission_list import get_included_regions
+    pool_counts = branch_pool_counts(get_start(world).story_index, get_goal(world).story_index)
+    itempool: list[Item] = []
+    for branch in BRANCHES:
+        item_name = PROGRESSIVE_BRANCH_ITEMS[branch.name]
+        itempool += [world.create_item(item_name) for _ in range(pool_counts[branch.name])]
+
+    itempool += [
+        world.create_item("Max Health Upgrade"),
+        world.create_item("Max Armor Upgrade"),
+        world.create_item("Fire Immunity"),
+        world.create_item("Infinite Sprint"),
+        world.create_item("Taxi Nitro"),
+        world.create_item("Boxing Style"),
+    ]
     included_regions = get_included_regions(world)
     if "San Fierro" in included_regions:
         itempool.append(world.create_item("Kung Fu Style"))

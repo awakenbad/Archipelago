@@ -3,17 +3,19 @@ import unittest
 from Options import OptionError
 from test.general import setup_multiworld
 
+from ..branches import branch_pool_counts
+from ..items import PROGRESSIVE_BRANCH_ITEMS
 from ..mission_list import MILESTONES, STORY_MISSION_LOCATION_ORDER
 from ..tag_list import MISSION_SPRAYED_TAGS, TAG_LOCATION_NAMES
 from ..world import GTASAWorld
 from .bases import GTASATestBase
 
+PROGRESSIVE_ITEM_NAMES = set(PROGRESSIVE_BRANCH_ITEMS.values())
 
 def get_valid_start_goal_pairs():
     starts = [milestone for milestone in MILESTONES if milestone.start_option_value is not None]
     goals = [milestone for milestone in MILESTONES if milestone.goal_option_value is not None]
     return [(start, goal) for start in starts for goal in goals if start.story_index < goal.story_index]
-
 
 class TestStartingPointGrid(unittest.TestCase):
     """Every start/goal pair has to generate, with a pool sized to the gap between the two.
@@ -29,8 +31,9 @@ class TestStartingPointGrid(unittest.TestCase):
                     "starting_point": start.start_option_value,
                     "end_goal": goal.goal_option_value,
                 })
-                pool = [item for item in multiworld.itempool if item.name == "Progressive Mission"]
-                self.assertEqual(len(pool), goal.story_index - start.story_index)
+                pool = [item for item in multiworld.itempool if item.name in PROGRESSIVE_ITEM_NAMES]
+                expected = sum(branch_pool_counts(start.story_index, goal.story_index).values())
+                self.assertEqual(len(pool), expected)
 
     def test_no_pair_creates_a_mission_before_its_start(self) -> None:
         for start, goal in get_valid_start_goal_pairs():
@@ -60,7 +63,6 @@ class TestStartingPointGrid(unittest.TestCase):
                 ]
                 self.assertEqual(unreachable, [])
 
-
 class TestFlyingSchoolBoundary(unittest.TestCase):
     """Learning to Fly is the one story mission that also pays out as submission tiers.
 
@@ -85,7 +87,6 @@ class TestFlyingSchoolBoundary(unittest.TestCase):
                     self.assertEqual(lessons, set())
                 else:
                     self.assertEqual(len(lessons), 10)
-
 
 class TestMissionSprayedTags(unittest.TestCase):
     """Tagging Up Turf sprays six tags itself, so a later start has already spent them."""
@@ -115,7 +116,6 @@ class TestStartGoalValidation(unittest.TestCase):
                 "end_goal": "yay_ka_boom_boom",
             })
 
-
 class TestBadlandsStart(GTASATestBase):
     options = {"starting_point": "badlands", "end_goal": "a_home_in_the_hills"}
 
@@ -140,34 +140,16 @@ class TestBadlandsStart(GTASATestBase):
             location = self.world.get_location(location_name)
             self.assertTrue(location.can_reach(self.multiworld.state))
 
-    def test_first_badlands_mission_needs_nothing(self) -> None:
-        location = self.world.get_location("BD Mission: Badlands")
-        self.assertTrue(location.can_reach(self.multiworld.state))
+    def test_first_badlands_mission_needs_its_branch_item(self) -> None:
+        self.assert_branch_gated("BD Mission: Badlands", 39)
 
-    def test_are_you_going_to_san_fierro_requires_eight(self) -> None:
-        # Story position 35, minus the 27 the starting point already spent.
-        location = self.world.get_location("BD Mission: Are You Going to San Fierro?")
-        progressive_missions = self.get_items_by_name("Progressive Mission")
+    def test_are_you_going_to_san_fierro_needs_its_requirement(self) -> None:
+        self.assert_branch_gated("BD Mission: Are You Going to San Fierro?", 47)
 
-        for item in progressive_missions[:7]:
-            self.multiworld.state.collect(item)
-        self.assertFalse(location.can_reach(self.multiworld.state))
-
-        self.multiworld.state.collect(progressive_missions[7])
-        self.assertTrue(location.can_reach(self.multiworld.state))
-
-    def test_completion_requires_48_progressive_missions(self) -> None:
-        # A Home in the Hills is story position 75, minus the 27 the starting point spent.
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        self.assertEqual(len(progressive_missions), 49)
-
-        for item in progressive_missions[:47]:
-            self.multiworld.state.collect(item)
+    def test_completion_needs_the_goal_requirement(self) -> None:
         self.assertBeatable(False)
-
-        self.multiworld.state.collect(progressive_missions[47])
+        self.collect_mission_requirement(102)
         self.assertBeatable(True)
-
 
 class TestLasVenturasStart(GTASATestBase):
     options = {"starting_point": "las_venturas", "end_goal": "a_home_in_the_hills"}
@@ -184,13 +166,8 @@ class TestLasVenturasStart(GTASATestBase):
             self.assertIn(location_name, created)
 
     def test_flying_school_lessons_are_still_earnable(self) -> None:
-        # Learning to Fly sits at story position 58, past this start, so the lessons remain ahead.
         location = self.world.get_location("LV Mission: Flying School - Takeoff")
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-
-        for item in progressive_missions[:3]:
-            self.multiworld.state.collect(item)
         self.assertFalse(location.can_reach(self.multiworld.state))
 
-        self.collect_by_name("Progressive Mission")
+        self.collect_mission_requirement(78)
         self.assertTrue(location.can_reach(self.multiworld.state))

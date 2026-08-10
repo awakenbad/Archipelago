@@ -20,7 +20,6 @@ MADD_DOGG_POSITION = 70
 SAINT_MARKS_POSITION = 74
 GOAL_POSITION = 75
 
-
 class TestHomeInTheHillsGoal(GTASATestBase):
     options = {
         "end_goal": "a_home_in_the_hills",
@@ -28,13 +27,11 @@ class TestHomeInTheHillsGoal(GTASATestBase):
 
     def test_wang_cars_exists_and_needs_yay_ka_boom_boom(self) -> None:
         location = self.world.get_location("SF Mission: Zeroing In")
-        progressive_missions = self.get_items_by_name("Progressive Mission")
 
-        for item in progressive_missions[:53]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(63, hold_back="Triads")
         self.assertFalse(location.can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[53])
+        self.collect_mission_requirement(63)
         self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_las_venturas_missions_exist(self) -> None:
@@ -52,60 +49,39 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertEqual(location.item.name, "Victory")
 
     def test_the_heist_opens_off_explosive_situation(self) -> None:
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        for item in progressive_missions[:64]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(85, hold_back="Four Dragons Casino")
         for location_name in HEIST_MISSION_NAMES[:-1]:
             with self.subTest(location_name):
                 self.assertFalse(self.world.get_location(location_name).can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[64])
+        self.collect_mission_requirement(85)
         for location_name in HEIST_MISSION_NAMES[:-1]:
             with self.subTest(location_name):
                 self.assertTrue(self.world.get_location(location_name).can_reach(self.multiworld.state))
 
     def test_breaking_the_bank_waits_for_saint_marks_bistro(self) -> None:
-        progressive_missions = self.get_items_by_name("Progressive Mission")
         robbery = self.world.get_location(HEIST_MISSION_NAMES[-1])
 
-        for item in progressive_missions[:SAINT_MARKS_POSITION]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(92, hold_back="Caligula's Palace")
         self.assertFalse(robbery.can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[SAINT_MARKS_POSITION])
+        self.collect_mission_requirement(92)
         self.assertTrue(robbery.can_reach(self.multiworld.state))
 
     def test_madd_dogg_opens_off_the_meat_business(self) -> None:
-        # Madd Dogg and Fish in a Barrel both open off The Meat Business, so Madd Dogg must not be
         # gated behind the later casino missions.
-        progressive_missions = self.get_items_by_name("Progressive Mission")
         madd_dogg = self.world.get_location(MADD_DOGG)
-
-        for item in progressive_missions[:MADD_DOGG_POSITION]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(95)
         self.assertTrue(madd_dogg.can_reach(self.multiworld.state))
 
     def test_the_goal_sits_directly_after_saint_marks_bistro(self) -> None:
-        """Saint Mark's Bistro opens only once every other Las Venturas mission is done, so it is
-        the last story position before the goal. The heist takes no position at all, being optional.
-        """
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        goal = self.world.get_location(GOAL)
-
-        for item in progressive_missions[:GOAL_POSITION - 1]:
-            self.multiworld.state.collect(item)
-        self.assertFalse(goal.can_reach(self.multiworld.state))
-
-        self.multiworld.state.collect(progressive_missions[GOAL_POSITION - 1])
-        self.assertTrue(goal.can_reach(self.multiworld.state))
+        self.assert_branch_gated(GOAL, 102)
 
     def test_saint_marks_bistro_comes_last_of_the_las_venturas_missions(self) -> None:
         from ..mission_list import get_optional_mission_requirements
 
         optional_names = set(get_optional_mission_requirements())
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        for item in progressive_missions[:SAINT_MARKS_POSITION]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(92)
 
         las_venturas_missions = [
             location
@@ -120,22 +96,21 @@ class TestHomeInTheHillsGoal(GTASATestBase):
 
         self.assertTrue(self.world.get_location(SAINT_MARKS).can_reach(self.multiworld.state))
 
-    def test_the_pool_covers_every_story_position(self) -> None:
-        # One Progressive Mission per position, or the run cannot be finished.
-        progressive_missions = self.get_items_by_name("Progressive Mission")
-        self.assertEqual(len(progressive_missions), GOAL_POSITION + 1)
+    def test_the_pool_covers_every_branch_mission(self) -> None:
+        from ..branches import branch_pool_counts
+        from ..items import PROGRESSIVE_BRANCH_ITEMS
+
+        total = sum(len(self.get_items_by_name(name)) for name in PROGRESSIVE_BRANCH_ITEMS.values())
+        self.assertEqual(total, sum(branch_pool_counts(0, GOAL_POSITION + 1).values()))
 
     def test_las_venturas_is_unreachable_before_san_fierro_is_finished(self) -> None:
         monster = self.world.get_location("LV Mission: Monster")
-        progressive_missions = self.get_items_by_name("Progressive Mission")
 
-        for item in progressive_missions[:53]:
-            self.multiworld.state.collect(item)
+        self.collect_mission_requirement(75, hold_back="Triads")
         self.assertFalse(monster.can_reach(self.multiworld.state))
 
-        self.multiworld.state.collect(progressive_missions[53])
+        self.collect_mission_requirement(75)
         self.assertTrue(monster.can_reach(self.multiworld.state))
-
 
 class TestEarlierGoalsHaveNoLasVenturas(GTASATestBase):
     def test_green_sabre_seed_has_no_las_venturas_locations(self) -> None:
