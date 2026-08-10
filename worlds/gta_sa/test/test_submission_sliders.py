@@ -49,10 +49,10 @@ class TestTaxiCap(GTASATestBase):
     options = {"include_submissions": "per_level", "taxi_checks": 3}
 
     def test_keeps_the_first_three_milestones(self) -> None:
-        self.world.get_location("LS Mission: Taxi Driver 15 Fares")
+        self.world.get_location("LS Mission: Taxi Driver 3 Fares")
 
     def test_drops_beyond_them(self) -> None:
-        self.assertRaises(KeyError, self.world.get_location, "LS Mission: Taxi Driver 20 Fares")
+        self.assertRaises(KeyError, self.world.get_location, "LS Mission: Taxi Driver 4 Fares")
 
 class TestSliderIgnoredOnCompletion(GTASATestBase):
     options = {"include_submissions": "on_completion", "paramedic_checks": 5}

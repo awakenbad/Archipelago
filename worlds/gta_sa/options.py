@@ -117,12 +117,12 @@ class VigilanteChecks(Range):
     default = 12
 
 class TaxiChecks(Range):
-    """How many Taxi fare milestones send a check, in Per Level mode. Each milestone is 5 fares, so
-    e.g. 3 sends checks at 5, 10 and 15 fares."""
+    """How many Taxi fare milestones send a check, in Per Level mode. Each milestone is 1 fare, so
+    e.g. 3 sends checks at 1, 2 and 3 fares."""
     display_name = "Taxi Checks"
     range_start = 1
-    range_end = 10
-    default = 10
+    range_end = 50
+    default = 50
 
 class BurglaryChecks(Range):
     """How many Burglary milestones send a check, in Per Level mode. Each milestone is $1000 stolen,

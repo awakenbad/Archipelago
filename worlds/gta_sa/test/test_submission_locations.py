@@ -117,8 +117,8 @@ class TestTieredSubmissionLocations(GTASATestBase):
             0: "LS Mission: Paramedic Level 1",
             12: "LS Mission: Firefighter Level 1",
             24: "LS Mission: Vigilante Level 1",
-            36: "LS Mission: Taxi Driver 5 Fares",
-            46: "LS Mission: Burglary $1,000 Stolen",
+            36: "LS Mission: Taxi Driver 1 Fares",
+            86: "LS Mission: Burglary $1,000 Stolen",
         }
         for slot, name in expected_first_slots.items():
             with self.subTest(name):
@@ -198,6 +198,6 @@ class TestTruckingWithBadlandsGoal(GTASATestBase):
         from ..locations import LOCATION_NAME_TO_ID
 
         self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 1"],
-                         SUBMISSION_TIER_BASE_ID + 56)
+                         SUBMISSION_TIER_BASE_ID + 96)
         self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 8"],
-                         SUBMISSION_TIER_BASE_ID + 63)
+                         SUBMISSION_TIER_BASE_ID + 103)
