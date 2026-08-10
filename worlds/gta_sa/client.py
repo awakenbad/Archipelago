@@ -260,16 +260,16 @@ class GTASAContext(CommonContext):
         self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
 
     def send_collectible_config(self) -> None:
-        # Tell the plugin which collectible sets this seed has locations for, so it blips no others.
         known = self.missing_locations | self.checked_locations
         if not known:
             return
 
-        included = [
-            name for name, base, count in COLLECTIBLE_BLOCKS
-            if not known.isdisjoint(range(base, base + count))
-        ]
-        self.send_to_plugin(f"CTRL:collectibles:{','.join(included)}\n")
+        parts = []
+        for name, base, count in COLLECTIBLE_BLOCKS:
+            indices = sorted(loc - base for loc in known if base <= loc < base + count)
+            if indices:
+                parts.append(f"{name}={','.join(str(i) for i in indices)}")
+        self.send_to_plugin(f"CTRL:collectibles:{';'.join(parts)}\n")
 
     def scout_shop_locations(self) -> None:
         """Ask the server what item sits at each Ammu-Nation slot, so the plugin can display it."""

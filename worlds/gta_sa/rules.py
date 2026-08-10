@@ -77,13 +77,13 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         if location_name in location_cache:
             world.set_rule(world.get_location(location_name), _story_point_rule(world, EXPORT_REQUIREMENT))
 
-    if world.options.include_oysters:
+    if world.options.oyster_checks.value:
         from .oyster_list import OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT
         for location_name in OYSTER_LOCATION_NAMES:
             if location_name in location_cache:
                 world.set_rule(world.get_location(location_name), _story_point_rule(world, OYSTER_REQUIREMENT))
 
-    if world.options.include_horseshoes:
+    if world.options.horseshoe_checks.value:
         from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
         for location_name in HORSESHOE_LOCATION_NAMES:
             if location_name in location_cache:

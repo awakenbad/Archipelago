@@ -77,8 +77,8 @@ class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
 
     options = {
         "include_submissions": "on_completion",
-        "include_tags": False,
-        "include_snapshots": False,
+        "tag_checks": 0,
+        "snapshot_checks": 0,
         "include_ammunation_shop": False,
     }
 

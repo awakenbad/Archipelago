@@ -63,14 +63,15 @@ def create_all_locations(world: GTASAWorld) -> None:
     create_regular_locations(world)
     create_submission_tier_locations(world)
     create_victory_location(world)
-    if world.options.include_tags:
+    if world.options.tag_checks.value:
         create_tag_locations(world)
-    if world.options.include_snapshots:
+    if world.options.snapshot_checks.value:
         create_snapshot_locations(world)
-    if world.options.include_horseshoes:
+    if world.options.horseshoe_checks.value:
         create_horseshoe_locations(world)
-    create_export_locations(world)
-    if world.options.include_oysters:
+    if world.options.include_exports:
+        create_export_locations(world)
+    if world.options.oyster_checks.value:
         create_oyster_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
@@ -118,10 +119,15 @@ def create_regular_locations(world: GTASAWorld) -> None:
         location_id = LOCATION_NAME_TO_ID[location_name]
         region.add_locations({location_name: location_id}, GTASALocation)
 
+def sample_collectibles(world: GTASAWorld, names: list[str], count: int) -> list[str]:
+    count = min(count, len(names))
+    return world.random.sample(names, count)
+
 def create_tag_locations(world: GTASAWorld) -> None:
     region = world.get_region(TAG_REGION)
     earnable = get_earnable_tag_names(mission_list.get_start_index(world))
-    region.add_locations(get_location_names_with_ids(earnable), GTASALocation)
+    chosen = sample_collectibles(world, earnable, world.options.tag_checks.value)
+    region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
 def create_snapshot_locations(world: GTASAWorld) -> None:
     # San Fierro is only generated for goals that reach it, so an out-of-scope seed simply has no
@@ -129,7 +135,8 @@ def create_snapshot_locations(world: GTASAWorld) -> None:
     if SNAPSHOT_REGION not in mission_list.get_included_regions(world):
         return
     region = world.get_region(SNAPSHOT_REGION)
-    region.add_locations(get_location_names_with_ids(SNAPSHOT_LOCATION_NAMES), GTASALocation)
+    chosen = sample_collectibles(world, SNAPSHOT_LOCATION_NAMES, world.options.snapshot_checks.value)
+    region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
 def create_export_locations(world: GTASAWorld) -> None:
     if EXPORT_REGION not in mission_list.get_included_regions(world):
@@ -147,13 +154,15 @@ def create_oyster_locations(world: GTASAWorld) -> None:
     if OYSTER_REQUIREMENT >= mission_list.get_story_mission_count(world):
         return
     region = world.get_region(OYSTER_REGION)
-    region.add_locations(get_location_names_with_ids(OYSTER_LOCATION_NAMES), GTASALocation)
+    chosen = sample_collectibles(world, OYSTER_LOCATION_NAMES, world.options.oyster_checks.value)
+    region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
 def create_horseshoe_locations(world: GTASAWorld) -> None:
     if HORSESHOE_REGION not in mission_list.get_included_regions(world):
         return
     region = world.get_region(HORSESHOE_REGION)
-    region.add_locations(get_location_names_with_ids(HORSESHOE_LOCATION_NAMES), GTASALocation)
+    chosen = sample_collectibles(world, HORSESHOE_LOCATION_NAMES, world.options.horseshoe_checks.value)
+    region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
 def create_shop_locations(world: GTASAWorld) -> None:
     region = world.get_region(SHOP_REGION)

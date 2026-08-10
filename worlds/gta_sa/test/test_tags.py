@@ -3,7 +3,7 @@ from .bases import GTASATestBase
 
 class TestTagsEnabled(GTASATestBase):
     options = {
-        "include_tags": True,
+        "tag_checks": 100,
     }
 
     def test_all_100_tag_locations_exist(self) -> None:
@@ -22,7 +22,7 @@ class TestTagsEnabled(GTASATestBase):
 
 class TestTagsDisabled(GTASATestBase):
     options = {
-        "include_tags": False,
+        "tag_checks": 0,
     }
 
     def test_no_tag_locations_exist(self) -> None:

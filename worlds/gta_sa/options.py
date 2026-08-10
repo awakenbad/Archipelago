@@ -41,34 +41,41 @@ class EndGoal(Choice):
 
     default = option_the_green_sabre
 
-class IncludeSnapshots(Toggle):
+class SnapshotChecks(Range):
     """
-    Whether to include all 50 San Fierro snapshots as individual location checks.
-    Ignored unless San Fierro is in scope for your goal.
-    """
-
-    display_name = "Include Snapshots"
-
-    default = 1
-
-class IncludeTags(Toggle):
-    """
-    Whether to include all 100 Los Santos spray tags as individual location checks.
+    How many of the 50 San Fierro snapshots are location checks - a random set of that size, and
+    only the chosen ones show blips. 0 disables them. Ignored unless San Fierro is in scope.
     """
 
-    display_name = "Include Tags"
+    display_name = "Snapshot Checks"
 
-    default = 1
+    range_start = 0
+    range_end = 50
+    default = 50
 
-class IncludeHorseshoes(Toggle):
+class TagChecks(Range):
     """
-    Whether to include all 50 Las Venturas horseshoes as individual location checks.
-    Ignored unless Las Venturas is in scope for your goal.
+    How many of the 100 Los Santos spray tags are location checks - a random set of that size, and
+    only the chosen ones show blips. 0 disables them.
     """
 
-    display_name = "Include Horseshoes"
+    display_name = "Tag Checks"
 
-    default = 1
+    range_start = 0
+    range_end = 100
+    default = 100
+
+class HorseshoeChecks(Range):
+    """
+    How many of the 50 Las Venturas horseshoes are location checks - a random set of that size, and
+    only the chosen ones show blips. 0 disables them. Ignored unless Las Venturas is in scope.
+    """
+
+    display_name = "Horseshoe Checks"
+
+    range_start = 0
+    range_end = 50
+    default = 50
 
 class IncludeAmmunationShop(Toggle):
     """
@@ -170,13 +177,25 @@ class GangTerritoryTarget(Range):
     range_end = 100
     default = 35
 
-class IncludeOysters(Toggle):
+class OysterChecks(Range):
     """
-    Whether to include all 50 oysters as individual location checks. They are scattered statewide
-    and underwater, so they only appear on goals that open the whole map (A Home in the Hills and later).
+    How many of the 50 oysters are location checks - a random set of that size, and only the chosen
+    ones show blips. 0 disables them. They are statewide and underwater, so they only appear on goals
+    that open the whole map (A Home in the Hills and later).
     """
 
-    display_name = "Include Oysters"
+    display_name = "Oyster Checks"
+
+    range_start = 0
+    range_end = 50
+    default = 50
+
+class IncludeExports(Toggle):
+    """
+    Whether the San Fierro export vehicles are location checks. Ignored unless San Fierro is in scope.
+    """
+
+    display_name = "Include Exports"
 
     default = 1
 
@@ -196,10 +215,11 @@ class GTASAOptions(PerGameCommonOptions):
     starting_point: StartingPoint
     end_goal: EndGoal
     death_link: DeathLink
-    include_tags: IncludeTags
-    include_snapshots: IncludeSnapshots
-    include_horseshoes: IncludeHorseshoes
-    include_oysters: IncludeOysters
+    tag_checks: TagChecks
+    snapshot_checks: SnapshotChecks
+    horseshoe_checks: HorseshoeChecks
+    oyster_checks: OysterChecks
+    include_exports: IncludeExports
     include_ammunation_shop: IncludeAmmunationShop
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
@@ -217,8 +237,8 @@ class GTASAOptions(PerGameCommonOptions):
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [StartingPoint, EndGoal, DeathLink, IncludeTags, IncludeSnapshots, IncludeHorseshoes, IncludeOysters,
-         IncludeAmmunationShop, TrapPercentage],
+        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
+         IncludeExports, IncludeAmmunationShop, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

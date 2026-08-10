@@ -100,7 +100,7 @@ class TestMissionSprayedTags(unittest.TestCase):
                 multiworld = setup_multiworld(GTASAWorld, options={
                     "starting_point": milestone.start_option_value,
                     "end_goal": "end_of_the_line",
-                    "include_tags": True,
+                    "tag_checks": 100,
                 })
                 created = {location.name for location in multiworld.get_locations(1)}
                 if milestone.story_index == 0:
