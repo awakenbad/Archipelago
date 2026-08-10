@@ -395,7 +395,8 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
         msg = line.decode(errors="replace").strip()
 
         if msg == "PLAYER_DIED":
-            asyncio.create_task(ctx.send_death(f"{ctx.username} died in San Andreas"))
+            if ctx.death_link_enabled:
+                asyncio.create_task(ctx.send_death(f"{ctx.username} died in San Andreas"))
             continue
 
         if not msg.startswith("CHECK:"):
