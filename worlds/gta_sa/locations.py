@@ -120,8 +120,14 @@ def create_regular_locations(world: GTASAWorld) -> None:
         region.add_locations({location_name: location_id}, GTASALocation)
 
 def sample_collectibles(world: GTASAWorld, names: list[str], count: int) -> list[str]:
-    count = min(count, len(names))
-    return world.random.sample(names, count)
+    if world.ut_passthrough is not None:
+        chosen_ids = set(world.ut_passthrough.get("collectibles", ()))
+        chosen = [name for name in names if LOCATION_NAME_TO_ID[name] in chosen_ids]
+    else:
+        count = min(count, len(names))
+        chosen = world.random.sample(names, count)
+    world.chosen_collectible_ids.update(LOCATION_NAME_TO_ID[name] for name in chosen)
+    return chosen
 
 def create_tag_locations(world: GTASAWorld) -> None:
     region = world.get_region(TAG_REGION)

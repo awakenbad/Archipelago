@@ -8,8 +8,20 @@ import tempfile
 import websockets
 
 from Utils import init_logging
-from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger
+from CommonClient import server_loop, gui_enabled, logger
 from NetUtils import ClientStatus
+
+try:
+    from worlds.tracker.TrackerClient import TrackerGameContext, TrackerCommandProcessor as ClientCommandProcessor, UT_VERSION  # noqa
+    tracker_loaded = True
+except ImportError:
+    from CommonClient import CommonContext, ClientCommandProcessor
+
+    class TrackerGameContext(CommonContext):
+        pass
+
+    tracker_loaded = False
+    UT_VERSION = "Not found"
 from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from .branches import BRANCHES
 from .shop_list import INCLUDED_SHOP_SLOTS
@@ -163,7 +175,7 @@ def _set_window_icon(manager) -> None:
         file.write(icon_bytes)
     manager.icon = path
 
-class GTASAContext(CommonContext):
+class GTASAContext(TrackerGameContext):
     game = "Grand Theft Auto: San Andreas"
     items_handling = 0b111
     command_processor = GTASACommandProcessor
@@ -177,7 +189,7 @@ class GTASAContext(CommonContext):
         ui = super().make_gui()
 
         class GTASAManager(ui):
-            base_title = "Archipelago GTA: San Andreas Client"
+            base_title = "Archipelago GTA: San Andreas Client" + (f" | UT {UT_VERSION}" if tracker_loaded else "")
 
             def build(self):
                 container = super().build()
@@ -337,6 +349,8 @@ class GTASAContext(CommonContext):
         self.send_to_plugin("CTRL:deathlink_kill\n")
 
     def on_package(self, cmd: str, args: dict):
+        super().on_package(cmd, args)
+
         if cmd == "ReceivedItems":
             self.apply_pending_items()
         elif cmd == "Connected":
@@ -464,6 +478,9 @@ def launch(*args):
             raise
 
         asyncio.create_task(plugin_server.serve_forever())
+
+        if tracker_loaded:
+            ctx.run_generator()
 
         if gui_enabled:
             ctx.run_gui()

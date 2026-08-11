@@ -1,0 +1,68 @@
+import unittest
+from argparse import Namespace
+
+from BaseClasses import CollectionState, MultiWorld
+from worlds.AutoWorld import call_all
+
+from ..world import GTASAWorld
+
+GEN_STEPS = ("generate_early", "create_regions", "create_items", "set_rules")
+
+COLLECTIBLE_HEAVY_OPTIONS = {
+    "end_goal": "end_of_the_line",
+    "tag_checks": 30,
+    "snapshot_checks": 20,
+    "horseshoe_checks": 25,
+    "oyster_checks": 25,
+    "include_exports": True,
+    "include_ammunation_shop": True,
+    "include_submissions": "per_level",
+}
+
+def generate(options: dict, seed: int, passthrough: dict | None = None) -> MultiWorld:
+    multiworld = MultiWorld(1)
+    multiworld.game = {1: GTASAWorld.game}
+    multiworld.player_name = {1: "Tester1"}
+    multiworld.set_seed(seed)
+
+    args = Namespace()
+    for key, option in GTASAWorld.options_dataclass.type_hints.items():
+        setattr(args, key, {1: option.from_any(options.get(key, option.default))})
+    multiworld.set_options(args)
+    multiworld.state = CollectionState(multiworld)
+
+    if passthrough is not None:
+        multiworld.re_gen_passthrough = {GTASAWorld.game: passthrough}
+
+    for step in GEN_STEPS:
+        call_all(multiworld, step)
+    return multiworld
+
+def location_ids(multiworld: MultiWorld) -> set[int]:
+    return {loc.address for loc in multiworld.get_locations(1) if loc.address is not None}
+
+class TestUniversalTrackerRegen(unittest.TestCase):
+    def test_passthrough_reproduces_location_set_under_a_different_seed(self):
+        original = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=1)
+        slot_data = original.worlds[1].fill_slot_data()
+        passthrough = GTASAWorld.interpret_slot_data(slot_data)
+
+        regen = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=2, passthrough=passthrough)
+
+        self.assertEqual(location_ids(original), location_ids(regen))
+        self.assertEqual(slot_data, regen.worlds[1].fill_slot_data())
+
+    def test_control_a_different_seed_alone_diverges(self):
+        first = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=1)
+        second = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=2)
+        self.assertNotEqual(location_ids(first), location_ids(second))
+
+    def test_passthrough_holds_when_options_would_change_counts(self):
+        original = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=1)
+        slot_data = original.worlds[1].fill_slot_data()
+        passthrough = GTASAWorld.interpret_slot_data(slot_data)
+
+        different_counts = {**COLLECTIBLE_HEAVY_OPTIONS, "tag_checks": 5, "oyster_checks": 50}
+        regen = generate(different_counts, seed=2, passthrough=passthrough)
+
+        self.assertEqual(location_ids(original), location_ids(regen))

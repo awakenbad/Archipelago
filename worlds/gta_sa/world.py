@@ -5,6 +5,14 @@ from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
 from .. import gta_sa
 
+GENERATION_OPTION_NAMES = (
+    "starting_point", "end_goal",
+    "tag_checks", "snapshot_checks", "horseshoe_checks", "oyster_checks",
+    "include_exports", "include_ammunation_shop", "include_submissions",
+    "paramedic_checks", "firefighter_checks", "vigilante_checks", "taxi_checks",
+    "burglary_checks", "trucking_checks", "valet_checks", "pimping_checks",
+    "quarry_checks", "gang_territory_target",
+)
 
 class GTASAWeb(WebWorld):
     option_groups = gtasa_options.option_groups
@@ -28,8 +36,18 @@ class GTASAWorld(World):
     item_name_to_id = items.ITEM_NAME_TO_ID
 
     origin_region_name = "Los Santos"
+    ut_can_gen_without_yaml = True
+    ut_passthrough = None
 
     def generate_early(self) -> None:
+        self.chosen_collectible_ids: set[int] = set()
+        if hasattr(self.multiworld, "re_gen_passthrough") and self.game in self.multiworld.re_gen_passthrough:
+            self.ut_passthrough = self.multiworld.re_gen_passthrough[self.game]
+            for name, value in self.ut_passthrough.get("options", {}).items():
+                option = getattr(self.options, name, None)
+                if option is not None:
+                    setattr(self.options, name, option.from_any(value))
+
         start = mission_list.get_start(self)
         goal = mission_list.get_goal(self)
         if start.story_index >= goal.story_index:
@@ -58,4 +76,10 @@ class GTASAWorld(World):
         return {
             "death_link": self.options.death_link.value,
             "goal_mission_id": mission_list.get_goal_mission_id(self),
+            "options": {name: getattr(self.options, name).value for name in GENERATION_OPTION_NAMES},
+            "collectibles": sorted(self.chosen_collectible_ids),
         }
+
+    @staticmethod
+    def interpret_slot_data(slot_data: dict) -> dict:
+        return slot_data
