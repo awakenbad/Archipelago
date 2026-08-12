@@ -24,6 +24,7 @@ except ImportError:
     UT_VERSION = "Not found"
 from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from .branches import BRANCHES
+from .challenge_list import CHALLENGES
 from .shop_list import INCLUDED_SHOP_SLOTS
 from .tag_list import TAG_COUNT
 from .snapshot_list import SNAPSHOT_COUNT
@@ -123,6 +124,7 @@ ITEM_ID_TO_EFFECT = {
     # Utility fillers: 50 + index into items.py's UTILITY_FILLER_ITEMS.
     50: ("armor_refill", None),
     51: ("car_repair", None),
+    **{challenge.gate_item_id: (challenge.effect, None) for challenge in CHALLENGES},
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):
@@ -177,6 +179,7 @@ def _set_window_icon(manager) -> None:
 
 class GTASAContext(TrackerGameContext):
     game = "Grand Theft Auto: San Andreas"
+    tags = {"AP"}
     items_handling = 0b111
     command_processor = GTASACommandProcessor
     plugin_writer = None

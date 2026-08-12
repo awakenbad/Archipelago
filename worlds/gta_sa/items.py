@@ -6,6 +6,7 @@ from BaseClasses import Item, ItemClassification
 from Options import OptionError
 
 from .branches import BRANCHES
+from .challenge_list import CHALLENGE_GATE_ITEMS
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -82,6 +83,7 @@ ITEM_NAME_TO_ID = {
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
+    **CHALLENGE_GATE_ITEMS,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -99,6 +101,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
+    **{name: ItemClassification.progression for name in CHALLENGE_GATE_ITEMS},
 }
 
 VICTORY_ITEM_NAME = "Victory"
@@ -141,6 +144,10 @@ def create_all_items(world: GTASAWorld) -> None:
         itempool.append(world.create_item("Kung Fu Style"))
     if "Las Venturas" in included_regions:
         itempool.append(world.create_item("Kickboxing Style"))
+
+    if world.options.include_challenges:
+        for item_name in CHALLENGE_GATE_ITEMS:
+            itempool.append(world.create_item(item_name))
 
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))

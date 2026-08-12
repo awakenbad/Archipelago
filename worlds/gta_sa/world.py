@@ -8,7 +8,7 @@ from .. import gta_sa
 GENERATION_OPTION_NAMES = (
     "starting_point", "end_goal",
     "tag_checks", "snapshot_checks", "horseshoe_checks", "oyster_checks",
-    "include_exports", "include_ammunation_shop", "include_submissions",
+    "include_exports", "include_ammunation_shop", "include_challenges", "include_submissions",
     "paramedic_checks", "firefighter_checks", "vigilante_checks", "taxi_checks",
     "burglary_checks", "trucking_checks", "valet_checks", "pimping_checks",
     "quarry_checks", "gang_territory_target",

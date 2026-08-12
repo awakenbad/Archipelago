@@ -18,6 +18,7 @@ from .submission_tier_list import (
     SUBMISSION_TIER_LOCATION_NAMES,
     get_included_tier_names_by_region,
 )
+from .challenge_list import CHALLENGE_LOCATION_IDS
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -106,6 +107,8 @@ def create_regular_locations(world: GTASAWorld) -> None:
 
     for mission_id, name, region_name in MISSION_DATA:
         if region_name not in included_regions:
+            continue
+        if mission_id in CHALLENGE_LOCATION_IDS and not world.options.include_challenges:
             continue
         if mission_id == goal_mission_id:
             continue

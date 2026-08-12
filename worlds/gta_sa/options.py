@@ -199,6 +199,15 @@ class IncludeExports(Toggle):
 
     default = 1
 
+class IncludeChallenges(Toggle):
+    """
+    Whether challenges (BMX, NRG-500, Chilliad Races) are included as locations.
+    """
+
+    display_name = "Include Challenges"
+
+    default = 1
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -221,6 +230,7 @@ class GTASAOptions(PerGameCommonOptions):
     oyster_checks: OysterChecks
     include_exports: IncludeExports
     include_ammunation_shop: IncludeAmmunationShop
+    include_challenges: IncludeChallenges
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -238,7 +248,7 @@ option_groups = [
     OptionGroup(
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
-         IncludeExports, IncludeAmmunationShop, TrapPercentage],
+         IncludeExports, IncludeAmmunationShop, IncludeChallenges, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

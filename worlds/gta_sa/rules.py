@@ -94,6 +94,14 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         for slot, required_count in INCLUDED_SHOP_SLOTS.items():
             world.set_rule(world.get_location(SHOP_LOCATION_NAMES[slot]), _story_point_rule(world, required_count))
 
+    if world.options.include_challenges:
+        from .challenge_list import CHALLENGES
+        from .mission_list import get_mission_location_name
+        from rule_builder.rules import Has
+        for challenge in CHALLENGES:
+            location_name = get_mission_location_name(challenge.location_id)
+            world.set_rule(world.get_location(location_name), Has(challenge.gate_item))
+
 def set_completion_condition(world: GTASAWorld) -> None:
     from .items import VICTORY_ITEM_NAME
     from rule_builder.rules import Has
