@@ -25,9 +25,9 @@ class TestRegionEntranceGating(GTASATestBase):
         self.assertTrue(self.can_reach_entrance("Los Santos to Badlands"))
 
     def test_san_fierro_and_las_venturas_are_not_yet_reachable(self) -> None:
-        for item_name in ("Progressive Sweet Mission", "Progressive Ryder Mission",
-                          "Progressive Big Smoke Mission", "Progressive OG Loc Mission",
-                          "Progressive C.R.A.S.H. Mission", "Progressive Cesar Mission"):
+        for item_name in ("Progressive Sweet", "Progressive Ryder",
+                          "Progressive Big Smoke", "Progressive OG Loc",
+                          "Progressive C.R.A.S.H.", "Progressive Cesar"):
             self.collect_by_name(item_name)
         self.assertFalse(self.can_reach_entrance("Badlands to San Fierro"))
         self.assertFalse(self.can_reach_entrance("San Fierro to Las Venturas"))
@@ -54,8 +54,7 @@ class TestGoalScopingWithBadlandsGoal(GTASATestBase):
             for location in self.multiworld.get_locations(self.player)
             if location.name.startswith("BD ")
         ]
-        # 9 story missions plus the 8 Trucking tiers.
-        self.assertEqual(len(badlands_location_names), 17)
+        self.assertEqual(len(badlands_location_names), 18)
 
     def test_final_badlands_mission_needs_its_requirement(self) -> None:
         self.assert_branch_gated("BD Mission: Are You Going to San Fierro?", 47)

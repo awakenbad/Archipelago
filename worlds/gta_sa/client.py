@@ -124,7 +124,7 @@ ITEM_ID_TO_EFFECT = {
     # Utility fillers: 50 + index into items.py's UTILITY_FILLER_ITEMS.
     50: ("armor_refill", None),
     51: ("car_repair", None),
-    **{challenge.gate_item_id: (challenge.effect, None) for challenge in CHALLENGES},
+    **{challenge.skill_item_id: (challenge.effect, None) for challenge in CHALLENGES},
 }
 
 class GTASACommandProcessor(ClientCommandProcessor):

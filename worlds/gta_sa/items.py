@@ -6,12 +6,12 @@ from BaseClasses import Item, ItemClassification
 from Options import OptionError
 
 from .branches import BRANCHES
-from .challenge_list import CHALLENGE_GATE_ITEMS
+from .challenge_list import CHALLENGES
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
 
-PROGRESSIVE_BRANCH_ITEMS = {branch.name: f"Progressive {branch.name} Mission" for branch in BRANCHES}
+PROGRESSIVE_BRANCH_ITEMS = {branch.name: f"Progressive {branch.name}" for branch in BRANCHES}
 
 WEAPON_FILLER_ITEMS = [
     "Pistol",
@@ -83,7 +83,7 @@ ITEM_NAME_TO_ID = {
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
-    **CHALLENGE_GATE_ITEMS,
+    **{challenge.skill_item: challenge.skill_item_id for challenge in CHALLENGES},
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -101,7 +101,8 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
-    **{name: ItemClassification.progression for name in CHALLENGE_GATE_ITEMS},
+    **{challenge.skill_item: (ItemClassification.progression if challenge.gates else ItemClassification.useful)
+       for challenge in CHALLENGES},
 }
 
 VICTORY_ITEM_NAME = "Victory"
@@ -146,8 +147,14 @@ def create_all_items(world: GTASAWorld) -> None:
         itempool.append(world.create_item("Kickboxing Style"))
 
     if world.options.include_challenges:
-        for item_name in CHALLENGE_GATE_ITEMS:
-            itempool.append(world.create_item(item_name))
+        from .mission_list import get_mission_region
+        added_skill_items: set[str] = set()
+        for challenge in CHALLENGES:
+            if challenge.skill_item in added_skill_items:
+                continue
+            if get_mission_region(challenge.location_id) in included_regions:
+                itempool.append(world.create_item(challenge.skill_item))
+                added_skill_items.add(challenge.skill_item)
 
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))

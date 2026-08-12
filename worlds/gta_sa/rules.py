@@ -99,8 +99,11 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         from .mission_list import get_mission_location_name
         from rule_builder.rules import Has
         for challenge in CHALLENGES:
+            if not challenge.gates:
+                continue
             location_name = get_mission_location_name(challenge.location_id)
-            world.set_rule(world.get_location(location_name), Has(challenge.gate_item))
+            if location_name in location_cache:
+                world.set_rule(world.get_location(location_name), Has(challenge.skill_item))
 
 def set_completion_condition(world: GTASAWorld) -> None:
     from .items import VICTORY_ITEM_NAME

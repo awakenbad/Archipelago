@@ -31,7 +31,7 @@ BRANCHES = (
 )
 
 CROSS_EDGES = {
-    12: (11,),                 # Ryder <- Big Smoke (the free opening)
+    12: (11,),                 # Ryder <- Big Smoke
     13: (12,),                 # Tagging Up Turf <- Ryder
     27: (16,),                 # OG Loc <- Nines and AK's
     24: (17,),                 # Home Invasion <- Drive-By
@@ -40,30 +40,30 @@ CROSS_EDGES = {
     22: (32,),                 # Burning Desire <- Madd Dogg's Rhymes
     21: (22,),                 # Doberman <- Burning Desire
     37: (30, 26, 34, 36, 23),  # Reuniting <- Just Business, Robbing Uncle Sam, House Party, High Stakes, Gray Imports
-    39: (38,),                 # Badlands <- The Green Sabre  (Los Santos -> Badlands)
+    39: (38,),                 # Badlands <- The Green Sabre
     41: (39,), 42: (39,), 43: (39,), 44: (39,),  # Catalina's robberies <- Badlands
     46: (39,),                 # Body Harvest <- Badlands
-    47: (135,),                # Are You Going to San Fierro? <- Farewell  (Body Harvest is its branch pred)
-    49: (47,),                 # Wear Flowers in Your Hair <- AYGTSF  (Badlands -> San Fierro)
+    47: (135,),                # Are You Going to San Fierro? <- Farewell
+    49: (47,),                 # Wear Flowers in Your Hair <- AYGTSF
     58: (50,),                 # Photo Opportunity <- Deconstruction
     59: (58,),                 # Jizzy <- Photo Opportunity
     53: (59,),                 # Mountain Cloud Boys <- Jizzy
-    60: (66,),                 # Outrider <- Mike Toreno       (Triads endgame <- full Loco Syndicate)
-    52: (60,),                 # Snail Trail <- Outrider        (C.R.A.S.H. Snail Trail <- Triads endgame)
-    61: (52,),                 # Ice Cold Killa <- Snail Trail  (Triads endgame <- C.R.A.S.H. Snail Trail)
-    64: (57,),                 # Pier 69 <- The Da Nang Thang  (branch pred Ice Cold Killa is implicit)
-    75: (63,),                 # Monster <- Yay Ka-Boom-Boom  (San Fierro -> Las Venturas)
+    60: (66,),                 # Outrider <- Mike Toreno
+    52: (60,),                 # Snail Trail <- Outrider
+    61: (52,),                 # Ice Cold Killa <- Snail Trail
+    64: (57,),                 # Pier 69 <- The Da Nang Thang
+    75: (63,),                 # Monster <- Yay Ka-Boom-Boom
     84: (83,),                 # Fender Ketchup <- Learning to Fly
     89: (88,),                 # Intensive Care <- Don Peyote
     93: (89,),                 # Misappropriation <- Intensive Care
     87: (90,),                 # Fish in a Barrel <- The Meat Business
     95: (90,),                 # Madd Dogg <- The Meat Business
-    94: (91,),                 # High Noon <- Freefall  (branch pred Misappropriation implicit, same C.R.A.S.H. branch)
-    92: (82, 87, 94, 95),      # Saint Mark's Bistro <- every other LV strand's tail (branch pred Freefall implicit)
-    102: (92,),                # A Home in the Hills <- Saint Mark's Bistro  (Las Venturas -> RTLS)
+    94: (91,),                 # High Noon <- Freefall
+    92: (82, 87, 94, 95),      # Saint Mark's Bistro <- every other LV
+    102: (92,),                # A Home in the Hills <- Saint Mark's Bistro
     103: (102,),               # Vertical Bird <- A Home in the Hills
     106: (104,),               # Beat Down on B Dup <- Home Coming
-    108: (105,),               # Riot <- Cut Throat Business  (branch pred Grove 4 Life implicit)
+    108: (105,),               # Riot <- Cut Throat Business
 }
 
 SET_COUNT_EDGES = {

@@ -202,6 +202,8 @@ MISSION_DATA = [
     (115, "San Fierro Gym Fight School", "San Fierro"),
     (116, "Las Venturas Gym Fight School", "Las Venturas"),
     (133, "BMX Challenge", "Los Santos"),
+    (136, "NRG-500 Challenge", "San Fierro"),
+    (132, "Chiliad Challenge", "Badlands"),
 ]
 
 MISSION_ID_TO_LOCATION_NAME = {
