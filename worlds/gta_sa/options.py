@@ -170,8 +170,9 @@ class QuarryChecks(Range):
 
 class GangTerritoryTarget(Range):
     """Percentage of gang territory to retake in Return to Los Santos, sending a check every 5% up
-    to your target (so 35 sends checks at 5, 10, ... 35%). 0 turns gang territory checks off. Only
-    appears on the End of the Line goal. In On Completion mode, sends one check at 35%."""
+    to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything below 5 turns gang territory
+    checks off entirely, same as 0. Only appears on the End of the Line goal. In On Completion
+    mode, sends one check at 35%."""
     display_name = "Gang Territory Target %"
     range_start = 0
     range_end = 100
