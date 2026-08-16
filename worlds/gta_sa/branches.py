@@ -15,9 +15,9 @@ BRANCHES = (
     Branch("Ryder", (12, 24, 25, 26)),
     Branch("Big Smoke", (27, 28, 29, 30)),
     Branch("OG Loc", (31, 32, 33, 34)),
-    Branch("Cesar", (36, 48)),
+    Branch("Cesar", (36, 48, 135)),
     Branch("C.R.A.S.H.", (22, 23, 39, 52, 93, 94)),
-    Branch("Catalina", (41, 42, 43, 44, 135), unordered=True),
+    Branch("Catalina", (41, 42, 43, 44), unordered=True),
     Branch("The Truth", (46, 47)),
     Branch("Garage", (49, 51, 50)),
     Branch("Triads", (58, 60, 61, 64, 62, 63)),
@@ -42,6 +42,7 @@ CROSS_EDGES = {
     37: (30, 26, 34, 36, 23),  # Reuniting <- Just Business, Robbing Uncle Sam, House Party, High Stakes, Gray Imports
     39: (38,),                 # Badlands <- The Green Sabre
     41: (39,), 42: (39,), 43: (39,), 44: (39,),  # Catalina's robberies <- Badlands
+    135: (44,),                # Farewell, My Love <- all four robberies
     46: (39,),                 # Body Harvest <- Badlands
     47: (135,),                # Are You Going to San Fierro? <- Farewell
     49: (47,),                 # Wear Flowers in Your Hair <- AYGTSF
