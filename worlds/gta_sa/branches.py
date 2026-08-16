@@ -5,7 +5,6 @@ from .mission_list import STORY_INDEX_BY_MISSION_ID, STORY_MISSION_ORDER
 class Branch(NamedTuple):
     name: str
     missions: tuple[int, ...]
-    unordered: bool = False
 
 FREE_MISSIONS = (11,)
 
@@ -17,7 +16,7 @@ BRANCHES = (
     Branch("OG Loc", (31, 32, 33, 34)),
     Branch("Cesar", (36, 48, 135)),
     Branch("C.R.A.S.H.", (22, 23, 39, 52, 93, 94)),
-    Branch("Catalina", (41, 42, 43, 44), unordered=True),
+    Branch("Catalina", (41, 42, 43, 44)),
     Branch("The Truth", (46, 47)),
     Branch("Garage", (49, 51, 50)),
     Branch("Triads", (58, 60, 61, 64, 62, 63)),
@@ -41,9 +40,11 @@ CROSS_EDGES = {
     21: (22,),                 # Doberman <- Burning Desire
     37: (30, 26, 34, 36, 23),  # Reuniting <- Just Business, Robbing Uncle Sam, House Party, High Stakes, Gray Imports
     39: (38,),                 # Badlands <- The Green Sabre
-    41: (39,), 42: (39,), 43: (39,), 44: (39,),  # Catalina's robberies <- Badlands
+    41: (39,),                 # 1st robbery <- Badlands
+    42: (39, 46),              # 2nd robbery <- Badlands + Body Harvest
     135: (44,),                # Farewell, My Love <- all four robberies
     46: (39,),                 # Body Harvest <- Badlands
+    48: (42,),                 # Wu Zi Mu <- 2 robberies done
     47: (135,),                # Are You Going to San Fierro? <- Farewell
     49: (47,),                 # Wear Flowers in Your Hair <- AYGTSF
     58: (50,),                 # Photo Opportunity <- Deconstruction
@@ -67,9 +68,7 @@ CROSS_EDGES = {
     108: (105,),               # Riot <- Cut Throat Business
 }
 
-SET_COUNT_EDGES = {
-    48: (2, (41, 42, 43, 44)),  # Wu Zi Mu <- any 2 robberies done
-}
+SET_COUNT_EDGES: dict[int, tuple[int, tuple[int, ...]]] = {}
 
 _BRANCH_BY_NAME = {branch.name: branch for branch in BRANCHES}
 

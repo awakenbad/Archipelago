@@ -106,15 +106,12 @@ MISSION_DATA = [
     (37, "Reuniting The Families", "Los Santos"),
     (38, "The Green Sabre", "Los Santos"),
 
-    # Badlands story missions. First Date (40) and King in Exile (45) are deliberately absent:
-    # they are cutscene missions that never set LastMissionPassedName, so they can't be detected
-    # (verified in-game) and are not locations. Farewell, My Love (135) is a real separate
-    # mission the original ID table had merged into Wu Zi Mu's row - see CheckListener.cpp.
+    # Badlands story missions.
     (39, "Badlands", "Badlands"),
-    (41, "Local Liquor Store", "Badlands"),
-    (42, "Small Town Bank", "Badlands"),
-    (43, "Tanker Commander", "Badlands"),
-    (44, "Against All Odds", "Badlands"),
+    (41, "First Date", "Badlands"),
+    (42, "First Base", "Badlands"),
+    (43, "Gone Courting", "Badlands"),
+    (44, "Made in Heaven", "Badlands"),
     (46, "Body Harvest", "Badlands"),
     (47, "Are You Going to San Fierro?", "Badlands"),
     (48, "Wu Zi Mu", "Badlands"),
@@ -140,9 +137,7 @@ MISSION_DATA = [
     (65, "T-Bone Mendez", "San Fierro"),
     (66, "Mike Toreno", "San Fierro"),
 
-    # Las Venturas story missions - the desert/Toreno arc through the casino arc. They sit in the
-    # Las Venturas region rather than the Badlands because they unlock after San Fierro, which is
-    # what the region gate models.
+    # Las Venturas story missions.
     (75, "Monster", "Las Venturas"),
     (76, "Highjack", "Las Venturas"),
     (77, "Interdiction", "Las Venturas"),
@@ -251,12 +246,12 @@ STORY_MISSION_LOCATION_ORDER = (
     "LS Mission: The Green Sabre",              # 26
 
     "BD Mission: Badlands",                     # 27
-    "BD Mission: Local Liquor Store",           # 28
+    "BD Mission: First Date",                   # 28
     "BD Mission: Body Harvest",                 # 29
-    "BD Mission: Small Town Bank",              # 30
+    "BD Mission: First Base",                   # 30
     "BD Mission: Wu Zi Mu",                     # 31 - unlocks after 2 robberies
-    "BD Mission: Tanker Commander",             # 32
-    "BD Mission: Against All Odds",             # 33
+    "BD Mission: Gone Courting",                # 32
+    "BD Mission: Made in Heaven",               # 33
     "BD Mission: Farewell, My Love...",         # 34
     "BD Mission: Are You Going to San Fierro?", # 35
 
