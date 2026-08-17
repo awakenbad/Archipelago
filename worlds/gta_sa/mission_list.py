@@ -190,15 +190,17 @@ MISSION_DATA = [
     (69, "Customs Fast Track", "San Fierro"),
     (70, "Puncture Wounds", "San Fierro"),
 
-    # Paramedic (122), Firefighter (123), Vigilante (124), Taxi (121) and Burglary (125) are
-    # deliberately absent: they pay out per tier rather than once on completion, so their
-    # locations live in submission_tier_list.py.
     (114, "Los Santos Gym Fight School", "Los Santos"),
     (115, "San Fierro Gym Fight School", "San Fierro"),
     (116, "Las Venturas Gym Fight School", "Las Venturas"),
     (133, "BMX Challenge", "Los Santos"),
     (136, "NRG-500 Challenge", "San Fierro"),
     (132, "Chiliad Challenge", "Badlands"),
+    # Stadium events
+    (140, "8-Track", "Los Santos"),
+    (141, "Dirt Track", "Las Venturas"),
+    (142, "Blood Ring", "San Fierro"),
+    (143, "Kickstart", "Las Venturas"),
 ]
 
 MISSION_ID_TO_LOCATION_NAME = {

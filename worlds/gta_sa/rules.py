@@ -105,6 +105,17 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             if location_name in location_cache:
                 world.set_rule(world.get_location(location_name), Has(challenge.skill_item))
 
+    if world.options.include_stadium_events:
+        from .mission_list import get_mission_location_name
+        from .stadium_list import STADIUM_EVENTS
+        from rule_builder.rules import Has
+        for event in STADIUM_EVENTS:
+            if event.skill_item is None:
+                continue
+            location_name = get_mission_location_name(event.location_id)
+            if location_name in location_cache:
+                world.set_rule(world.get_location(location_name), Has(event.skill_item))
+
 def set_completion_condition(world: GTASAWorld) -> None:
     from .items import VICTORY_ITEM_NAME
     from rule_builder.rules import Has

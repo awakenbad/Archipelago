@@ -7,6 +7,8 @@ from Options import OptionError
 
 from .branches import BRANCHES
 from .challenge_list import CHALLENGES
+from .skill_items import ALWAYS_GENERATED_SKILL_ITEMS, SKILL_ITEM_IDS
+from .stadium_list import STADIUM_EVENTS
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -83,7 +85,7 @@ ITEM_NAME_TO_ID = {
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
-    **{challenge.skill_item: challenge.skill_item_id for challenge in CHALLENGES},
+    **SKILL_ITEM_IDS,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
@@ -101,8 +103,9 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
-    **{challenge.skill_item: (ItemClassification.progression if challenge.gates else ItemClassification.useful)
-       for challenge in CHALLENGES},
+    # Skill items are useful by default and promoted to progression per seed - see
+    # gating_skill_items(), which knows whether anything in scope actually needs them.
+    **{name: ItemClassification.useful for name in SKILL_ITEM_IDS},
 }
 
 VICTORY_ITEM_NAME = "Victory"
@@ -118,8 +121,28 @@ def get_random_filler_item_name(world: GTASAWorld) -> str:
         return world.random.choice(TRAP_ITEMS)
     return world.random.choice(["Money", *WEAPON_FILLER_ITEMS, *UTILITY_FILLER_ITEMS])
 
+def gating_skill_items(world: GTASAWorld) -> set[str]:
+    from .mission_list import get_included_regions, get_mission_region
+
+    included_regions = get_included_regions(world)
+    gating: set[str] = set()
+
+    if world.options.include_challenges:
+        for challenge in CHALLENGES:
+            if challenge.gates and get_mission_region(challenge.location_id) in included_regions:
+                gating.add(challenge.skill_item)
+
+    if world.options.include_stadium_events:
+        for event in STADIUM_EVENTS:
+            if event.skill_item and get_mission_region(event.location_id) in included_regions:
+                gating.add(event.skill_item)
+
+    return gating
+
 def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTASAItem:
     classification = DEFAULT_ITEM_CLASSIFICATIONS[name]
+    if name in SKILL_ITEM_IDS and name in gating_skill_items(world):
+        classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 def create_all_items(world: GTASAWorld) -> None:
@@ -146,9 +169,12 @@ def create_all_items(world: GTASAWorld) -> None:
     if "Las Venturas" in included_regions:
         itempool.append(world.create_item("Kickboxing Style"))
 
+    added_skill_items: set[str] = set(ALWAYS_GENERATED_SKILL_ITEMS)
+    for name in ALWAYS_GENERATED_SKILL_ITEMS:
+        itempool.append(world.create_item(name))
+
     if world.options.include_challenges:
         from .mission_list import get_mission_region
-        added_skill_items: set[str] = set()
         for challenge in CHALLENGES:
             if challenge.skill_item in added_skill_items:
                 continue

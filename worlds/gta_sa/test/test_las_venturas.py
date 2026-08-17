@@ -78,9 +78,13 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assert_branch_gated(GOAL, 102)
 
     def test_saint_marks_bistro_comes_last_of_the_las_venturas_missions(self) -> None:
-        from ..mission_list import get_optional_mission_requirements
+        from ..challenge_list import CHALLENGE_LOCATION_IDS
+        from ..mission_list import get_mission_location_name, get_optional_mission_requirements
+        from ..stadium_list import STADIUM_LOCATION_IDS
 
         optional_names = set(get_optional_mission_requirements())
+        challenge_names = {get_mission_location_name(mission_id)
+                           for mission_id in CHALLENGE_LOCATION_IDS | STADIUM_LOCATION_IDS}
         self.collect_mission_requirement(92)
 
         las_venturas_missions = [
@@ -89,6 +93,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
             if location.name.startswith("LV ")
             and location.name not in (SAINT_MARKS, GOAL)
             and location.name not in optional_names
+            and location.name not in challenge_names
         ]
         for location in las_venturas_missions:
             with self.subTest(location.name):

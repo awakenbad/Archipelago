@@ -209,6 +209,16 @@ class IncludeChallenges(Toggle):
 
     default = 1
 
+class IncludeStadiumEvents(Toggle):
+    """
+    Whether the stadium events (8-Track, Dirt Track, Blood Ring, Kickstart) are included as
+    locations. 8-Track and Dirt Track are gated behind Max Driving Skill and Max Bike Skill respectively.
+    """
+
+    display_name = "Include Stadium Events"
+
+    default = 1
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -232,6 +242,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_exports: IncludeExports
     include_ammunation_shop: IncludeAmmunationShop
     include_challenges: IncludeChallenges
+    include_stadium_events: IncludeStadiumEvents
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks

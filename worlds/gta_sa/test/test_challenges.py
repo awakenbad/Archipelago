@@ -29,7 +29,12 @@ class TestChallengesEnabled(GTASATestBase):
     def test_out_of_scope_challenges_absent(self) -> None:
         self.assertRaises(KeyError, self.world.get_location, NRG_LOCATION)
         self.assertRaises(KeyError, self.world.get_location, CHILIAD_LOCATION)
-        self.assertEqual(self.get_items_by_name(BIKE_ITEM), [])
+
+    def test_bike_item_is_generated_even_with_nothing_to_gate(self) -> None:
+        from BaseClasses import ItemClassification
+        bike_items = self.get_items_by_name(BIKE_ITEM)
+        self.assertEqual(len(bike_items), 1)
+        self.assertEqual(bike_items[0].classification, ItemClassification.useful)
 
 
 class TestChallengesReachingSanFierro(GTASATestBase):
@@ -44,11 +49,11 @@ class TestChallengesReachingSanFierro(GTASATestBase):
         self.assertTrue(location.can_reach(self.multiworld.state),
                         "NRG-500 Challenge should be reachable once San Fierro is reached, no bike item needed")
 
-    def test_bike_item_is_a_handy_useful_extra(self) -> None:
+    def test_bike_item_is_progression_because_dirt_track_needs_it(self) -> None:
         from BaseClasses import ItemClassification
         bike_items = self.get_items_by_name(BIKE_ITEM)
         self.assertEqual(len(bike_items), 1)
-        self.assertEqual(bike_items[0].classification, ItemClassification.useful)
+        self.assertEqual(bike_items[0].classification, ItemClassification.progression)
 
     def test_one_cycling_item_gates_both_bmx_and_chiliad(self) -> None:
         self.assertEqual(len(self.get_items_by_name(CYCLING_ITEM)), 1)
@@ -90,4 +95,6 @@ class TestChallengesDisabled(GTASATestBase):
 
     def test_no_challenge_items_in_pool(self) -> None:
         self.assertEqual(self.get_items_by_name(CYCLING_ITEM), [])
-        self.assertEqual(self.get_items_by_name(BIKE_ITEM), [])
+
+    def test_the_pinned_skill_items_survive(self) -> None:
+        self.assertEqual(len(self.get_items_by_name(BIKE_ITEM)), 1)
