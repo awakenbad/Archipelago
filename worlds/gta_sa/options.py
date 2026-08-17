@@ -260,7 +260,7 @@ option_groups = [
     OptionGroup(
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
-         IncludeExports, IncludeAmmunationShop, IncludeChallenges, TrapPercentage],
+         IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",
