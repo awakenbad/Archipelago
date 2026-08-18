@@ -219,6 +219,14 @@ class IncludeStadiumEvents(Toggle):
 
     default = 1
 
+class CourierChecks(Range):
+    """How many Courier levels send a check (Roboi's Food Mart, Hippy Shopper, Burger
+    Shot), in Per Level mode. 0 turns courier checks off entirely, in both modes."""
+    display_name = "Courier Checks"
+    range_start = 0
+    range_end = 4
+    default = 4
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -243,6 +251,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_ammunation_shop: IncludeAmmunationShop
     include_challenges: IncludeChallenges
     include_stadium_events: IncludeStadiumEvents
+    courier_checks: CourierChecks
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -265,7 +274,7 @@ option_groups = [
     OptionGroup(
         "Submission Options",
         [IncludeSubmissions, ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
-         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, GangTerritoryTarget],
+         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks, GangTerritoryTarget],
     ),
 ]
 

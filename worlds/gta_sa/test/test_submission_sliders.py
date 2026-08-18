@@ -16,7 +16,9 @@ class TestSliderRangesMatchTiers(unittest.TestCase):
             with self.subTest(spec.option_attr):
                 self.assertIn(spec.option_attr, hints, "option_attr has no matching GTASAOptions field")
                 option_cls = hints[spec.option_attr]
-                self.assertEqual(option_cls.range_start, 1)
+                expected_start = 0 if spec.zero_disables else 1
+                self.assertEqual(option_cls.range_start, expected_start,
+                                 "zero_disables sliders must reach 0, the rest must start at 1")
                 self.assertEqual(option_cls.range_end, spec.tier_count)
                 self.assertEqual(option_cls.default, spec.tier_count, "default must be the full length")
 

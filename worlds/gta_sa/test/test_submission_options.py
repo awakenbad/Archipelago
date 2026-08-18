@@ -61,9 +61,7 @@ class TestSubmissionsOnCompletion(GTASATestBase):
             for location in self.multiworld.get_locations(self.player)
             if location.name in set(SUBMISSION_TIER_LOCATION_NAMES)
         ]
-        # Trucking (Badlands), Valet and Driving School (San Fierro) are out of scope for the
-        # default Los Santos goal, leaving the six Los Santos submissions.
-        self.assertEqual(len(tier_locations), 6)
+        self.assertEqual(len(tier_locations), 7)
 
 
 class TestFewestPossibleLocationsStillGenerates(GTASATestBase):

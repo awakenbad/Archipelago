@@ -9,6 +9,7 @@ GENERATION_OPTION_NAMES = (
     "starting_point", "end_goal",
     "tag_checks", "snapshot_checks", "horseshoe_checks", "oyster_checks",
     "include_exports", "include_ammunation_shop", "include_challenges", "include_stadium_events",
+    "courier_checks",
     "include_submissions",
     "paramedic_checks", "firefighter_checks", "vigilante_checks", "taxi_checks",
     "burglary_checks", "trucking_checks", "valet_checks", "pimping_checks",

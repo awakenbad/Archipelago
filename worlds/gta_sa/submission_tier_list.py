@@ -75,6 +75,8 @@ class SubmissionTier(NamedTuple):
     # GTASAOptions attribute of this submission's length slider (Per Level mode), or "" for the
     option_attr: str = ""
 
+    zero_disables: bool = False
+
     percentage_slider: bool = False
 
     on_completion_tier: int = 0
@@ -114,9 +116,15 @@ SUBMISSION_TIERS = [
     SubmissionTier(152, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
     SubmissionTier(159, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
                    option_attr="gang_territory_target", percentage_slider=True, on_completion_tier=7),
+    SubmissionTier(179, 4, "Roboi's Food Mart Courier Level {tier}", 1, "Los Santos", 0,
+                   option_attr="courier_checks", zero_disables=True),
+    SubmissionTier(183, 4, "Hippy Shopper Courier Level {tier}", 1, "San Fierro", 38,
+                   option_attr="courier_checks", zero_disables=True),
+    SubmissionTier(187, 4, "Burger Shot Courier Level {tier}", 1, "Las Venturas", 54,
+                   option_attr="courier_checks", zero_disables=True),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 179
+SUBMISSION_TIER_SLOT_COUNT = 191
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -152,6 +160,8 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
 
     grouped: dict[str, list[str]] = {}
     for tier_spec in SUBMISSION_TIERS:
+        if tier_spec.zero_disables and tier_spec.included_tier_count(options) == 0:
+            continue
         if tier_spec.required_progressive_missions >= story_mission_count:
             continue
         # Already finished by the save this starting point expects, so no tier can be earned.
