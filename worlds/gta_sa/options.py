@@ -168,6 +168,14 @@ class QuarryChecks(Range):
     range_end = 7
     default = 7
 
+class CourierChecks(Range):
+    """How many Courier levels send a check (Roboi's Food Mart, Hippy Shopper, Burger
+    Shot), in Per Level mode. 0 turns courier checks off entirely, in both modes."""
+    display_name = "Courier Checks"
+    range_start = 0
+    range_end = 4
+    default = 4
+
 class GangTerritoryTarget(Range):
     """Percentage of gang territory to retake in Return to Los Santos, sending a check every 5% up
     to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything below 5 turns gang territory
@@ -219,14 +227,6 @@ class IncludeStadiumEvents(Toggle):
 
     default = 1
 
-class CourierChecks(Range):
-    """How many Courier levels send a check (Roboi's Food Mart, Hippy Shopper, Burger
-    Shot), in Per Level mode. 0 turns courier checks off entirely, in both modes."""
-    display_name = "Courier Checks"
-    range_start = 0
-    range_end = 4
-    default = 4
-
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -251,7 +251,6 @@ class GTASAOptions(PerGameCommonOptions):
     include_ammunation_shop: IncludeAmmunationShop
     include_challenges: IncludeChallenges
     include_stadium_events: IncludeStadiumEvents
-    courier_checks: CourierChecks
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -263,6 +262,7 @@ class GTASAOptions(PerGameCommonOptions):
     valet_checks: ValetChecks
     pimping_checks: PimpingChecks
     quarry_checks: QuarryChecks
+    courier_checks: CourierChecks
     gang_territory_target: GangTerritoryTarget
 
 option_groups = [
