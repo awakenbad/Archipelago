@@ -187,6 +187,7 @@ class GTASAContext(TrackerGameContext):
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     shop_slot_contents: dict = {}
+    shop_slot_flags: dict = {}
 
     def make_gui(self):
         ui = super().make_gui()
@@ -297,10 +298,10 @@ class GTASAContext(TrackerGameContext):
         if not self.plugin_writer or not self.shop_slot_contents:
             return
         for slot, text in self.shop_slot_contents.items():
-            # Already-checked slots are pushed as empty, which reverts them to vanilla stock
-            # in-game (real weapon, no interception) - the check is gone, the shop moves on.
-            active = (SHOP_BASE_ID + slot) in self.missing_locations
-            self.send_to_plugin(f"SHOPITEM:{slot}:{text if active else ''}\n")
+            sold = (SHOP_BASE_ID + slot) not in self.missing_locations
+            self.send_to_plugin(f"SHOPITEM:{slot}:{'' if sold else text}\n")
+            self.send_to_plugin(f"SHOPSOLD:{slot}:{int(sold)}\n")
+            self.send_to_plugin(f"SHOPFLAGS:{slot}:{self.shop_slot_flags.get(slot, 0)}\n")
 
     async def report_goal_reached(self) -> None:
         if self.finished_game:
@@ -374,6 +375,7 @@ class GTASAContext(TrackerGameContext):
                 if network_item.player != self.slot:
                     name += f" ({self.player_names.get(network_item.player, '?')})"
                 self.shop_slot_contents[slot] = sanitize_for_game(name, 40)
+                self.shop_slot_flags[slot] = network_item.flags
             self.push_shop_contents()
 
 async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
