@@ -17,7 +17,12 @@ EXPORT_VEHICLES = (
 
 EXPORT_COUNT = len(EXPORT_VEHICLES)
 
+EXPORT_LIST_SIZE = 10
+
 EXPORT_LOCATION_NAMES = [f"SF Export: {name}" for name in EXPORT_VEHICLES]
+
+def get_included_export_names(list_count: int) -> list[str]:
+    return EXPORT_LOCATION_NAMES[:list_count * EXPORT_LIST_SIZE]
 
 # The docks open after Yay Ka-Boom-Boom (story position 53).
 EXPORT_REQUIREMENT = 54

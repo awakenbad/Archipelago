@@ -14,7 +14,7 @@ COLLECTIBLE_HEAVY_OPTIONS = {
     "snapshot_checks": 20,
     "horseshoe_checks": 25,
     "oyster_checks": 25,
-    "include_exports": True,
+    "include_exports": "lists_1_2_and_3",
     "include_ammunation_shop": True,
     "include_submissions": "per_level",
 }

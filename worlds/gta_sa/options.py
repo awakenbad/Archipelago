@@ -199,14 +199,20 @@ class OysterChecks(Range):
     range_end = 50
     default = 50
 
-class IncludeExports(Toggle):
+class IncludeExports(Choice):
     """
-    Whether the San Fierro export vehicles are location checks. Ignored unless San Fierro is in scope.
+    How many lists on the San Fierro export board are location checks.
+    Ignored unless San Fierro is in scope.
     """
 
     display_name = "Include Exports"
 
-    default = 1
+    option_off = 0
+    option_list_1 = 1
+    option_lists_1_and_2 = 2
+    option_lists_1_2_and_3 = 3
+
+    default = 3
 
 class IncludeChallenges(Toggle):
     """

@@ -77,7 +77,7 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_snapshot_locations(world)
     if world.options.horseshoe_checks.value:
         create_horseshoe_locations(world)
-    if world.options.include_exports:
+    if world.options.include_exports.value:
         create_export_locations(world)
     if world.options.oyster_checks.value:
         create_oyster_locations(world)
@@ -173,13 +173,14 @@ def create_horseshoe_locations(world: GTASAWorld) -> None:
                                  world.options.horseshoe_checks.value, HORSESHOE_REQUIREMENT)
 
 def create_export_locations(world: GTASAWorld) -> None:
-    from .export_list import EXPORT_REQUIREMENT
+    from .export_list import EXPORT_REQUIREMENT, get_included_export_names
     if EXPORT_REGION not in mission_list.get_included_regions(world):
         return
     if EXPORT_REQUIREMENT >= mission_list.get_story_mission_count(world):
         return
     region = world.get_region(EXPORT_REGION)
-    region.add_locations(get_location_names_with_ids(EXPORT_LOCATION_NAMES), GTASALocation)
+    included = get_included_export_names(world.options.include_exports.value)
+    region.add_locations(get_location_names_with_ids(included), GTASALocation)
 
 def create_shop_locations(world: GTASAWorld) -> None:
     region = world.get_region(SHOP_REGION)
