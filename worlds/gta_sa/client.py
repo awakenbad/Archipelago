@@ -25,38 +25,13 @@ except ImportError:
 from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from .branches import BRANCHES
 from .skill_items import SKILL_ITEMS
-from .shop_list import INCLUDED_SHOP_SLOTS
-from .tag_list import TAG_COUNT
-from .snapshot_list import SNAPSHOT_COUNT
-from .horseshoe_list import HORSESHOE_COUNT
-from .oyster_list import OYSTER_COUNT
-from .export_list import EXPORT_COUNT
-
-def mission_check_to_location_id(mission_id: int) -> int:
-    return mission_id
-
-TAG_BASE_ID = 200
-
-def tag_check_to_location_id(tag_index: int) -> int:
-    return TAG_BASE_ID + tag_index
-
-SNAPSHOT_BASE_ID = 500
-
-def snapshot_check_to_location_id(snapshot_index: int) -> int:
-    return SNAPSHOT_BASE_ID + snapshot_index
-
-HORSESHOE_BASE_ID = 600
-EXPORT_BASE_ID = 700
-OYSTER_BASE_ID = 800
-
-def oyster_check_to_location_id(oyster_index: int) -> int:
-    return OYSTER_BASE_ID + oyster_index
-
-def export_check_to_location_id(export_index: int) -> int:
-    return EXPORT_BASE_ID + export_index
-
-def horseshoe_check_to_location_id(horseshoe_index: int) -> int:
-    return HORSESHOE_BASE_ID + horseshoe_index
+from .shop_list import INCLUDED_SHOP_SLOTS, SHOP_BASE_ID
+from .tag_list import TAG_BASE_ID, TAG_COUNT
+from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_COUNT
+from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT
+from .oyster_list import OYSTER_BASE_ID, OYSTER_COUNT
+from .export_list import EXPORT_BASE_ID, EXPORT_COUNT
+from .submission_tier_list import SUBMISSION_TIER_BASE_ID
 
 COLLECTIBLE_BLOCKS = (
     ("TAG", TAG_BASE_ID, TAG_COUNT),
@@ -66,15 +41,15 @@ COLLECTIBLE_BLOCKS = (
     ("OYSTER", OYSTER_BASE_ID, OYSTER_COUNT),
 )
 
-SHOP_BASE_ID = 300
-
-def shop_check_to_location_id(slot_index: int) -> int:
-    return SHOP_BASE_ID + slot_index
-
-SUBMISSION_TIER_BASE_ID = 1000
-
-def submission_tier_check_to_location_id(slot_index: int) -> int:
-    return SUBMISSION_TIER_BASE_ID + slot_index
+CHECK_TYPE_BASE_IDS = {
+    "TAG": TAG_BASE_ID,
+    "SNAPSHOT": SNAPSHOT_BASE_ID,
+    "HORSESHOE": HORSESHOE_BASE_ID,
+    "EXPORT": EXPORT_BASE_ID,
+    "OYSTER": OYSTER_BASE_ID,
+    "SHOP": SHOP_BASE_ID,
+    "SUBLEVEL": SUBMISSION_TIER_BASE_ID,
+}
 
 DEFAULT_GOAL_MISSION_ID = 38
 
@@ -439,25 +414,13 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
             if check_id == ctx.goal_mission_id:
                 await ctx.report_goal_reached()
                 continue
-            location_id = mission_check_to_location_id(check_id)
+            location_id = check_id
         elif check_type == "PICKUP":
             location_id = PICKUP_INDEX_TO_LOCATION_ID.get(check_id)
             if location_id is None:
                 continue
-        elif check_type == "TAG":
-            location_id = tag_check_to_location_id(check_id)
-        elif check_type == "SNAPSHOT":
-            location_id = snapshot_check_to_location_id(check_id)
-        elif check_type == "HORSESHOE":
-            location_id = horseshoe_check_to_location_id(check_id)
-        elif check_type == "EXPORT":
-            location_id = export_check_to_location_id(check_id)
-        elif check_type == "OYSTER":
-            location_id = oyster_check_to_location_id(check_id)
-        elif check_type == "SHOP":
-            location_id = shop_check_to_location_id(check_id)
-        elif check_type == "SUBLEVEL":
-            location_id = submission_tier_check_to_location_id(check_id)
+        elif check_type in CHECK_TYPE_BASE_IDS:
+            location_id = CHECK_TYPE_BASE_IDS[check_type] + check_id
         else:
             logger.warning(f"Unknown check type from plugin: {check_type}")
             continue
