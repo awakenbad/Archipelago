@@ -44,6 +44,7 @@ TRAP_ITEMS = [
     "Fat CJ Trap",
     "Wanted Level Trap",
     "Car Fire Trap",
+    "Bad Weather Trap",
 ]
 
 WEAPON_MASTERY_SKILLS = [
