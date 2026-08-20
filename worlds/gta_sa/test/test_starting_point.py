@@ -86,7 +86,7 @@ class TestFlyingSchoolBoundary(unittest.TestCase):
                 if start.story_index > learning_to_fly:
                     self.assertEqual(lessons, set())
                 else:
-                    self.assertEqual(len(lessons), 10)
+                    self.assertEqual(len(lessons), 30)
 
 class TestMissionSprayedTags(unittest.TestCase):
     """Tagging Up Turf sprays six tags itself, so a later start has already spent them."""
@@ -170,12 +170,12 @@ class TestLasVenturasStart(GTASATestBase):
             "SF Snapshot: #1",
             "BD Mission: Trucking Level 1",
             "SF Mission: Valet 3 Cars Parked",
-            "SF Mission: Driving School - The 360",
+            "SF Mission: Driving School - The 360 (Bronze)",
         ):
             self.assertIn(location_name, created)
 
     def test_flying_school_lessons_are_still_earnable(self) -> None:
-        location = self.world.get_location("LV Mission: Flying School - Takeoff")
+        location = self.world.get_location("LV Mission: Flying School - Takeoff (Bronze)")
         self.assertFalse(location.can_reach(self.multiworld.state))
 
         self.collect_mission_requirement(78)

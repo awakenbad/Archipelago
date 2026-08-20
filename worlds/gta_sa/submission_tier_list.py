@@ -51,6 +51,11 @@ BIKE_SCHOOL_TESTS = (
     "Jump & Stoppie",
 )
 
+SCHOOL_MEDALS = ("Bronze", "Silver", "Gold")
+
+def medal_tiers(tests: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(f"{test} ({medal})" for test in tests for medal in SCHOOL_MEDALS)
+
 class SubmissionTier(NamedTuple):
     base_slot: int
     tier_count: int
@@ -103,28 +108,28 @@ SUBMISSION_TIERS = [
     SubmissionTier(96, 8,  "Trucking Level {tier}",      1,    "Badlands",   33, option_attr="trucking_checks"),
     SubmissionTier(104, 5, "Valet {value} Cars Parked",  0,    "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks"),
-    SubmissionTier(109, 12, "Driving School - {name}",   0,    "San Fierro", 39,
-                   tier_names=DRIVING_SCHOOL_TESTS),
-    SubmissionTier(121, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks"),
+    SubmissionTier(109, 36, "Driving School - {name}",   0,    "San Fierro", 39,
+                   tier_names=medal_tiers(DRIVING_SCHOOL_TESTS)),
+    SubmissionTier(145, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks"),
     # Learning to Fly (story position 58) is Flying School - passing the mission passes every lesson.
-    SubmissionTier(131, 10, "Flying School - {name}",    0,    "Las Venturas", 58,
-                   tier_names=FLYING_SCHOOL_LESSONS, consumed_at_story_index=58),
-    SubmissionTier(141, 5, "Boat School - {name}",       0,    "San Fierro", 54,
-                   tier_names=BOAT_SCHOOL_TESTS),
-    SubmissionTier(146, 6, "Bike School - {name}",       0,    "Las Venturas", 54,
-                   tier_names=BIKE_SCHOOL_TESTS),
-    SubmissionTier(152, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
-    SubmissionTier(159, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
+    SubmissionTier(155, 30, "Flying School - {name}",    0,    "Las Venturas", 58,
+                   tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), consumed_at_story_index=58),
+    SubmissionTier(185, 15, "Boat School - {name}",      0,    "San Fierro", 54,
+                   tier_names=medal_tiers(BOAT_SCHOOL_TESTS)),
+    SubmissionTier(200, 18, "Bike School - {name}",      0,    "Las Venturas", 54,
+                   tier_names=medal_tiers(BIKE_SCHOOL_TESTS)),
+    SubmissionTier(218, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
+    SubmissionTier(225, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
                    option_attr="gang_territory_target", percentage_slider=True, on_completion_tier=7),
-    SubmissionTier(179, 4, "Roboi's Food Mart Courier Level {tier}", 1, "Los Santos", 0,
+    SubmissionTier(245, 4, "Roboi's Food Mart Courier Level {tier}", 1, "Los Santos", 0,
                    option_attr="courier_checks", zero_disables=True),
-    SubmissionTier(183, 4, "Hippy Shopper Courier Level {tier}", 1, "San Fierro", 38,
+    SubmissionTier(249, 4, "Hippy Shopper Courier Level {tier}", 1, "San Fierro", 38,
                    option_attr="courier_checks", zero_disables=True),
-    SubmissionTier(187, 4, "Burger Shot Courier Level {tier}", 1, "Las Venturas", 54,
+    SubmissionTier(253, 4, "Burger Shot Courier Level {tier}", 1, "Las Venturas", 54,
                    option_attr="courier_checks", zero_disables=True),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 191
+SUBMISSION_TIER_SLOT_COUNT = 257
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""

@@ -91,11 +91,12 @@ class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
     }
 
     def test_boat_school_is_absent(self) -> None:
-        self.assertRaises(KeyError, self.world.get_location, "SF Mission: Boat School - Basic Seamanship")
+        self.assertRaises(KeyError, self.world.get_location,
+                          "SF Mission: Boat School - Basic Seamanship (Bronze)")
 
     def test_driving_school_is_still_present(self) -> None:
         # Also San Fierro, but it opens at 39, well before this goal's position 53.
-        self.world.get_location("SF Mission: Driving School - The 360")
+        self.world.get_location("SF Mission: Driving School - The 360 (Bronze)")
 
     def test_wang_cars_is_absent(self) -> None:
         self.assertRaises(KeyError, self.world.get_location, "SF Mission: Zeroing In")
@@ -110,8 +111,8 @@ class TestBoatSchoolExistsForALaterGoal(GTASATestBase):
     }
 
     def test_boat_and_bike_school_exist(self) -> None:
-        for location_name in ("SF Mission: Boat School - Basic Seamanship",
-                              "LV Mission: Bike School - Jump & Stoppie"):
+        for location_name in ("SF Mission: Boat School - Basic Seamanship (Bronze)",
+                              "LV Mission: Bike School - Jump & Stoppie (Gold)"):
             with self.subTest(location_name):
                 try:
                     self.world.get_location(location_name)
