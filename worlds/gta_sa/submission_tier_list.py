@@ -86,6 +86,8 @@ class SubmissionTier(NamedTuple):
 
     on_completion_tier: int = 0
 
+    medals_per_test: int = 0
+
     def included_tier_count(self, options) -> int:
         slider = getattr(options, self.option_attr).value
         if self.percentage_slider:
@@ -109,15 +111,14 @@ SUBMISSION_TIERS = [
     SubmissionTier(104, 5, "Valet {value} Cars Parked",  0,    "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks"),
     SubmissionTier(109, 36, "Driving School - {name}",   0,    "San Fierro", 39,
-                   tier_names=medal_tiers(DRIVING_SCHOOL_TESTS)),
+                   tier_names=medal_tiers(DRIVING_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(145, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks"),
-    # Learning to Fly (story position 58) is Flying School - passing the mission passes every lesson.
     SubmissionTier(155, 30, "Flying School - {name}",    0,    "Las Venturas", 58,
-                   tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), consumed_at_story_index=58),
+                   tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), medals_per_test=3, consumed_at_story_index=58),
     SubmissionTier(185, 15, "Boat School - {name}",      0,    "San Fierro", 54,
-                   tier_names=medal_tiers(BOAT_SCHOOL_TESTS)),
+                   tier_names=medal_tiers(BOAT_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(200, 18, "Bike School - {name}",      0,    "Las Venturas", 54,
-                   tier_names=medal_tiers(BIKE_SCHOOL_TESTS)),
+                   tier_names=medal_tiers(BIKE_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(218, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
     SubmissionTier(225, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
                    option_attr="gang_territory_target", percentage_slider=True, on_completion_tier=7),
@@ -174,13 +175,24 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
             continue
 
         names = get_tier_names(tier_spec)
-        if on_completion_only:
+        if tier_spec.medals_per_test:
+            names = _capped_medal_names(tier_spec, names, options, on_completion_only)
+        elif on_completion_only:
             tier = tier_spec.on_completion_tier or tier_spec.tier_count
             names = names[tier - 1:tier]
         elif tier_spec.option_attr:
             names = names[:tier_spec.included_tier_count(options)]
         grouped.setdefault(tier_spec.region, []).extend(names)
     return grouped
+
+def _capped_medal_names(tier_spec: SubmissionTier, names: list[str], options,
+                        on_completion_only: bool) -> list[str]:
+    cap = options.school_medals.value
+    kept = [name for index, name in enumerate(names) if index % tier_spec.medals_per_test < cap]
+
+    if on_completion_only:
+        return kept[-1:]
+    return kept
 
 def get_tier_requirements() -> dict[str, int]:
     """Location name -> Progressive Missions needed to start that activity."""

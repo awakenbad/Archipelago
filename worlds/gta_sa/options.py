@@ -199,6 +199,20 @@ class OysterChecks(Range):
     range_end = 50
     default = 50
 
+class SchoolMedals(Choice):
+    """
+    Which medals will send checks to the multiworld.
+    E.g. Choosing silver will generate checks for bronze and silver medals.
+    """
+
+    display_name = "School Medals"
+
+    option_bronze = 1
+    option_silver = 2
+    option_gold = 3
+
+    default = 3
+
 class IncludeExports(Choice):
     """
     How many lists on the San Fierro export board are location checks.
@@ -269,18 +283,20 @@ class GTASAOptions(PerGameCommonOptions):
     pimping_checks: PimpingChecks
     quarry_checks: QuarryChecks
     courier_checks: CourierChecks
+    school_medals: SchoolMedals
     gang_territory_target: GangTerritoryTarget
 
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
+        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",
         [IncludeSubmissions, ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
-         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks, GangTerritoryTarget],
+         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks,
+         GangTerritoryTarget],
     ),
 ]
 
