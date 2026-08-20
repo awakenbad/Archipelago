@@ -138,6 +138,11 @@ def gating_skill_items(world: GTASAWorld) -> set[str]:
             if event.skill_item and get_mission_region(event.location_id) in included_regions:
                 gating.add(event.skill_item)
 
+    from .gym_list import GYM_SKILL_ITEM, GYMS
+    for gym in GYMS:
+        if get_mission_region(gym.location_id) in included_regions:
+            gating.add(GYM_SKILL_ITEM)
+
     return gating
 
 def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTASAItem:

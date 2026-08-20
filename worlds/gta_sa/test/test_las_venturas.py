@@ -82,10 +82,13 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         from ..mission_list import get_mission_location_name, get_optional_mission_requirements
         from ..stadium_list import STADIUM_LOCATION_IDS
 
+        from ..gym_list import GYM_SKILL_ITEM
+
         optional_names = set(get_optional_mission_requirements())
         challenge_names = {get_mission_location_name(mission_id)
                            for mission_id in CHALLENGE_LOCATION_IDS | STADIUM_LOCATION_IDS}
         self.collect_mission_requirement(92)
+        self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
 
         las_venturas_missions = [
             location

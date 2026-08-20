@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from rule_builder.rules import Has, HasAllCounts, Rule
+from rule_builder.rules import And, Has, HasAllCounts, Rule
 
 if TYPE_CHECKING:
     from .world import GTASAWorld
@@ -70,11 +70,14 @@ def set_all_location_rules(world: GTASAWorld) -> None:
 
     _gate_at_story_points(world, get_tier_requirements())
     _gate_at_story_points(world, get_optional_mission_requirements())
-    _gate_at_story_points(world, {
-        "LS Mission: Los Santos Gym Fight School": 5,
-        "SF Mission: San Fierro Gym Fight School": 36,
-        "LV Mission: Las Venturas Gym Fight School": 54,
-    })
+
+    from .gym_list import GYM_SKILL_ITEM, GYMS
+    for gym in GYMS:
+        if gym.location_name not in location_cache:
+            continue
+        world.set_rule(world.get_location(gym.location_name),
+                       And(_story_point_rule(world, gym.required_count), Has(GYM_SKILL_ITEM)))
+
     _gate_at_story_points(world, dict.fromkeys(EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT))
     _gate_at_story_points(world, dict.fromkeys(OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT))
     _gate_at_story_points(world, dict.fromkeys(HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT))

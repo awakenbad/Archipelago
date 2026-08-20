@@ -30,7 +30,10 @@ class TestSubmissionLocationGating(GTASATestBase):
 
 class TestLosSantosGymGating(GTASATestBase):
     def test_needs_drive_thru_reachable(self) -> None:
+        from ..gym_list import GYM_SKILL_ITEM
+
         location = self.world.get_location("LS Mission: Los Santos Gym Fight School")
+        self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
 
         self.collect_mission_requirement(15, hold_back="Sweet")
         self.assertFalse(location.can_reach(self.multiworld.state))

@@ -136,9 +136,18 @@ class TestBadlandsStart(GTASATestBase):
 
     def test_los_santos_side_content_needs_nothing(self) -> None:
         # Its requirements all sit below the starting point, so they clamp to zero.
-        for location_name in ("LS Mission: Los Santos Gym Fight School", "Ammu-Nation: Sawn-off Shotgun"):
+        for location_name in ("Ammu-Nation: Sawn-off Shotgun",):
             location = self.world.get_location(location_name)
             self.assertTrue(location.can_reach(self.multiworld.state))
+
+    def test_los_santos_gym_needs_only_its_skill_item(self) -> None:
+        from ..gym_list import GYM_SKILL_ITEM
+
+        location = self.world.get_location("LS Mission: Los Santos Gym Fight School")
+        self.assertFalse(location.can_reach(self.multiworld.state))
+
+        self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
+        self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_first_badlands_mission_needs_its_branch_item(self) -> None:
         self.assert_branch_gated("BD Mission: Badlands", 39)
