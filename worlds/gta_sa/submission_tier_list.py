@@ -106,22 +106,22 @@ SUBMISSION_TIERS = [
     SubmissionTier(12, 12, "Firefighter Level {tier}",   1,    "Los Santos", 0, option_attr="firefighter_checks"),
     SubmissionTier(24, 12, "Vigilante Level {tier}",     1,    "Los Santos", 0, option_attr="vigilante_checks"),
     SubmissionTier(36, 50, "Taxi Driver {value} Fares",  1,    "Los Santos", 0, option_attr="taxi_checks"),
-    SubmissionTier(86, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 0, option_attr="burglary_checks"),
-    SubmissionTier(96, 8,  "Trucking Level {tier}",      1,    "Badlands",   33, option_attr="trucking_checks"),
+    SubmissionTier(86, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 0, option_attr="burglary_checks", zero_disables=True),
+    SubmissionTier(96, 8,  "Trucking Level {tier}",      1,    "Badlands",   33, option_attr="trucking_checks", zero_disables=True),
     SubmissionTier(104, 5, "Valet {value} Cars Parked",  0,    "San Fierro", 38,
-                   thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks"),
+                   thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks", zero_disables=True),
     SubmissionTier(109, 36, "Driving School - {name}",   0,    "San Fierro", 39,
                    tier_names=medal_tiers(DRIVING_SCHOOL_TESTS), medals_per_test=3),
-    SubmissionTier(145, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks"),
+    SubmissionTier(145, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks", zero_disables=True),
     SubmissionTier(155, 30, "Flying School - {name}",    0,    "Las Venturas", 58,
                    tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), medals_per_test=3, consumed_at_story_index=58),
     SubmissionTier(185, 15, "Boat School - {name}",      0,    "San Fierro", 54,
                    tier_names=medal_tiers(BOAT_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(200, 18, "Bike School - {name}",      0,    "Las Venturas", 54,
                    tier_names=medal_tiers(BIKE_SCHOOL_TESTS), medals_per_test=3),
-    SubmissionTier(218, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks"),
+    SubmissionTier(218, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks", zero_disables=True),
     SubmissionTier(225, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
-                   option_attr="gang_territory_target", percentage_slider=True, on_completion_tier=7),
+                   option_attr="gang_territory_target", percentage_slider=True, zero_disables=True, on_completion_tier=7),
     SubmissionTier(245, 4, "Roboi's Food Mart Courier Level {tier}", 1, "Los Santos", 0,
                    option_attr="courier_checks", zero_disables=True),
     SubmissionTier(249, 4, "Hippy Shopper Courier Level {tier}", 1, "San Fierro", 38,
@@ -172,6 +172,9 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
             continue
         # Already finished by the save this starting point expects, so no tier can be earned.
         if 0 <= tier_spec.consumed_at_story_index < start_index:
+            continue
+
+        if tier_spec.medals_per_test and options.school_medals.value == 0:
             continue
 
         names = get_tier_names(tier_spec)

@@ -133,38 +133,38 @@ class TaxiChecks(Range):
 
 class BurglaryChecks(Range):
     """How many Burglary milestones send a check, in Per Level mode. Each milestone is $1000 stolen,
-    so e.g. 3 sends checks at $1000, $2000 and $3000."""
+    so e.g. 3 sends checks at $1000, $2000 and $3000. 0 removes Burglary from the seed."""
     display_name = "Burglary Checks"
-    range_start = 1
+    range_start = 0
     range_end = 10
     default = 10
 
 class TruckingChecks(Range):
-    """How many Trucking levels send a check, in Per Level mode."""
+    """How many Trucking levels send a check, in Per Level mode. 0 removes Trucking from the seed."""
     display_name = "Trucking Checks"
-    range_start = 1
+    range_start = 0
     range_end = 8
     default = 8
 
 class ValetChecks(Range):
     """How many Valet milestones send a check, in Per Level mode. The milestones are at 3, 7, 12, 18
-    and 25 cars, so e.g. 3 sends checks at 3, 7 and 12 cars."""
+    and 25 cars, so e.g. 3 sends checks at 3, 7 and 12 cars. 0 removes Valet from the seed."""
     display_name = "Valet Checks"
-    range_start = 1
+    range_start = 0
     range_end = 5
     default = 5
 
 class PimpingChecks(Range):
-    """How many Pimping levels send a check, in Per Level mode."""
+    """How many Pimping levels send a check, in Per Level mode. 0 removes Pimping from the seed."""
     display_name = "Pimping Checks"
-    range_start = 1
+    range_start = 0
     range_end = 10
     default = 10
 
 class QuarryChecks(Range):
-    """How many Quarry missions send a check, in Per Level mode."""
+    """How many Quarry missions send a check, in Per Level mode. 0 removes the Quarry from the seed."""
     display_name = "Quarry Checks"
-    range_start = 1
+    range_start = 0
     range_end = 7
     default = 7
 
@@ -203,10 +203,13 @@ class SchoolMedals(Choice):
     """
     Which medals will send checks to the multiworld.
     E.g. Choosing silver will generate checks for bronze and silver medals.
+
+    Off removes all four schools - driving, flying, boat and bike - from the seed.
     """
 
     display_name = "School Medals"
 
+    option_off = 0
     option_bronze = 1
     option_silver = 2
     option_gold = 3
