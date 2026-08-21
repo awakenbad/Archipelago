@@ -63,6 +63,8 @@ WEAPON_MASTERY_SKILLS = [
 
 WEAPON_MASTERY_ITEMS = [f"{name} Mastery" for name in WEAPON_MASTERY_SKILLS]
 
+STREET_RACES_ITEM = "Street Races Unlock"
+
 UTILITY_FILLER_ITEMS = [
     "Full Armor",
     "Car Repair",
@@ -86,6 +88,7 @@ ITEM_NAME_TO_ID = {
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
+    STREET_RACES_ITEM: 80,
     **SKILL_ITEM_IDS,
 }
 
@@ -104,6 +107,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
+    STREET_RACES_ITEM: ItemClassification.useful,
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
     **{name: ItemClassification.useful for name in SKILL_ITEM_IDS},
@@ -149,6 +153,8 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
     classification = DEFAULT_ITEM_CLASSIFICATIONS[name]
     if name in SKILL_ITEM_IDS and name in gating_skill_items(world):
         classification = ItemClassification.progression
+    if name == STREET_RACES_ITEM and world.options.include_street_races:
+        classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 def create_all_items(world: GTASAWorld) -> None:
@@ -169,6 +175,9 @@ def create_all_items(world: GTASAWorld) -> None:
         world.create_item("Taxi Nitro"),
         world.create_item("Boxing Style"),
     ]
+    if world.options.include_street_races:
+        itempool.append(world.create_item(STREET_RACES_ITEM))
+
     included_regions = get_included_regions(world)
     if "San Fierro" in included_regions:
         itempool.append(world.create_item("Kung Fu Style"))

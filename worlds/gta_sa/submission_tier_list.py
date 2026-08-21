@@ -1,5 +1,7 @@
 from typing import NamedTuple
 
+from .race_list import RACE_GROUPS
+
 from .mission_list import REGION_ABBREVIATIONS
 
 SUBMISSION_TIER_BASE_ID = 1000
@@ -88,6 +90,8 @@ class SubmissionTier(NamedTuple):
 
     medals_per_test: int = 0
 
+    requires_option: str = ""
+
     def included_tier_count(self, options) -> int:
         slider = getattr(options, self.option_attr).value
         if self.percentage_slider:
@@ -128,9 +132,15 @@ SUBMISSION_TIERS = [
                    option_attr="courier_checks", zero_disables=True),
     SubmissionTier(253, 4, "Burger Shot Courier Level {tier}", 1, "Las Venturas", 54,
                    option_attr="courier_checks", zero_disables=True),
+    SubmissionTier(257, 9, "Street Race - {name}",      0,    "Los Santos", 0,
+                   tier_names=RACE_GROUPS[0].names, requires_option="include_street_races"),
+    SubmissionTier(266, 6, "Street Race - {name}",      0,    "San Fierro", 38,
+                   tier_names=RACE_GROUPS[1].names, requires_option="include_street_races"),
+    SubmissionTier(272, 10, "Street Race - {name}",     0,    "Las Venturas", 54,
+                   tier_names=RACE_GROUPS[2].names, requires_option="include_street_races"),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 257
+SUBMISSION_TIER_SLOT_COUNT = 282
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
@@ -166,6 +176,8 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
 
     grouped: dict[str, list[str]] = {}
     for tier_spec in SUBMISSION_TIERS:
+        if tier_spec.requires_option and not getattr(options, tier_spec.requires_option):
+            continue
         if tier_spec.zero_disables and tier_spec.included_tier_count(options) == 0:
             continue
         if tier_spec.required_progressive_missions >= story_mission_count:

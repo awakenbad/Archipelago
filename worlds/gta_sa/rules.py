@@ -91,6 +91,19 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(world.get_location(location_name),
                            _mission_rule(world, *(LOCATION_NAME_TO_MISSION_ID[name] for name in prerequisites)))
 
+    if world.options.include_street_races:
+        from .items import STREET_RACES_ITEM
+        from .submission_tier_list import SUBMISSION_TIERS, get_tier_names
+        for tier_spec in SUBMISSION_TIERS:
+            if tier_spec.requires_option != "include_street_races":
+                continue
+            for location_name in get_tier_names(tier_spec):
+                if location_name not in location_cache:
+                    continue
+                world.set_rule(world.get_location(location_name),
+                               And(_story_point_rule(world, tier_spec.required_progressive_missions),
+                                   Has(STREET_RACES_ITEM)))
+
     from .challenge_list import CHALLENGES
     from .mission_list import get_mission_location_name
     from .stadium_list import STADIUM_EVENTS

@@ -250,6 +250,20 @@ class IncludeStadiumEvents(Toggle):
 
     default = 1
 
+class IncludeStreetRaces(Toggle):
+    """
+    Whether the 25 street races are included as locations, one per race won.
+
+    Turning this on, will add a Street Races Unlock item to the pool which upon receiving creates the blips
+    at any point in the game.
+
+    With it off, there are no race locations, no item, and the races unlock the vanilla way.
+    """
+
+    display_name = "Include Street Races"
+
+    default = 1
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -274,6 +288,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_ammunation_shop: IncludeAmmunationShop
     include_challenges: IncludeChallenges
     include_stadium_events: IncludeStadiumEvents
+    include_street_races: IncludeStreetRaces
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -293,7 +308,7 @@ option_groups = [
     OptionGroup(
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
-         IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, TrapPercentage],
+         IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

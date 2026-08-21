@@ -78,6 +78,7 @@ class GTASAWorld(World):
         return {
             "death_link": self.options.death_link.value,
             "goal_mission_id": mission_list.get_goal_mission_id(self),
+            "street_races": self.options.include_street_races.value,
             "options": {name: getattr(self.options, name).value for name in GENERATION_OPTION_NAMES},
             "collectibles": sorted(self.chosen_collectible_ids),
         }

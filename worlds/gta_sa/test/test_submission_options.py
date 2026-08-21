@@ -61,7 +61,7 @@ class TestSubmissionsOnCompletion(GTASATestBase):
             for location in self.multiworld.get_locations(self.player)
             if location.name in set(SUBMISSION_TIER_LOCATION_NAMES)
         ]
-        self.assertEqual(len(tier_locations), 7)
+        self.assertEqual(len(tier_locations), 8)
 
 
 class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
@@ -78,6 +78,7 @@ class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
         "tag_checks": 0,
         "snapshot_checks": 0,
         "include_ammunation_shop": False,
+        "include_street_races": False,
     }
 
     def test_it_generates(self) -> None:

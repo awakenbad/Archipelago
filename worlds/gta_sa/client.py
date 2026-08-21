@@ -100,6 +100,7 @@ ITEM_ID_TO_EFFECT = {
     # Utility fillers: 50 + index into items.py's UTILITY_FILLER_ITEMS.
     50: ("armor_refill", None),
     51: ("car_repair", None),
+    80: ("street_races", None),
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 
@@ -162,6 +163,7 @@ class GTASAContext(TrackerGameContext):
     items_applied_count = 0
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
+    street_races_included = False
     shop_slot_contents: dict = {}
     shop_slot_flags: dict = {}
 
@@ -251,6 +253,9 @@ class GTASAContext(TrackerGameContext):
     def send_death_link_config(self) -> None:
         self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
 
+    def send_street_race_config(self) -> None:
+        self.send_to_plugin(f"CTRL:street_races:{int(self.street_races_included)}\n")
+
     def send_collectible_config(self) -> None:
         known = self.missing_locations | self.checked_locations
         if not known:
@@ -337,7 +342,9 @@ class GTASAContext(TrackerGameContext):
             self.goal_mission_id = args.get("slot_data", {}).get("goal_mission_id", DEFAULT_GOAL_MISSION_ID)
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
+            self.street_races_included = bool(args.get("slot_data", {}).get("street_races", False))
             self.send_death_link_config()
+            self.send_street_race_config()
             self.send_collectible_config()
             self.scout_shop_locations()
         elif cmd == "RoomUpdate":
@@ -363,6 +370,7 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     ctx.items_applied_count = 0
     ctx.apply_pending_items()
     ctx.send_death_link_config()
+    ctx.send_street_race_config()
     ctx.send_collectible_config()
     ctx.push_shop_contents()
     try:
