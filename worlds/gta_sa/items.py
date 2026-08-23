@@ -107,7 +107,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.trap for name in TRAP_ITEMS},
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
-    STREET_RACES_ITEM: ItemClassification.useful,
+    STREET_RACES_ITEM: ItemClassification.progression,
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
     **{name: ItemClassification.useful for name in SKILL_ITEM_IDS},
@@ -152,8 +152,6 @@ def gating_skill_items(world: GTASAWorld) -> set[str]:
 def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTASAItem:
     classification = DEFAULT_ITEM_CLASSIFICATIONS[name]
     if name in SKILL_ITEM_IDS and name in gating_skill_items(world):
-        classification = ItemClassification.progression
-    if name == STREET_RACES_ITEM and world.options.include_street_races:
         classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
