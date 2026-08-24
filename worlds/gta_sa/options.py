@@ -264,6 +264,16 @@ class IncludeStreetRaces(Toggle):
 
     default = 1
 
+class IncludeShootingRange(Toggle):
+    """
+    Whether the four Ammu-Nation shooting range challenges are included as locations, one per weapon
+    challenge passed: Pistol, Micro Uzi, Shotgun and AK-47.
+    """
+
+    display_name = "Include Shooting Range"
+
+    default = 1
+
 class TrapPercentage(Range):
     """
     Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
@@ -289,6 +299,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_challenges: IncludeChallenges
     include_stadium_events: IncludeStadiumEvents
     include_street_races: IncludeStreetRaces
+    include_shooting_range: IncludeShootingRange
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -308,7 +319,8 @@ option_groups = [
     OptionGroup(
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
-         IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces, TrapPercentage],
+         IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
+         IncludeShootingRange, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

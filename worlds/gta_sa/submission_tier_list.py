@@ -55,6 +55,13 @@ BIKE_SCHOOL_TESTS = (
 
 SCHOOL_MEDALS = ("Bronze", "Silver", "Gold")
 
+SHOOTING_RANGE_WEAPONS = (
+    "Pistol",
+    "Micro Uzi",
+    "Shotgun",
+    "AK-47",
+)
+
 def medal_tiers(tests: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(f"{test} ({medal})" for test in tests for medal in SCHOOL_MEDALS)
 
@@ -138,9 +145,17 @@ SUBMISSION_TIERS = [
                    tier_names=RACE_GROUPS[1].names, requires_option="include_street_races"),
     SubmissionTier(272, 10, "Street Race - {name}",     0,    "Las Venturas", 54,
                    tier_names=RACE_GROUPS[2].names, requires_option="include_street_races"),
+    SubmissionTier(282, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+                   tier_names=SHOOTING_RANGE_WEAPONS[0:1], requires_option="include_shooting_range"),
+    SubmissionTier(283, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+                   tier_names=SHOOTING_RANGE_WEAPONS[1:2], requires_option="include_shooting_range"),
+    SubmissionTier(284, 1, "Shooting Range - {name}",   3,    "Los Santos", 28,
+                   tier_names=SHOOTING_RANGE_WEAPONS[2:3], requires_option="include_shooting_range"),
+    SubmissionTier(285, 1, "Shooting Range - {name}",   3,    "Los Santos", 55,
+                   tier_names=SHOOTING_RANGE_WEAPONS[3:4], requires_option="include_shooting_range"),
 ]
 
-SUBMISSION_TIER_SLOT_COUNT = 282
+SUBMISSION_TIER_SLOT_COUNT = 286
 
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
