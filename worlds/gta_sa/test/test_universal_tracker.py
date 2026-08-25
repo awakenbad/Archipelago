@@ -4,6 +4,7 @@ from argparse import Namespace
 from BaseClasses import CollectionState, MultiWorld
 from worlds.AutoWorld import call_all
 
+from ..items import STREET_RACES_ITEM, SUBMISSION_UNLOCK_ITEMS, TAGS_UNLOCK_ITEM
 from ..world import GTASAWorld
 
 GEN_STEPS = ("generate_early", "create_regions", "create_items", "set_rules")
@@ -17,7 +18,10 @@ COLLECTIBLE_HEAVY_OPTIONS = {
     "include_exports": "lists_1_2_and_3",
     "include_ammunation_shop": True,
     "include_submissions": "per_level",
+    "starting_unlock": True,
 }
+
+ELIGIBLE_UNLOCKS = set(SUBMISSION_UNLOCK_ITEMS) | {STREET_RACES_ITEM, TAGS_UNLOCK_ITEM}
 
 def generate(options: dict, seed: int, passthrough: dict | None = None) -> MultiWorld:
     multiworld = MultiWorld(1)
@@ -40,6 +44,11 @@ def generate(options: dict, seed: int, passthrough: dict | None = None) -> Multi
 
 def location_ids(multiworld: MultiWorld) -> set[int]:
     return {loc.address for loc in multiworld.get_locations(1) if loc.address is not None}
+
+def granted_unlock(multiworld: MultiWorld) -> str:
+    granted = [item.name for item in multiworld.precollected_items[1] if item.name in ELIGIBLE_UNLOCKS]
+    assert len(granted) == 1, granted
+    return granted[0]
 
 class TestUniversalTrackerRegen(unittest.TestCase):
     def test_passthrough_reproduces_location_set_under_a_different_seed(self):
@@ -66,3 +75,25 @@ class TestUniversalTrackerRegen(unittest.TestCase):
         regen = generate(different_counts, seed=2, passthrough=passthrough)
 
         self.assertEqual(location_ids(original), location_ids(regen))
+
+class TestUniversalTrackerStartingUnlock(unittest.TestCase):
+    def test_regen_opens_with_the_same_unlock(self):
+        original = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=1)
+        passthrough = GTASAWorld.interpret_slot_data(original.worlds[1].fill_slot_data())
+
+        regen = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=2, passthrough=passthrough)
+
+        self.assertEqual(granted_unlock(original), granted_unlock(regen))
+
+    def test_the_held_back_unlock_is_the_one_missing_from_the_regenerated_pool(self):
+        original = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=1)
+        passthrough = GTASAWorld.interpret_slot_data(original.worlds[1].fill_slot_data())
+
+        regen = generate(COLLECTIBLE_HEAVY_OPTIONS, seed=2, passthrough=passthrough)
+
+        pooled = {item.name for item in regen.itempool if item.name in ELIGIBLE_UNLOCKS}
+        self.assertEqual(ELIGIBLE_UNLOCKS - pooled, {granted_unlock(original)})
+
+    def test_control_seeds_alone_disagree_on_the_unlock(self):
+        drawn = {granted_unlock(generate(COLLECTIBLE_HEAVY_OPTIONS, seed=s)) for s in range(1, 12)}
+        self.assertGreater(len(drawn), 1)

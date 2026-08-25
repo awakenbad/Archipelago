@@ -44,6 +44,7 @@ class GTASAWorld(World):
 
     def generate_early(self) -> None:
         self.chosen_collectible_ids: set[int] = set()
+        self.starting_unlock_item: str = ""
         if hasattr(self.multiworld, "re_gen_passthrough") and self.game in self.multiworld.re_gen_passthrough:
             self.ut_passthrough = self.multiworld.re_gen_passthrough[self.game]
             for name, value in self.ut_passthrough.get("options", {}).items():
@@ -82,6 +83,7 @@ class GTASAWorld(World):
             "street_races": self.options.include_street_races.value,
             "options": {name: getattr(self.options, name).value for name in GENERATION_OPTION_NAMES},
             "collectibles": sorted(self.chosen_collectible_ids),
+            "starting_unlock": self.starting_unlock_item,
         }
 
     @staticmethod

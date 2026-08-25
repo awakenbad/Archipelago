@@ -170,6 +170,13 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
         classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
+def choose_starting_unlock(world: GTASAWorld, unlock_items: list[str]) -> str:
+    if world.ut_passthrough is not None:
+        chosen = world.ut_passthrough.get("starting_unlock", "")
+        if chosen in unlock_items:
+            return chosen
+    return world.random.choice(unlock_items)
+
 def create_all_items(world: GTASAWorld) -> None:
     from .branches import branch_pool_counts
     from .mission_list import get_goal, get_included_regions, get_start
@@ -202,7 +209,8 @@ def create_all_items(world: GTASAWorld) -> None:
         unlock_items.append(TAGS_UNLOCK_ITEM)
 
     if unlock_items and world.options.starting_unlock:
-        starting_unlock = world.random.choice(unlock_items)
+        starting_unlock = choose_starting_unlock(world, unlock_items)
+        world.starting_unlock_item = starting_unlock
         world.multiworld.push_precollected(world.create_item(starting_unlock))
         unlock_items.remove(starting_unlock)
 
