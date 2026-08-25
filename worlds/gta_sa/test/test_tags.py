@@ -3,6 +3,7 @@ from .bases import GTASATestBase
 
 class TestTagsEnabled(GTASATestBase):
     options = {
+        "starting_unlock": False,
         "tag_checks": 100,
     }
 

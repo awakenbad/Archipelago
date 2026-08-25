@@ -9,6 +9,8 @@ class GTASATestBase(WorldTestBase):
     game = "Grand Theft Auto: San Andreas"
     world: GTASAWorld
 
+    options = {"starting_unlock": False}
+
     def collect_mission_requirement(self, mission_id: int, hold_back: str | None = None) -> None:
         requirement = effective_requirement(mission_id, get_start_index(self.world))
         for branch, count in requirement.items():

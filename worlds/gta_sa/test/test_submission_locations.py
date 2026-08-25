@@ -30,6 +30,7 @@ UNLOCK_FOR_LOCATION = {
 }
 
 class TestSubmissionLocationGating(GTASATestBase):
+    options = {"starting_unlock": False}
     def test_none_are_reachable_from_a_standing_start(self) -> None:
         """This is the sphere 0 fix: the vehicle is locked until the unlock item lands."""
         for location_name in VEHICLE_LOCKED_LOCATIONS:
@@ -59,6 +60,7 @@ class TestLosSantosGymGating(GTASATestBase):
         self.assertTrue(location.can_reach(self.multiworld.state))
 
 class TestSubmissionLevelLocations(GTASATestBase):
+    options = {"starting_unlock": False}
     """Paramedic/Firefighter/Vigilante pay out per level (1-12), not once on completion."""
 
     def test_every_level_of_every_activity_exists(self) -> None:

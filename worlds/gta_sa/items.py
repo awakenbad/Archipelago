@@ -188,14 +188,25 @@ def create_all_items(world: GTASAWorld) -> None:
         world.create_item("Taxi Nitro"),
         world.create_item("Boxing Style"),
     ]
-    if world.options.include_street_races:
-        itempool.append(world.create_item(STREET_RACES_ITEM))
+    early = world.multiworld.local_early_items[world.player]
+    early[PROGRESSIVE_BRANCH_ITEMS["Ryder"]] = 1
+    early[PROGRESSIVE_BRANCH_ITEMS["Sweet"]] = 2
 
     from .submission_tier_list import unlocked_submission_items
-    itempool += [world.create_item(name) for name in unlocked_submission_items(world.options)]
 
+    unlock_items: list[str] = []
+    if world.options.include_street_races:
+        unlock_items.append(STREET_RACES_ITEM)
+    unlock_items += unlocked_submission_items(world.options)
     if world.options.tag_checks.value:
-        itempool.append(world.create_item(TAGS_UNLOCK_ITEM))
+        unlock_items.append(TAGS_UNLOCK_ITEM)
+
+    if unlock_items and world.options.starting_unlock:
+        starting_unlock = world.random.choice(unlock_items)
+        world.multiworld.push_precollected(world.create_item(starting_unlock))
+        unlock_items.remove(starting_unlock)
+
+    itempool += [world.create_item(name) for name in unlock_items]
 
     included_regions = get_included_regions(world)
     if "San Fierro" in included_regions:

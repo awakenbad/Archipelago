@@ -264,6 +264,18 @@ class IncludeStreetRaces(Toggle):
 
     default = 1
 
+class StartingUnlock(Toggle):
+    """
+    Whether one randomly chosen unlock item is granted at the start.
+
+    Every side activity is gated behind its own item, this hands over one of them - a submission, the tags,
+    or the street races.
+    """
+
+    display_name = "Starting Unlock"
+
+    default = 1
+
 class IncludeShootingRange(Toggle):
     """
     Whether the four Ammu-Nation shooting range challenges are included as locations, one per weapon
@@ -300,6 +312,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_stadium_events: IncludeStadiumEvents
     include_street_races: IncludeStreetRaces
     include_shooting_range: IncludeShootingRange
+    starting_unlock: StartingUnlock
     trap_percentage: TrapPercentage
     include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
@@ -320,7 +333,7 @@ option_groups = [
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
-         IncludeShootingRange, TrapPercentage],
+         IncludeShootingRange, StartingUnlock, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",
