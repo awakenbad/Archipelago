@@ -65,6 +65,15 @@ WEAPON_MASTERY_ITEMS = [f"{name} Mastery" for name in WEAPON_MASTERY_SKILLS]
 
 STREET_RACES_ITEM = "Street Races Unlock"
 
+SUBMISSION_UNLOCK_ITEMS = [
+    "Paramedic Unlock",
+    "Firefighter Unlock",
+    "Vigilante Unlock",
+    "Taxi Unlock",
+    "Pimping Unlock",
+    "Burglary Unlock",
+]
+
 UTILITY_FILLER_ITEMS = [
     "Full Armor",
     "Car Repair",
@@ -89,6 +98,7 @@ ITEM_NAME_TO_ID = {
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
     STREET_RACES_ITEM: 80,
+    **{name: 81 + i for i, name in enumerate(SUBMISSION_UNLOCK_ITEMS)},
     **SKILL_ITEM_IDS,
 }
 
@@ -108,6 +118,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
     **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
     STREET_RACES_ITEM: ItemClassification.progression,
+    **{name: ItemClassification.progression for name in SUBMISSION_UNLOCK_ITEMS},
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
     **{name: ItemClassification.useful for name in SKILL_ITEM_IDS},
@@ -175,6 +186,9 @@ def create_all_items(world: GTASAWorld) -> None:
     ]
     if world.options.include_street_races:
         itempool.append(world.create_item(STREET_RACES_ITEM))
+
+    from .submission_tier_list import unlocked_submission_items
+    itempool += [world.create_item(name) for name in unlocked_submission_items(world.options)]
 
     included_regions = get_included_regions(world)
     if "San Fierro" in included_regions:

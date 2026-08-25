@@ -157,6 +157,32 @@ SUBMISSION_TIERS = [
 
 SUBMISSION_TIER_SLOT_COUNT = 286
 
+VEHICLE_LOCKED_SUBMISSIONS = {
+    "Paramedic": "Paramedic Unlock",
+    "Firefighter": "Firefighter Unlock",
+    "Vigilante": "Vigilante Unlock",
+    "Taxi Driver": "Taxi Unlock",
+    "Pimping": "Pimping Unlock",
+    "Burglary": "Burglary Unlock",
+}
+
+def unlock_item_for_tier(tier_spec) -> str:
+    for prefix, item in VEHICLE_LOCKED_SUBMISSIONS.items():
+        if tier_spec.name_template.startswith(prefix):
+            return item
+    return ""
+
+def unlocked_submission_items(options) -> list[str]:
+    wanted = []
+    for tier_spec in SUBMISSION_TIERS:
+        item = unlock_item_for_tier(tier_spec)
+        if not item or item in wanted:
+            continue
+        if tier_spec.zero_disables and tier_spec.included_tier_count(options) == 0:
+            continue
+        wanted.append(item)
+    return wanted
+
 def build_tier_location_names() -> list[str]:
     """Location names in slot order, so index == the slot the plugin sends."""
     names = []

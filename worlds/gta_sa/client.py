@@ -101,6 +101,8 @@ ITEM_ID_TO_EFFECT = {
     50: ("armor_refill", None),
     51: ("car_repair", None),
     80: ("street_races", None),
+    **{81 + i: (f"unlock_{name}", None) for i, name in enumerate(
+        ("paramedic", "firefighter", "vigilante", "taxi", "pimping", "burglary"))},
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 

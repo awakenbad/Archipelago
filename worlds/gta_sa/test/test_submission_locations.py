@@ -1,6 +1,6 @@
 from .bases import GTASATestBase
 
-STARTING_SUBMISSION_LOCATIONS = [
+VEHICLE_LOCKED_LOCATIONS = [
     "LS Mission: Paramedic Level 12",
     "LS Mission: Firefighter Level 12",
     "LS Mission: Vigilante Level 12",
@@ -8,7 +8,7 @@ STARTING_SUBMISSION_LOCATIONS = [
     "LS Mission: Burglary $10,000 Stolen",
 ]
 
-ALL_SUBMISSION_LOCATIONS = STARTING_SUBMISSION_LOCATIONS + [
+ALL_SUBMISSION_LOCATIONS = VEHICLE_LOCKED_LOCATIONS + [
     "LS Mission: Los Santos Gym Fight School",
 ]
 
@@ -21,12 +21,29 @@ class TestSubmissionLocationsExist(GTASATestBase):
                 except KeyError:
                     self.fail(f"{location_name} should exist, but it doesn't.")
 
+UNLOCK_FOR_LOCATION = {
+    "LS Mission: Paramedic Level 12": "Paramedic Unlock",
+    "LS Mission: Firefighter Level 12": "Firefighter Unlock",
+    "LS Mission: Vigilante Level 12": "Vigilante Unlock",
+    "LS Mission: Taxi Driver 50 Fares": "Taxi Unlock",
+    "LS Mission: Burglary $10,000 Stolen": "Burglary Unlock",
+}
+
 class TestSubmissionLocationGating(GTASATestBase):
-    def test_submission_locations_are_reachable_from_the_start(self) -> None:
-        for location_name in STARTING_SUBMISSION_LOCATIONS:
+    def test_none_are_reachable_from_a_standing_start(self) -> None:
+        """This is the sphere 0 fix: the vehicle is locked until the unlock item lands."""
+        for location_name in VEHICLE_LOCKED_LOCATIONS:
             with self.subTest(location_name):
                 location = self.world.get_location(location_name)
-                self.assertTrue(location.can_reach(self.multiworld.state))
+                self.assertFalse(location.can_reach(self.multiworld.state))
+
+    def test_each_becomes_reachable_with_its_own_unlock(self) -> None:
+        for location_name, item_name in UNLOCK_FOR_LOCATION.items():
+            with self.subTest(location_name):
+                state = self.multiworld.get_all_state(False)
+                self.assertTrue(self.world.get_location(location_name).can_reach(state))
+                state.remove(self.get_item_by_name(item_name))
+                self.assertFalse(self.world.get_location(location_name).can_reach(state))
 
 class TestLosSantosGymGating(GTASATestBase):
     def test_needs_drive_thru_reachable(self) -> None:
@@ -63,13 +80,13 @@ class TestSubmissionLevelLocations(GTASATestBase):
         ]
         self.assertEqual(len(level_locations), 36)
 
-    def test_levels_are_reachable_from_the_start(self) -> None:
+    def test_levels_are_not_reachable_before_the_unlock(self) -> None:
         for activity in ("Paramedic", "Firefighter", "Vigilante"):
             for level in (1, 12):
                 location_name = f"LS Mission: {activity} Level {level}"
                 with self.subTest(location_name):
                     location = self.world.get_location(location_name)
-                    self.assertTrue(location.can_reach(self.multiworld.state))
+                    self.assertFalse(location.can_reach(self.multiworld.state))
 
     def test_level_ids_match_the_plugin_slot_scheme(self) -> None:
         # The plugin sends slot = activity_index * 12 + (level - 1), client adds base 400.
