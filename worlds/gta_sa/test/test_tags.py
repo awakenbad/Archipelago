@@ -14,10 +14,32 @@ class TestTagsEnabled(GTASATestBase):
                 except KeyError:
                     self.fail(f"LS Tag: #{i} should exist, but it doesn't.")
 
-    def test_tags_are_reachable_with_nothing(self) -> None:
-        # Los Santos is the origin region, and tags have no story-progress prerequisite.
-        location = self.world.get_location("LS Tag: #1")
-        self.assertTrue(location.can_reach(self.multiworld.state))
+    def test_tags_need_the_unlock_item(self) -> None:
+        from ..items import TAGS_UNLOCK_ITEM
+
+        location = self.world.get_location("LS Tag: #50")
+
+        state = self.multiworld.get_all_state(False)
+        self.assertTrue(location.can_reach(state))
+
+        state.remove(self.get_item_by_name(TAGS_UNLOCK_ITEM))
+        self.assertFalse(location.can_reach(state))
+
+    def test_the_mission_sprayed_six_need_only_the_mission(self) -> None:
+        from ..items import TAGS_UNLOCK_ITEM
+        from ..tag_list import MISSION_SPRAYED_TAGS
+
+        state = self.multiworld.get_all_state(False)
+        state.remove(self.get_item_by_name(TAGS_UNLOCK_ITEM))
+
+        for number in MISSION_SPRAYED_TAGS:
+            with self.subTest(number):
+                self.assertTrue(self.world.get_location(f"LS Tag: #{number}").can_reach(state))
+
+    def test_exactly_one_spray_can_exists(self) -> None:
+        from ..items import TAGS_UNLOCK_ITEM
+
+        self.assertEqual(len(self.get_items_by_name(TAGS_UNLOCK_ITEM)), 1)
 
 
 class TestTagsDisabled(GTASATestBase):

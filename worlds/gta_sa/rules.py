@@ -66,6 +66,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
     from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
     from .mission_list import get_optional_mission_requirements
     from .oyster_list import OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT
+    from .tag_list import TAG_LOCATION_NAMES
     from .submission_tier_list import get_tier_requirements
 
     _gate_at_story_points(world, get_tier_requirements())
@@ -80,6 +81,19 @@ def set_all_location_rules(world: GTASAWorld) -> None:
 
     _gate_at_story_points(world, dict.fromkeys(EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT))
     _gate_at_story_points(world, dict.fromkeys(OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT))
+    from .items import TAGS_UNLOCK_ITEM
+    from .tag_list import MISSION_SPRAYED_TAGS, MISSION_SPRAYED_TAGS_STORY_INDEX
+
+    sprayed_by_mission = {TAG_LOCATION_NAMES[number - 1] for number in MISSION_SPRAYED_TAGS}
+    reach_tagging_up_turf = _story_point_rule(world, MISSION_SPRAYED_TAGS_STORY_INDEX + 1)
+
+    for location_name in TAG_LOCATION_NAMES:
+        if location_name not in location_cache:
+            continue
+        if location_name in sprayed_by_mission:
+            world.set_rule(world.get_location(location_name), reach_tagging_up_turf)
+        else:
+            world.set_rule(world.get_location(location_name), Has(TAGS_UNLOCK_ITEM))
     _gate_at_story_points(world, dict.fromkeys(HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT))
 
     if world.options.include_ammunation_shop:
