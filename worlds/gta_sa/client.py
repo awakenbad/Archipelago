@@ -32,6 +32,7 @@ from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT
 from .oyster_list import OYSTER_BASE_ID, OYSTER_COUNT
 from .export_list import EXPORT_BASE_ID, EXPORT_COUNT
 from .submission_tier_list import SUBMISSION_TIER_BASE_ID
+from .options import StartingPoint
 
 COLLECTIBLE_BLOCKS = (
     ("TAG", TAG_BASE_ID, TAG_COUNT),
@@ -52,6 +53,14 @@ CHECK_TYPE_BASE_IDS = {
 }
 
 DEFAULT_GOAL_MISSION_ID = 38
+
+STARTING_POINT_COLOUR = "plum"
+
+def starting_point_name(value: int) -> str:
+    key = StartingPoint.name_lookup.get(value)
+    if key is None:
+        return f"Unknown ({value})"
+    return key.replace("_", " ").title()
 
 EXPECTED_DISCONNECT_REASONS = (
     (ConnectionRefusedError, "the server refused the connection - check the address and port, and that it is running"),
@@ -182,6 +191,22 @@ class GTASAContext(TrackerGameContext):
                 return container
 
         return GTASAManager
+
+    def announce_starting_point(self, value) -> None:
+        if value is None:
+            return
+
+        name = starting_point_name(value)
+        if value == StartingPoint.option_los_santos:
+            instruction = "start a New Game."
+        else:
+            instruction = f"load the '{name} Start' save file that ships with the mod."
+
+        self.on_print_json({"data": [{
+            "type": "color",
+            "color": STARTING_POINT_COLOUR,
+            "text": f"Starting Point: {name} - {instruction}",
+        }]})
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
@@ -346,6 +371,8 @@ class GTASAContext(TrackerGameContext):
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.street_races_included = bool(args.get("slot_data", {}).get("street_races", False))
+            self.announce_starting_point(
+                args.get("slot_data", {}).get("options", {}).get("starting_point"))
             self.send_death_link_config()
             self.send_street_race_config()
             self.send_collectible_config()
