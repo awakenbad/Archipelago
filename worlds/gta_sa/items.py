@@ -7,7 +7,7 @@ from Options import OptionError
 
 from .branches import BRANCHES
 from .challenge_list import CHALLENGES
-from .skill_items import ALWAYS_GENERATED_SKILL_ITEMS, SKILL_ITEM_IDS
+from .skill_items import DEFAULT_SKILL_ITEMS, SKILL_ITEM_IDS, SKILL_ITEMS
 from .stadium_list import STADIUM_EVENTS
 
 if TYPE_CHECKING:
@@ -188,24 +188,41 @@ def choose_starting_unlock(world: GTASAWorld, unlock_items: list[str]) -> str:
             return chosen
     return world.random.choice(unlock_items)
 
+UPGRADE_ITEMS = [
+    "Max Health Upgrade",
+    "Max Armor Upgrade",
+    "Fire Immunity",
+    "Infinite Sprint",
+    "Taxi Nitro",
+    "Boxing Style",
+]
+
+def skill_item_names(world: GTASAWorld) -> tuple[list[str], list[str]]:
+    from .mission_list import get_included_regions, get_mission_region
+
+    gating = gating_skill_items(world)
+    offered = list(DEFAULT_SKILL_ITEMS)
+    if world.options.include_challenges:
+        included_regions = get_included_regions(world)
+        for challenge in CHALLENGES:
+            if (challenge.skill_item not in offered
+                    and get_mission_region(challenge.location_id) in included_regions):
+                offered.append(challenge.skill_item)
+
+    order = [item.name for item in SKILL_ITEMS]
+    required = sorted(gating, key=order.index)
+    optional = [name for name in offered if name not in gating]
+    return required, optional
+
 def create_all_items(world: GTASAWorld) -> None:
     from .branches import branch_pool_counts
     from .mission_list import get_goal, get_included_regions, get_start
 
     pool_counts = branch_pool_counts(get_start(world).story_index, get_goal(world).story_index)
-    itempool: list[Item] = []
+    required: list[str] = []
     for branch in BRANCHES:
-        item_name = PROGRESSIVE_BRANCH_ITEMS[branch.name]
-        itempool += [world.create_item(item_name) for _ in range(pool_counts[branch.name])]
+        required += [PROGRESSIVE_BRANCH_ITEMS[branch.name]] * pool_counts[branch.name]
 
-    itempool += [
-        world.create_item("Max Health Upgrade"),
-        world.create_item("Max Armor Upgrade"),
-        world.create_item("Fire Immunity"),
-        world.create_item("Infinite Sprint"),
-        world.create_item("Taxi Nitro"),
-        world.create_item("Boxing Style"),
-    ]
     early = world.multiworld.local_early_items[world.player]
     early[PROGRESSIVE_BRANCH_ITEMS["Ryder"]] = 1
     early[PROGRESSIVE_BRANCH_ITEMS["Sweet"]] = 2
@@ -218,39 +235,33 @@ def create_all_items(world: GTASAWorld) -> None:
         world.multiworld.push_precollected(world.create_item(starting_unlock))
         unlock_items.remove(starting_unlock)
 
-    itempool += [world.create_item(name) for name in unlock_items]
+    required += unlock_items
+
+    required_skills, optional_skills = skill_item_names(world)
+    required += required_skills
 
     included_regions = get_included_regions(world)
+    optional = list(UPGRADE_ITEMS)
     if "San Fierro" in included_regions:
-        itempool.append(world.create_item("Kung Fu Style"))
+        optional.append("Kung Fu Style")
     if "Las Venturas" in included_regions:
-        itempool.append(world.create_item("Kickboxing Style"))
+        optional.append("Kickboxing Style")
+    optional += optional_skills
 
-    added_skill_items: set[str] = set(ALWAYS_GENERATED_SKILL_ITEMS)
-    for name in ALWAYS_GENERATED_SKILL_ITEMS:
-        itempool.append(world.create_item(name))
-
-    if world.options.include_challenges:
-        from .mission_list import get_mission_region
-        for challenge in CHALLENGES:
-            if challenge.skill_item in added_skill_items:
-                continue
-            if get_mission_region(challenge.location_id) in included_regions:
-                itempool.append(world.create_item(challenge.skill_item))
-                added_skill_items.add(challenge.skill_item)
-
-    number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))
-    needed_number_of_filler_items = number_of_unfilled_locations - number_of_items
 
-    if needed_number_of_filler_items < 0:
+    if len(required) > number_of_unfilled_locations:
         raise OptionError(
             f"Grand Theft Auto: San Andreas ({world.player_name}): these options leave only "
-            f"{number_of_unfilled_locations} locations for {number_of_items} required items. "
+            f"{number_of_unfilled_locations} locations for {len(required)} required items. "
             "Set Include Submissions to Per Level, turn on Include Tags, Include Snapshots or "
             "Include Ammu-Nation Shop, or pick a later End Goal."
         )
 
+    names = required + optional[:number_of_unfilled_locations - len(required)]
+    itempool: list[Item] = [world.create_item(name) for name in names]
+
+    needed_number_of_filler_items = number_of_unfilled_locations - len(itempool)
     mastery_count = min(needed_number_of_filler_items, len(WEAPON_MASTERY_ITEMS))
     for name in world.random.sample(WEAPON_MASTERY_ITEMS, mastery_count):
         itempool.append(world.create_item(name))

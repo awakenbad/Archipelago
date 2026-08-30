@@ -1,3 +1,5 @@
+import collections
+
 from .bases import GTASATestBase
 
 # One per-level location and one final-tier location for each Los Santos submission. The final tier
@@ -65,15 +67,8 @@ class TestSubmissionsOnCompletion(GTASATestBase):
 
 
 class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
-    """The tightest world you can ask for: one check per submission and no other optional source.
-
-    Progressive Missions nearly fill the story locations on their own, so this configuration ends up
-    with exactly as many locations as required items and no room for filler. Adding another
-    guaranteed item would overflow it - items.py raises an OptionError saying so, and this test is
-    what notices.
-    """
-
     options = {
+        "starting_unlock": False,
         "include_submissions": "on_completion",
         "tag_checks": 0,
         "snapshot_checks": 0,
@@ -84,6 +79,20 @@ class TestFewestPossibleLocationsStillGenerates(GTASATestBase):
     def test_it_generates(self) -> None:
         # Getting this far means create_items placed everything without overflowing.
         self.assertTrue(self.multiworld.itempool)
+
+    def test_the_pool_exactly_fills_the_locations(self) -> None:
+        unfilled = self.multiworld.get_unfilled_locations(self.player)
+        self.assertEqual(len(self.multiworld.itempool), len(unfilled))
+
+    def test_every_item_logic_needs_is_present(self) -> None:
+        from ..items import gated_unlock_items, gating_skill_items
+
+        pooled = collections.Counter(item.name for item in self.multiworld.itempool)
+        pooled.update(item.name for item in self.multiworld.precollected_items[self.player])
+
+        for name in gated_unlock_items(self.world.options) + sorted(gating_skill_items(self.world)):
+            with self.subTest(name):
+                self.assertGreaterEqual(pooled[name], 1)
 
 
 class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
