@@ -95,8 +95,6 @@ class SubmissionTier(NamedTuple):
 
     percentage_slider: bool = False
 
-    on_completion_tier: int = 0
-
     medals_per_test: int = 0
 
     requires_option: str = ""
@@ -134,7 +132,7 @@ SUBMISSION_TIERS = [
                    tier_names=medal_tiers(BIKE_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(218, 7, "Quarry",      "Mission {tier}", 1, "Las Venturas", 65, option_attr="quarry_checks", zero_disables=True),
     SubmissionTier(225, 20, "Gang Territory", "{value}% Controlled", 5, "Return to Los Santos", 78,
-                   option_attr="gang_territory_target", percentage_slider=True, zero_disables=True, on_completion_tier=7),
+                   option_attr="gang_territory_target", percentage_slider=True, zero_disables=True),
     SubmissionTier(245, 4, "Courier", "Roboi's Food Mart Level {tier}", 1, "Los Santos", 0,
                    option_attr="courier_checks", zero_disables=True),
     SubmissionTier(249, 4, "Courier", "Hippy Shopper Level {tier}", 1, "San Fierro", 38,
@@ -208,14 +206,7 @@ def get_tier_names(tier_spec: SubmissionTier) -> list[str]:
 
 def get_included_tier_names_by_region(options, story_mission_count: int,
                                       start_index: int = 0) -> dict[str, list[str]]:
-    """Location names grouped by region, honouring Include Submissions and this seed's span.
-
-    on_completion keeps only each submission's completion tier - reaching that one means the activity
-    is done, so no extra location IDs are needed. That's the final tier for most, but the
-    story-required 35% for gang territory (see on_completion_tier).
-    """
-    on_completion_only = options.include_submissions == "on_completion"
-
+    """Location names grouped by region, honouring each submission's slider and this seed's span."""
     grouped: dict[str, list[str]] = {}
     for tier_spec in SUBMISSION_TIERS:
         if tier_spec.requires_option and not getattr(options, tier_spec.requires_option):
@@ -233,23 +224,15 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
 
         names = get_tier_names(tier_spec)
         if tier_spec.medals_per_test:
-            names = _capped_medal_names(tier_spec, names, options, on_completion_only)
-        elif on_completion_only:
-            tier = tier_spec.on_completion_tier or tier_spec.tier_count
-            names = names[tier - 1:tier]
+            names = _capped_medal_names(tier_spec, names, options)
         elif tier_spec.option_attr:
             names = names[:tier_spec.included_tier_count(options)]
         grouped.setdefault(tier_spec.region, []).extend(names)
     return grouped
 
-def _capped_medal_names(tier_spec: SubmissionTier, names: list[str], options,
-                        on_completion_only: bool) -> list[str]:
+def _capped_medal_names(tier_spec: SubmissionTier, names: list[str], options) -> list[str]:
     cap = options.school_medals.value
-    kept = [name for index, name in enumerate(names) if index % tier_spec.medals_per_test < cap]
-
-    if on_completion_only:
-        return kept[-1:]
-    return kept
+    return [name for index, name in enumerate(names) if index % tier_spec.medals_per_test < cap]
 
 def get_tier_requirements() -> dict[str, int]:
     """Location name -> Progressive Missions needed to start that activity."""

@@ -86,7 +86,6 @@ class TestFlyingSchoolBoundary(unittest.TestCase):
                 multiworld = setup_multiworld(GTASAWorld, options={
                     "starting_point": start.start_option_value,
                     "end_goal": goal.goal_option_value,
-                    "include_submissions": "per_level",
                 })
                 created = {location.name for location in multiworld.get_locations(1)}
                 lessons = {name for name in created if "Flying School" in name}

@@ -11,7 +11,6 @@ GENERATION_OPTION_NAMES = (
     "include_exports", "include_ammunation_shop", "include_challenges", "include_stadium_events",
     "include_shooting_range",
     "courier_checks",
-    "include_submissions",
     "paramedic_checks", "firefighter_checks", "vigilante_checks", "taxi_checks",
     "burglary_checks", "trucking_checks", "valet_checks", "pimping_checks",
     "quarry_checks", "gang_territory_target", "school_medals",

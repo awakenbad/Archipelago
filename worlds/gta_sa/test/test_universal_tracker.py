@@ -17,7 +17,6 @@ COLLECTIBLE_HEAVY_OPTIONS = {
     "oyster_checks": 25,
     "include_exports": "lists_1_2_and_3",
     "include_ammunation_shop": True,
-    "include_submissions": "per_level",
     "starting_unlock": True,
 }
 

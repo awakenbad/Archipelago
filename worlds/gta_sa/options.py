@@ -88,44 +88,29 @@ class IncludeAmmunationShop(Toggle):
 
     default = 1
 
-class IncludeSubmissions(Choice):
-    """
-    How submissions send checks.
-
-    *Per Level*: a check for every level, fare or tier of progress.
-    *On Completion*: a single check for finishing the whole activity.
-    """
-
-    display_name = "Include Submissions"
-
-    option_per_level = 0
-    option_on_completion = 1
-
-    default = option_per_level
-
 class ParamedicChecks(Range):
-    """How many Paramedic levels send a check, in Per Level mode."""
+    """How many Paramedic levels send a check."""
     display_name = "Paramedic Checks"
     range_start = 1
     range_end = 12
     default = 12
 
 class FirefighterChecks(Range):
-    """How many Firefighter levels send a check, in Per Level mode."""
+    """How many Firefighter levels send a check."""
     display_name = "Firefighter Checks"
     range_start = 1
     range_end = 12
     default = 12
 
 class VigilanteChecks(Range):
-    """How many Vigilante levels send a check, in Per Level mode."""
+    """How many Vigilante levels send a check."""
     display_name = "Vigilante Checks"
     range_start = 1
     range_end = 12
     default = 12
 
 class TaxiChecks(Range):
-    """How many Taxi fare milestones send a check, in Per Level mode. Each milestone is 1 fare, so
+    """How many Taxi fare milestones send a check. Each milestone is 1 fare, so
     e.g. 3 sends checks at 1, 2 and 3 fares."""
     display_name = "Taxi Checks"
     range_start = 1
@@ -133,7 +118,7 @@ class TaxiChecks(Range):
     default = 50
 
 class BurglaryChecks(Range):
-    """How many Burglary milestones send a check, in Per Level mode. Each milestone is $1000 stolen,
+    """How many Burglary milestones send a check. Each milestone is $1000 stolen,
     so e.g. 3 sends checks at $1000, $2000 and $3000. 0 removes Burglary from the seed."""
     display_name = "Burglary Checks"
     range_start = 0
@@ -141,14 +126,14 @@ class BurglaryChecks(Range):
     default = 10
 
 class TruckingChecks(Range):
-    """How many Trucking levels send a check, in Per Level mode. 0 removes Trucking from the seed."""
+    """How many Trucking levels send a check. 0 removes Trucking from the seed."""
     display_name = "Trucking Checks"
     range_start = 0
     range_end = 8
     default = 8
 
 class ValetChecks(Range):
-    """How many Valet milestones send a check, in Per Level mode. The milestones are at 3, 7, 12, 18
+    """How many Valet milestones send a check. The milestones are at 3, 7, 12, 18
     and 25 cars, so e.g. 3 sends checks at 3, 7 and 12 cars. 0 removes Valet from the seed."""
     display_name = "Valet Checks"
     range_start = 0
@@ -156,14 +141,14 @@ class ValetChecks(Range):
     default = 5
 
 class PimpingChecks(Range):
-    """How many Pimping levels send a check, in Per Level mode. 0 removes Pimping from the seed."""
+    """How many Pimping levels send a check. 0 removes Pimping from the seed."""
     display_name = "Pimping Checks"
     range_start = 0
     range_end = 10
     default = 10
 
 class QuarryChecks(Range):
-    """How many Quarry missions send a check, in Per Level mode. 0 removes the Quarry from the seed."""
+    """How many Quarry missions send a check. 0 removes the Quarry from the seed."""
     display_name = "Quarry Checks"
     range_start = 0
     range_end = 7
@@ -171,15 +156,15 @@ class QuarryChecks(Range):
 
 class CourierChecks(Range):
     """How many Courier levels send a check (Roboi's Food Mart, Hippy Shopper, Burger
-    Shot), in Per Level mode. 0 turns courier checks off entirely, in both modes."""
+    Shot). 0 turns courier checks off entirely."""
     display_name = "Courier Checks"
     range_start = 0
     range_end = 4
     default = 4
 
 class FreightChecks(Range):
-    """How many levels of the Brown Streak freight mission send a check, in Per Level mode. 0 turns
-    the freight off entirely, in both modes. Only in seeds that go past Yay Ka-Boom-Boom."""
+    """How many levels of the Brown Streak freight mission send a check. 0 turns the freight off
+    entirely. Only in seeds that go past Yay Ka-Boom-Boom."""
     display_name = "Freight Checks"
     range_start = 0
     range_end = 2
@@ -188,8 +173,7 @@ class FreightChecks(Range):
 class GangTerritoryTarget(Range):
     """Percentage of gang territory to retake in Return to Los Santos, sending a check every 5% up
     to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything below 5 turns gang territory
-    checks off entirely, same as 0. Only appears on the End of the Line goal. In On Completion
-    mode, sends one check at 35%."""
+    checks off entirely, same as 0. Only appears on the End of the Line goal."""
     display_name = "Gang Territory Target %"
     range_start = 0
     range_end = 100
@@ -323,7 +307,6 @@ class GTASAOptions(PerGameCommonOptions):
     include_shooting_range: IncludeShootingRange
     starting_unlock: StartingUnlock
     trap_percentage: TrapPercentage
-    include_submissions: IncludeSubmissions
     paramedic_checks: ParamedicChecks
     firefighter_checks: FirefighterChecks
     vigilante_checks: VigilanteChecks
@@ -347,7 +330,7 @@ option_groups = [
     ),
     OptionGroup(
         "Submission Options",
-        [IncludeSubmissions, ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
+        [ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
          TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks, FreightChecks,
          GangTerritoryTarget],
     ),

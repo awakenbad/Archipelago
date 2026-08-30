@@ -38,7 +38,7 @@ class TestSliderRangesMatchTiers(unittest.TestCase):
                 self.assertEqual(spec.option_attr, "", f"{spec.label} should have no slider")
 
 class TestParamedicCap(GTASATestBase):
-    options = {"include_submissions": "per_level", "paramedic_checks": 5}
+    options = {"paramedic_checks": 5}
 
     def test_keeps_first_five_levels(self) -> None:
         self.world.get_location("LS Paramedic: Level 5")
@@ -48,20 +48,13 @@ class TestParamedicCap(GTASATestBase):
 
 class TestTaxiCap(GTASATestBase):
     # 3 tiers of a 5-fare submission = checks at 5, 10, 15 fares.
-    options = {"include_submissions": "per_level", "taxi_checks": 3}
+    options = {"taxi_checks": 3}
 
     def test_keeps_the_first_three_milestones(self) -> None:
         self.world.get_location("LS Taxi Driver: 3 Fares")
 
     def test_drops_beyond_them(self) -> None:
         self.assertRaises(KeyError, self.world.get_location, "LS Taxi Driver: 4 Fares")
-
-class TestSliderIgnoredOnCompletion(GTASATestBase):
-    options = {"include_submissions": "on_completion", "paramedic_checks": 5}
-
-    def test_only_the_final_tier_survives(self) -> None:
-        self.world.get_location("LS Paramedic: Level 12")
-        self.assertRaises(KeyError, self.world.get_location, "LS Paramedic: Level 5")
 
 class TestPercentageSliderMapsToTiers(unittest.TestCase):
 
@@ -77,7 +70,7 @@ class TestPercentageSliderMapsToTiers(unittest.TestCase):
         self.assertEqual(self._count(spec, 100), spec.tier_count)
 
 class TestGangTerritoryTarget(GTASATestBase):
-    options = {"end_goal": "end_of_the_line", "include_submissions": "per_level", "gang_territory_target": 35}
+    options = {"end_goal": "end_of_the_line", "gang_territory_target": 35}
 
     def test_keeps_tiers_up_to_the_target(self) -> None:
         self.world.get_location("RTLS Gang Territory: 35% Controlled")
@@ -95,17 +88,10 @@ class TestGangTerritoryTarget(GTASATestBase):
         self.assertTrue(location.can_reach(self.multiworld.state))
 
 class TestGangTerritoryOff(GTASATestBase):
-    options = {"end_goal": "end_of_the_line", "include_submissions": "per_level", "gang_territory_target": 0}
+    options = {"end_goal": "end_of_the_line", "gang_territory_target": 0}
 
     def test_no_gang_territory_locations(self) -> None:
         self.assertRaises(KeyError, self.world.get_location, "RTLS Gang Territory: 5% Controlled")
-
-class TestGangTerritoryOnCompletion(GTASATestBase):
-    options = {"end_goal": "end_of_the_line", "include_submissions": "on_completion", "gang_territory_target": 100}
-
-    def test_only_the_story_threshold_survives(self) -> None:
-        self.world.get_location("RTLS Gang Territory: 35% Controlled")
-        self.assertRaises(KeyError, self.world.get_location, "RTLS Gang Territory: 100% Controlled")
 
 class TestGangTerritoryOnlyOnEndOfTheLine(GTASATestBase):
     options = {"end_goal": "a_home_in_the_hills", "gang_territory_target": 100}
