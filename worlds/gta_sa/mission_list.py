@@ -1,5 +1,10 @@
 ﻿from typing import NamedTuple
 
+from .branch_list import BRANCHES
+from .challenge_list import CHALLENGE_LOCATION_IDS
+from .gym_list import GYM_LOCATION_IDS
+from .stadium_list import STADIUM_LOCATION_IDS
+
 REGION_ABBREVIATIONS = {
     "Los Santos": "LS",
     "Badlands": "BD",
@@ -194,12 +199,12 @@ MISSION_DATA = [
     (69, "Customs Fast Track", "San Fierro"),
     (70, "Puncture Wounds", "San Fierro"),
 
-    (114, "Los Santos Gym Fight School", "Los Santos"),
-    (115, "San Fierro Gym Fight School", "San Fierro"),
-    (116, "Las Venturas Gym Fight School", "Las Venturas"),
-    (133, "BMX Challenge", "Los Santos"),
-    (136, "NRG-500 Challenge", "San Fierro"),
-    (132, "Chiliad Challenge", "Badlands"),
+    (114, "Fight School", "Los Santos"),
+    (115, "Fight School", "San Fierro"),
+    (116, "Fight School", "Las Venturas"),
+    (133, "BMX", "Los Santos"),
+    (136, "NRG-500", "San Fierro"),
+    (132, "Chiliad", "Badlands"),
     (COMPLETION_ID, "100% Completion", "Return to Los Santos"),
     # Stadium events
     (140, "8-Track", "Los Santos"),
@@ -208,8 +213,38 @@ MISSION_DATA = [
     (143, "Kickstart", "Las Venturas"),
 ]
 
+class OptionalMissionBranch(NamedTuple):
+    name: str
+    mission_ids: tuple[int, ...]
+    required_progressive_missions: int
+
+OPTIONAL_MISSION_BRANCHES = (
+    OptionalMissionBranch("Zero", (72, 73, 74), 37),
+    OptionalMissionBranch("Driving School", (71,), 39),
+    OptionalMissionBranch("Wang Cars", (67, 68, 69, 70), 54),
+    OptionalMissionBranch("Heist", (96, 97, 98, 99, 100), 65),
+    OptionalMissionBranch("Heist", (101,), 75),
+)
+
+_BRANCH_LABEL_BY_MISSION_ID = {
+    mission_id: branch.name for branch in BRANCHES for mission_id in branch.missions
+}
+_BRANCH_LABEL_BY_MISSION_ID.update({
+    mission_id: branch.name
+    for branch in OPTIONAL_MISSION_BRANCHES for mission_id in branch.mission_ids
+})
+_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Gym" for mission_id in GYM_LOCATION_IDS})
+_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Challenge" for mission_id in CHALLENGE_LOCATION_IDS})
+_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Stadium" for mission_id in STADIUM_LOCATION_IDS})
+for mission_id, mission_name, _ in MISSION_DATA:
+    if _BRANCH_LABEL_BY_MISSION_ID.get(mission_id) == mission_name:
+        del _BRANCH_LABEL_BY_MISSION_ID[mission_id]
+
+def get_branch_label(mission_id: int) -> str:
+    return _BRANCH_LABEL_BY_MISSION_ID.get(mission_id, "Mission")
+
 MISSION_ID_TO_LOCATION_NAME = {
-    mission_id: f"{REGION_ABBREVIATIONS[region]} Mission: {name}"
+    mission_id: f"{REGION_ABBREVIATIONS[region]} {get_branch_label(mission_id)}: {name}"
     for mission_id, name, region in MISSION_DATA
 }
 
@@ -222,120 +257,106 @@ def get_mission_region(mission_id: int) -> str:
     return MISSION_ID_TO_REGION[mission_id]
 
 LOCATION_NAME_TO_MISSION_ID = {name: mission_id for mission_id, name in MISSION_ID_TO_LOCATION_NAME.items()}
+MISSION_NAME_TO_ID = {name: mission_id for mission_id, name, _ in MISSION_DATA}
 
-STORY_MISSION_LOCATION_ORDER = (
-    "LS Mission: Big Smoke",                    # 0
-    "LS Mission: Ryder",                        # 1
-    "LS Mission: Tagging Up Turf",              # 2
-    "LS Mission: Cleaning The Hood",            # 3
-    "LS Mission: Drive-Thru",                   # 4
-    "LS Mission: Nines And AK's",               # 5  - opens the parallel strands
-    "LS Mission: Drive-By",                     # 6
-    "LS Mission: Sweet's Girl",                 # 7
-    "LS Mission: Cesar Vialpando",              # 8
-    "LS Mission: Lowrider (High Stakes)",       # 9  - only needs Cesar Vialpando
-    "LS Mission: OG Loc",                       # 10
-    "LS Mission: Running Dog",                  # 11
-    "LS Mission: Wrong Side of the Tracks",     # 12
-    "LS Mission: Just Business",                # 13
-    "LS Mission: Home Invasion",                # 14
-    "LS Mission: Catalyst",                     # 15
-    "LS Mission: Robbing Uncle Sam",            # 16
-    "LS Mission: Life's a Beach",               # 17
-    "LS Mission: Madd Dogg's Rhymes",           # 18
-    "LS Mission: Management Issues",            # 19
-    "LS Mission: House Party",                  # 20
-    "LS Mission: Burning Desire",               # 21 - needs Madd Dogg's Rhymes
-    "LS Mission: Gray Imports",                 # 22 - needs Burning Desire
-    "LS Mission: Doberman",                     # 23 - needs Cesar Vialpando + Burning Desire
-    "LS Mission: Los Sepulcros",                # 24 - needs Doberman
-    "LS Mission: Reuniting The Families",       # 25
-    "LS Mission: The Green Sabre",              # 26
+STORY_MISSION_NAME_ORDER = (
+    "Big Smoke",                                # 0
+    "Ryder",                                    # 1
+    "Tagging Up Turf",                          # 2
+    "Cleaning The Hood",                        # 3
+    "Drive-Thru",                               # 4
+    "Nines And AK's",                           # 5  - opens the parallel strands
+    "Drive-By",                                 # 6
+    "Sweet's Girl",                             # 7
+    "Cesar Vialpando",                          # 8
+    "Lowrider (High Stakes)",                   # 9  - only needs Cesar Vialpando
+    "OG Loc",                                   # 10
+    "Running Dog",                              # 11
+    "Wrong Side of the Tracks",                 # 12
+    "Just Business",                            # 13
+    "Home Invasion",                            # 14
+    "Catalyst",                                 # 15
+    "Robbing Uncle Sam",                        # 16
+    "Life's a Beach",                           # 17
+    "Madd Dogg's Rhymes",                       # 18
+    "Management Issues",                        # 19
+    "House Party",                              # 20
+    "Burning Desire",                           # 21 - needs Madd Dogg's Rhymes
+    "Gray Imports",                             # 22 - needs Burning Desire
+    "Doberman",                                 # 23 - needs Cesar Vialpando + Burning Desire
+    "Los Sepulcros",                            # 24 - needs Doberman
+    "Reuniting The Families",                   # 25
+    "The Green Sabre",                          # 26
 
-    "BD Mission: Badlands",                     # 27
-    "BD Mission: First Date",                   # 28
-    "BD Mission: Body Harvest",                 # 29
-    "BD Mission: First Base",                   # 30
-    "BD Mission: Wu Zi Mu",                     # 31 - unlocks after 2 robberies
-    "BD Mission: Gone Courting",                # 32
-    "BD Mission: Made in Heaven",               # 33
-    "BD Mission: Farewell, My Love...",         # 34
-    "BD Mission: Are You Going to San Fierro?", # 35
+    "Badlands",                                 # 27
+    "First Date",                               # 28
+    "Body Harvest",                             # 29
+    "First Base",                               # 30
+    "Wu Zi Mu",                                 # 31 - unlocks after 2 robberies
+    "Gone Courting",                            # 32
+    "Made in Heaven",                           # 33
+    "Farewell, My Love...",                     # 34
+    "Are You Going to San Fierro?",             # 35
 
-    "SF Mission: Wear Flowers in Your Hair",    # 36 - first SF mission, opens the garage
-    "SF Mission: 555 WE TIP",                   # 37
-    "SF Mission: Deconstruction",               # 38
-    "SF Mission: Photo Opportunity",            # 39
-    "SF Mission: Jizzy",                        # 40
-    "SF Mission: T-Bone Mendez",                # 41
-    "SF Mission: Mountain Cloud Boys",          # 42
-    "SF Mission: Mike Toreno",                  # 43
-    "SF Mission: Ran Fa Li",                    # 44
-    "SF Mission: Outrider",                     # 45
-    "SF Mission: Lure",                         # 46
-    "SF Mission: Snail Trail",                  # 47
-    "SF Mission: Amphibious Assault",           # 48
-    "SF Mission: Ice Cold Killa",               # 49
-    "SF Mission: The Da Nang Thang",            # 50
-    "SF Mission: Pier 69",                      # 51
-    "SF Mission: Toreno's Last Flight",         # 52
-    "SF Mission: Yay Ka-Boom-Boom",             # 53 - ends San Fierro
+    "Wear Flowers in Your Hair",                # 36 - first SF mission, opens the garage
+    "555 WE TIP",                               # 37
+    "Deconstruction",                           # 38
+    "Photo Opportunity",                        # 39
+    "Jizzy",                                    # 40
+    "T-Bone Mendez",                            # 41
+    "Mountain Cloud Boys",                      # 42
+    "Mike Toreno",                              # 43
+    "Ran Fa Li",                                # 44
+    "Outrider",                                 # 45
+    "Lure",                                     # 46
+    "Snail Trail",                              # 47
+    "Amphibious Assault",                       # 48
+    "Ice Cold Killa",                           # 49
+    "The Da Nang Thang",                        # 50
+    "Pier 69",                                  # 51
+    "Toreno's Last Flight",                     # 52
+    "Yay Ka-Boom-Boom",                         # 53 - ends San Fierro
 
-    "LV Mission: Monster",                      # 54 - first of Toreno's desert arc
-    "LV Mission: Highjack",                     # 55
-    "LV Mission: Interdiction",                 # 56
-    "LV Mission: Verdant Meadows",              # 57 - buys the airstrip
-    "LV Mission: Learning to Fly",              # 58 - flight school, gates every mission after it
-    "LV Mission: N.O.E.",                       # 59
-    "LV Mission: Stowaway",                     # 60
-    "LV Mission: Black Project",                # 61
-    "LV Mission: Green Goo",                    # 62
-    "LV Mission: Fender Ketchup",               # 63 - casino arc starts
-    "LV Mission: Explosive Situation",          # 64
-    "LV Mission: You've Had Your Chips",        # 65
-    "LV Mission: Don Peyote",                   # 66
-    "LV Mission: Intensive Care",               # 67
-    "LV Mission: The Meat Business",            # 68
-    "LV Mission: Fish in a Barrel",             # 69 - opens off The Meat Business
-    "LV Mission: Madd Dogg",                    # 70 - also opens off The Meat Business
-    "LV Mission: Misappropriation",             # 71 - needs Intensive Care
-    "LV Mission: Freefall",                     # 72
-    "LV Mission: High Noon",                    # 73 - needs Misappropriation + Freefall
-    "LV Mission: Saint Mark's Bistro",          # 74 - needs every other Las Venturas mission
-    "LV Mission: A Home in the Hills",          # 75 - opens the Los Santos endgame
+    "Monster",                                  # 54 - first of Toreno's desert arc
+    "Highjack",                                 # 55
+    "Interdiction",                             # 56
+    "Verdant Meadows",                          # 57 - buys the airstrip
+    "Learning to Fly",                          # 58 - flight school, gates every mission after it
+    "N.O.E.",                                   # 59
+    "Stowaway",                                 # 60
+    "Black Project",                            # 61
+    "Green Goo",                                # 62
+    "Fender Ketchup",                           # 63 - casino arc starts
+    "Explosive Situation",                      # 64
+    "You've Had Your Chips",                    # 65
+    "Don Peyote",                               # 66
+    "Intensive Care",                           # 67
+    "The Meat Business",                        # 68
+    "Fish in a Barrel",                         # 69 - opens off The Meat Business
+    "Madd Dogg",                                # 70 - also opens off The Meat Business
+    "Misappropriation",                         # 71 - needs Intensive Care
+    "Freefall",                                 # 72
+    "High Noon",                                # 73 - needs Misappropriation + Freefall
+    "Saint Mark's Bistro",                      # 74 - needs every other Las Venturas mission
+    "A Home in the Hills",                      # 75 - opens the Los Santos endgame
 
-    "RTLS Mission: Vertical Bird",              # 76
-    "RTLS Mission: Home Coming",                # 77
-    "RTLS Mission: Cut Throat Business",        # 78
-    "RTLS Mission: Beat Down on B Dup",         # 79
-    "RTLS Mission: Grove 4 Life",               # 80
-    "RTLS Mission: Riot",                       # 81
-    "RTLS Mission: Los Desperados",             # 82
-    "RTLS Mission: End of the Line",            # 83
+    "Vertical Bird",                            # 76
+    "Home Coming",                              # 77
+    "Cut Throat Business",                      # 78
+    "Beat Down on B Dup",                       # 79
+    "Grove 4 Life",                             # 80
+    "Riot",                                     # 81
+    "Los Desperados",                           # 82
+    "End of the Line",                          # 83
 )
 
-STORY_MISSION_ORDER = tuple(LOCATION_NAME_TO_MISSION_ID[name] for name in STORY_MISSION_LOCATION_ORDER)
+STORY_MISSION_ORDER = tuple(MISSION_NAME_TO_ID[name] for name in STORY_MISSION_NAME_ORDER)
 
 STORY_INDEX_BY_MISSION_ID = {mission_id: index for index, mission_id in enumerate(STORY_MISSION_ORDER)}
 
 def get_story_index(mission_id: int) -> int | None:
     """The mission's position in the story, or None when it isn't a story mission."""
     return STORY_INDEX_BY_MISSION_ID.get(mission_id)
-
-class OptionalMissionBranch(NamedTuple):
-    name: str
-    mission_ids: tuple[int, ...]
-    required_progressive_missions: int
-
-OPTIONAL_MISSION_BRANCHES = (
-    # Zero's RC missions, off Wear Flowers in Your Hair (story position 36).
-    OptionalMissionBranch("Zero", (72, 73, 74), 37),
-    # Driving school, off Deconstruction (story position 38).
-    OptionalMissionBranch("Driving School", (71,), 39),
-    OptionalMissionBranch("Wang Cars", (67, 68, 69, 70), 54),
-    OptionalMissionBranch("Caligula's Heist", (96, 97, 98, 99, 100), 65),
-    OptionalMissionBranch("Breaking the Bank", (101,), 75),
-)
 
 def get_optional_mission_ids() -> set[int]:
     return {mission_id for branch in OPTIONAL_MISSION_BRANCHES for mission_id in branch.mission_ids}

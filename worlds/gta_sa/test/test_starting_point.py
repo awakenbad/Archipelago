@@ -5,7 +5,14 @@ from test.general import setup_multiworld
 
 from ..branches import branch_pool_counts
 from ..items import PROGRESSIVE_BRANCH_ITEMS
-from ..mission_list import MILESTONES, STORY_MISSION_LOCATION_ORDER
+from ..mission_list import (
+    MILESTONES,
+    STORY_MISSION_NAME_ORDER,
+    STORY_MISSION_ORDER,
+    get_mission_location_name,
+)
+
+STORY_LOCATION_ORDER = tuple(get_mission_location_name(m) for m in STORY_MISSION_ORDER)
 from ..tag_list import MISSION_SPRAYED_TAGS, TAG_LOCATION_NAMES
 from ..world import GTASAWorld
 from .bases import GTASATestBase
@@ -43,7 +50,7 @@ class TestStartingPointGrid(unittest.TestCase):
                     "end_goal": goal.goal_option_value,
                 })
                 created = {location.name for location in multiworld.get_locations(1)}
-                already_passed = set(STORY_MISSION_LOCATION_ORDER[:start.story_index])
+                already_passed = set(STORY_LOCATION_ORDER[:start.story_index])
                 self.assertEqual(created & already_passed, set())
 
     def test_every_pair_can_reach_all_of_its_locations(self) -> None:
@@ -71,7 +78,7 @@ class TestFlyingSchoolBoundary(unittest.TestCase):
     """
 
     def test_lessons_are_dropped_only_past_learning_to_fly(self) -> None:
-        learning_to_fly = STORY_MISSION_LOCATION_ORDER.index("LV Mission: Learning to Fly")
+        learning_to_fly = STORY_MISSION_NAME_ORDER.index("Learning to Fly")
         for start, goal in get_valid_start_goal_pairs():
             if goal.story_index <= learning_to_fly:
                 continue
@@ -121,16 +128,16 @@ class TestBadlandsStart(GTASATestBase):
 
     def test_los_santos_story_missions_are_not_created(self) -> None:
         created = {location.name for location in self.multiworld.get_locations(self.player)}
-        self.assertEqual(created & set(STORY_MISSION_LOCATION_ORDER[:27]), set())
+        self.assertEqual(created & set(STORY_LOCATION_ORDER[:27]), set())
 
     def test_los_santos_side_content_survives(self) -> None:
         # Los Santos never re-locks, so everything there that isn't a passed story mission stays.
         created = {location.name for location in self.multiworld.get_locations(self.player)}
         for location_name in (
-            "LS Mission: Los Santos Gym Fight School",
+            "LS Gym: Fight School",
             "LS Tag: #4",
             "Ammu-Nation: Pistol",
-            "LS Mission: Paramedic Level 1",
+            "LS Paramedic: Level 1",
         ):
             self.assertIn(location_name, created)
 
@@ -143,17 +150,17 @@ class TestBadlandsStart(GTASATestBase):
     def test_los_santos_gym_needs_only_its_skill_item(self) -> None:
         from ..gym_list import GYM_SKILL_ITEM
 
-        location = self.world.get_location("LS Mission: Los Santos Gym Fight School")
+        location = self.world.get_location("LS Gym: Fight School")
         self.assertFalse(location.can_reach(self.multiworld.state))
 
         self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
         self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_first_badlands_mission_needs_its_branch_item(self) -> None:
-        self.assert_branch_gated("BD Mission: Badlands", 39)
+        self.assert_branch_gated("BD C.R.A.S.H.: Badlands", 39)
 
     def test_are_you_going_to_san_fierro_needs_its_requirement(self) -> None:
-        self.assert_branch_gated("BD Mission: Are You Going to San Fierro?", 47)
+        self.assert_branch_gated("BD The Truth: Are You Going to San Fierro?", 47)
 
     def test_completion_needs_the_goal_requirement(self) -> None:
         self.assertBeatable(False)
@@ -168,14 +175,14 @@ class TestLasVenturasStart(GTASATestBase):
         created = {location.name for location in self.multiworld.get_locations(self.player)}
         for location_name in (
             "SF Snapshot: #1",
-            "BD Mission: Trucking Level 1",
-            "SF Mission: Valet 3 Cars Parked",
-            "SF Mission: Driving School - The 360 (Bronze)",
+            "BD Trucking: Level 1",
+            "SF Valet: 3 Cars Parked",
+            "SF Driving School: The 360 (Bronze)",
         ):
             self.assertIn(location_name, created)
 
     def test_flying_school_lessons_are_still_earnable(self) -> None:
-        location = self.world.get_location("LV Mission: Flying School - Takeoff (Bronze)")
+        location = self.world.get_location("LV Flying School: Takeoff (Bronze)")
         self.assertFalse(location.can_reach(self.multiworld.state))
 
         self.collect_mission_requirement(78)

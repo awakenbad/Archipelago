@@ -1,15 +1,15 @@
 from .bases import GTASATestBase
 
 VEHICLE_LOCKED_LOCATIONS = [
-    "LS Mission: Paramedic Level 12",
-    "LS Mission: Firefighter Level 12",
-    "LS Mission: Vigilante Level 12",
-    "LS Mission: Taxi Driver 50 Fares",
-    "LS Mission: Burglary $10,000 Stolen",
+    "LS Paramedic: Level 12",
+    "LS Firefighter: Level 12",
+    "LS Vigilante: Level 12",
+    "LS Taxi Driver: 50 Fares",
+    "LS Burglary: $10,000 Stolen",
 ]
 
 ALL_SUBMISSION_LOCATIONS = VEHICLE_LOCKED_LOCATIONS + [
-    "LS Mission: Los Santos Gym Fight School",
+    "LS Gym: Fight School",
 ]
 
 class TestSubmissionLocationsExist(GTASATestBase):
@@ -22,11 +22,11 @@ class TestSubmissionLocationsExist(GTASATestBase):
                     self.fail(f"{location_name} should exist, but it doesn't.")
 
 UNLOCK_FOR_LOCATION = {
-    "LS Mission: Paramedic Level 12": "Paramedic Unlock",
-    "LS Mission: Firefighter Level 12": "Firefighter Unlock",
-    "LS Mission: Vigilante Level 12": "Vigilante Unlock",
-    "LS Mission: Taxi Driver 50 Fares": "Taxi Unlock",
-    "LS Mission: Burglary $10,000 Stolen": "Burglary Unlock",
+    "LS Paramedic: Level 12": "Paramedic Unlock",
+    "LS Firefighter: Level 12": "Firefighter Unlock",
+    "LS Vigilante: Level 12": "Vigilante Unlock",
+    "LS Taxi Driver: 50 Fares": "Taxi Unlock",
+    "LS Burglary: $10,000 Stolen": "Burglary Unlock",
 }
 
 class TestSubmissionLocationGating(GTASATestBase):
@@ -50,7 +50,7 @@ class TestLosSantosGymGating(GTASATestBase):
     def test_needs_drive_thru_reachable(self) -> None:
         from ..gym_list import GYM_SKILL_ITEM
 
-        location = self.world.get_location("LS Mission: Los Santos Gym Fight School")
+        location = self.world.get_location("LS Gym: Fight School")
         self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
 
         self.collect_mission_requirement(15, hold_back="Sweet")
@@ -66,7 +66,7 @@ class TestSubmissionLevelLocations(GTASATestBase):
     def test_every_level_of_every_activity_exists(self) -> None:
         for activity in ("Paramedic", "Firefighter", "Vigilante"):
             for level in range(1, 13):
-                location_name = f"LS Mission: {activity} Level {level}"
+                location_name = f"LS {activity}: Level {level}"
                 with self.subTest(location_name):
                     try:
                         self.world.get_location(location_name)
@@ -77,7 +77,7 @@ class TestSubmissionLevelLocations(GTASATestBase):
         level_locations = [
             location.name
             for location in self.multiworld.get_locations(self.player)
-            if any(f"{activity} Level " in location.name
+            if any(location.name.startswith(f"LS {activity}: Level ")
                    for activity in ("Paramedic", "Firefighter", "Vigilante"))
         ]
         self.assertEqual(len(level_locations), 36)
@@ -85,7 +85,7 @@ class TestSubmissionLevelLocations(GTASATestBase):
     def test_levels_are_not_reachable_before_the_unlock(self) -> None:
         for activity in ("Paramedic", "Firefighter", "Vigilante"):
             for level in (1, 12):
-                location_name = f"LS Mission: {activity} Level {level}"
+                location_name = f"LS {activity}: Level {level}"
                 with self.subTest(location_name):
                     location = self.world.get_location(location_name)
                     self.assertFalse(location.can_reach(self.multiworld.state))
@@ -98,7 +98,7 @@ class TestSubmissionLevelLocations(GTASATestBase):
         for activity_index, activity in enumerate(("Paramedic", "Firefighter", "Vigilante")):
             for level in range(1, 13):
                 expected = SUBMISSION_TIER_BASE_ID + activity_index * 12 + (level - 1)
-                name = f"LS Mission: {activity} Level {level}"
+                name = f"LS {activity}: Level {level}"
                 with self.subTest(name):
                     self.assertEqual(LOCATION_NAME_TO_ID[name], expected)
 
@@ -107,7 +107,7 @@ class TestTieredSubmissionLocations(GTASATestBase):
 
     def test_taxi_tiers_exist_every_five_fares(self) -> None:
         for tier in range(1, 11):
-            name = f"LS Mission: Taxi Driver {tier * 5} Fares"
+            name = f"LS Taxi Driver: {tier * 5} Fares"
             with self.subTest(name):
                 try:
                     self.world.get_location(name)
@@ -116,7 +116,7 @@ class TestTieredSubmissionLocations(GTASATestBase):
 
     def test_burglary_tiers_exist_every_thousand_dollars(self) -> None:
         for tier in range(1, 11):
-            name = f"LS Mission: Burglary ${tier * 1000:,} Stolen"
+            name = f"LS Burglary: ${tier * 1000:,} Stolen"
             with self.subTest(name):
                 try:
                     self.world.get_location(name)
@@ -136,11 +136,11 @@ class TestTieredSubmissionLocations(GTASATestBase):
         from ..locations import LOCATION_NAME_TO_ID
 
         expected_first_slots = {
-            0: "LS Mission: Paramedic Level 1",
-            12: "LS Mission: Firefighter Level 1",
-            24: "LS Mission: Vigilante Level 1",
-            36: "LS Mission: Taxi Driver 1 Fares",
-            86: "LS Mission: Burglary $1,000 Stolen",
+            0: "LS Paramedic: Level 1",
+            12: "LS Firefighter: Level 1",
+            24: "LS Vigilante: Level 1",
+            36: "LS Taxi Driver: 1 Fares",
+            86: "LS Burglary: $1,000 Stolen",
         }
         for slot, name in expected_first_slots.items():
             with self.subTest(name):
@@ -160,7 +160,7 @@ class TestSubmissionTierSlotLayout(GTASATestBase):
 
         expected_base = 0
         for tier_spec in SUBMISSION_TIERS:
-            with self.subTest(tier_spec.name_template):
+            with self.subTest(tier_spec.label):
                 self.assertEqual(tier_spec.base_slot, expected_base)
                 expected_base = tier_spec.base_slot + tier_spec.tier_count
 
@@ -199,7 +199,7 @@ class TestTruckingWithBadlandsGoal(GTASATestBase):
 
     def test_all_eight_trucking_tiers_exist(self) -> None:
         for tier in range(1, 9):
-            name = f"BD Mission: Trucking Level {tier}"
+            name = f"BD Trucking: Level {tier}"
             with self.subTest(name):
                 try:
                     self.world.get_location(name)
@@ -207,7 +207,7 @@ class TestTruckingWithBadlandsGoal(GTASATestBase):
                     self.fail(f"{name} should exist, but it doesn't.")
 
     def test_trucking_needs_tanker_commander(self) -> None:
-        location = self.world.get_location("BD Mission: Trucking Level 1")
+        location = self.world.get_location("BD Trucking: Level 1")
 
         self.collect_mission_requirement(43, hold_back="Catalina")
         self.assertFalse(location.can_reach(self.multiworld.state))
@@ -219,7 +219,7 @@ class TestTruckingWithBadlandsGoal(GTASATestBase):
         from ..submission_tier_list import SUBMISSION_TIER_BASE_ID
         from ..locations import LOCATION_NAME_TO_ID
 
-        self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 1"],
+        self.assertEqual(LOCATION_NAME_TO_ID["BD Trucking: Level 1"],
                          SUBMISSION_TIER_BASE_ID + 96)
-        self.assertEqual(LOCATION_NAME_TO_ID["BD Mission: Trucking Level 8"],
+        self.assertEqual(LOCATION_NAME_TO_ID["BD Trucking: Level 8"],
                          SUBMISSION_TIER_BASE_ID + 103)

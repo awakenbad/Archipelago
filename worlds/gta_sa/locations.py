@@ -6,7 +6,7 @@ from BaseClasses import ItemClassification, Location
 
 from . import items
 from . import mission_list
-from .mission_list import REGION_ABBREVIATIONS, MISSION_DATA
+from .mission_list import LOCATION_NAME_TO_MISSION_ID
 from .tag_list import TAG_BASE_ID, TAG_LOCATION_NAMES, TAG_REGION, get_earnable_tag_names
 from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_LOCATION_NAMES, SNAPSHOT_REGION
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_LOCATION_NAMES, HORSESHOE_REGION
@@ -34,10 +34,7 @@ if TYPE_CHECKING:
 # We will have a lookup from location name to ID here that, in world.py, we will import and bind to the world class.
 # Even if a location doesn't exist on specific options, it must be present in this lookup.
 
-LOCATION_NAME_TO_ID = {
-    f"{REGION_ABBREVIATIONS[region]} Mission: {name}": mission_id
-    for mission_id, name, region in MISSION_DATA
-}
+LOCATION_NAME_TO_ID = dict(LOCATION_NAME_TO_MISSION_ID)
 LOCATION_NAME_TO_ID.update({
     name: TAG_BASE_ID + i for i, name in enumerate(TAG_LOCATION_NAMES)
 })
@@ -112,7 +109,7 @@ def create_regular_locations(world: GTASAWorld) -> None:
     start_index = mission_list.get_start_index(world)
     optional_requirements = mission_list.get_optional_branch_requirements_by_id()
 
-    for mission_id, name, region_name in MISSION_DATA:
+    for mission_id, _, region_name in mission_list.MISSION_DATA:
         if region_name not in included_regions:
             continue
         if mission_id in CHALLENGE_LOCATION_IDS and not world.options.include_challenges:
@@ -127,9 +124,8 @@ def create_regular_locations(world: GTASAWorld) -> None:
         if story_index is not None and story_index < start_index:
             continue
         region = world.get_region(region_name)
-        location_name = f"{REGION_ABBREVIATIONS[region_name]} Mission: {name}"
-        location_id = LOCATION_NAME_TO_ID[location_name]
-        region.add_locations({location_name: location_id}, GTASALocation)
+        location_name = mission_list.get_mission_location_name(mission_id)
+        region.add_locations({location_name: LOCATION_NAME_TO_ID[location_name]}, GTASALocation)
 
 def sample_collectibles(world: GTASAWorld, names: list[str], count: int) -> list[str]:
     if world.ut_passthrough is not None:

@@ -20,6 +20,21 @@ class TestLocationIdsAreUnique(unittest.TestCase):
         collisions = {i: names for i, names in by_id.items() if len(names) > 1}
         self.assertEqual(collisions, {}, f"location IDs are shared: {collisions}")
 
+    def test_no_two_locations_share_a_name(self) -> None:
+        from ..export_list import EXPORT_COUNT
+        from ..horseshoe_list import HORSESHOE_COUNT
+        from ..mission_list import MISSION_DATA
+        from ..oyster_list import OYSTER_COUNT
+        from ..shop_list import SHOP_LOCATION_NAMES
+        from ..snapshot_list import SNAPSHOT_COUNT
+        from ..submission_tier_list import SUBMISSION_TIER_SLOT_COUNT
+        from ..tag_list import TAG_COUNT
+
+        expected = (len(MISSION_DATA) + TAG_COUNT + SNAPSHOT_COUNT + HORSESHOE_COUNT
+                    + EXPORT_COUNT + OYSTER_COUNT + len(SHOP_LOCATION_NAMES)
+                    + SUBMISSION_TIER_SLOT_COUNT)
+        self.assertEqual(len(LOCATION_NAME_TO_ID), expected)
+
     def test_each_block_stays_inside_its_own_range(self) -> None:
         from ..export_list import EXPORT_BASE_ID, EXPORT_COUNT
         from ..horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT

@@ -1,10 +1,10 @@
 from .bases import GTASATestBase
 
-BMX_LOCATION = "LS Mission: BMX Challenge"
+BMX_LOCATION = "LS Challenge: BMX"
 CYCLING_ITEM = "Max Cycling Skill"
-NRG_LOCATION = "SF Mission: NRG-500 Challenge"
+NRG_LOCATION = "SF Challenge: NRG-500"
 BIKE_ITEM = "Max Bike Skill"
-CHILIAD_LOCATION = "BD Mission: Chiliad Challenge"
+CHILIAD_LOCATION = "BD Challenge: Chiliad"
 
 class TestChallengesEnabled(GTASATestBase):
     options = {

@@ -68,6 +68,8 @@ def medal_tiers(tests: tuple[str, ...]) -> tuple[str, ...]:
 class SubmissionTier(NamedTuple):
     base_slot: int
     tier_count: int
+    # Names the activity in the location name, between the region and the colon.
+    label: str
     # {tier} is the tier number, {value} the progress it needs, {name} the entry from tier_names.
     name_template: str
     value_per_tier: int
@@ -113,47 +115,47 @@ class SubmissionTier(NamedTuple):
 # same base slots, same tier counts, same value per tier. Append new entries at the end;
 # inserting in the middle renumbers every slot after it and invalidates existing seeds.
 SUBMISSION_TIERS = [
-    SubmissionTier(0,  12, "Paramedic Level {tier}",     1,    "Los Santos", 0, option_attr="paramedic_checks"),
-    SubmissionTier(12, 12, "Firefighter Level {tier}",   1,    "Los Santos", 0, option_attr="firefighter_checks"),
-    SubmissionTier(24, 12, "Vigilante Level {tier}",     1,    "Los Santos", 0, option_attr="vigilante_checks"),
-    SubmissionTier(36, 50, "Taxi Driver {value} Fares",  1,    "Los Santos", 0, option_attr="taxi_checks"),
-    SubmissionTier(86, 10, "Burglary ${value:,} Stolen", 1000, "Los Santos", 0, option_attr="burglary_checks", zero_disables=True),
-    SubmissionTier(96, 8,  "Trucking Level {tier}",      1,    "Badlands",   33, option_attr="trucking_checks", zero_disables=True),
-    SubmissionTier(104, 5, "Valet {value} Cars Parked",  0,    "San Fierro", 38,
+    SubmissionTier(0,  12, "Paramedic",   "Level {tier}",   1, "Los Santos", 0, option_attr="paramedic_checks"),
+    SubmissionTier(12, 12, "Firefighter", "Level {tier}",   1, "Los Santos", 0, option_attr="firefighter_checks"),
+    SubmissionTier(24, 12, "Vigilante",   "Level {tier}",   1, "Los Santos", 0, option_attr="vigilante_checks"),
+    SubmissionTier(36, 50, "Taxi Driver", "{value} Fares",  1, "Los Santos", 0, option_attr="taxi_checks"),
+    SubmissionTier(86, 10, "Burglary", "${value:,} Stolen", 1000, "Los Santos", 0, option_attr="burglary_checks", zero_disables=True),
+    SubmissionTier(96, 8,  "Trucking",    "Level {tier}",   1, "Badlands",   33, option_attr="trucking_checks", zero_disables=True),
+    SubmissionTier(104, 5, "Valet", "{value} Cars Parked",  0, "San Fierro", 38,
                    thresholds=(3, 7, 12, 18, 25), option_attr="valet_checks", zero_disables=True),
-    SubmissionTier(109, 36, "Driving School - {name}",   0,    "San Fierro", 39,
+    SubmissionTier(109, 36, "Driving School", "{name}",     0, "San Fierro", 39,
                    tier_names=medal_tiers(DRIVING_SCHOOL_TESTS), medals_per_test=3),
-    SubmissionTier(145, 10, "Pimping Level {tier}",      1,    "Los Santos", 0, option_attr="pimping_checks", zero_disables=True),
-    SubmissionTier(155, 30, "Flying School - {name}",    0,    "Las Venturas", 58,
+    SubmissionTier(145, 10, "Pimping",    "Level {tier}",   1, "Los Santos", 0, option_attr="pimping_checks", zero_disables=True),
+    SubmissionTier(155, 30, "Flying School", "{name}",      0, "Las Venturas", 58,
                    tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), medals_per_test=3, consumed_at_story_index=58),
-    SubmissionTier(185, 15, "Boat School - {name}",      0,    "San Fierro", 54,
+    SubmissionTier(185, 15, "Boat School", "{name}",        0, "San Fierro", 54,
                    tier_names=medal_tiers(BOAT_SCHOOL_TESTS), medals_per_test=3),
-    SubmissionTier(200, 18, "Bike School - {name}",      0,    "Las Venturas", 54,
+    SubmissionTier(200, 18, "Bike School", "{name}",        0, "Las Venturas", 54,
                    tier_names=medal_tiers(BIKE_SCHOOL_TESTS), medals_per_test=3),
-    SubmissionTier(218, 7, "Quarry Mission {tier}",      1,    "Las Venturas", 65, option_attr="quarry_checks", zero_disables=True),
-    SubmissionTier(225, 20, "Gang Territory {value}% Controlled", 5, "Return to Los Santos", 78,
+    SubmissionTier(218, 7, "Quarry",      "Mission {tier}", 1, "Las Venturas", 65, option_attr="quarry_checks", zero_disables=True),
+    SubmissionTier(225, 20, "Gang Territory", "{value}% Controlled", 5, "Return to Los Santos", 78,
                    option_attr="gang_territory_target", percentage_slider=True, zero_disables=True, on_completion_tier=7),
-    SubmissionTier(245, 4, "Roboi's Food Mart Courier Level {tier}", 1, "Los Santos", 0,
+    SubmissionTier(245, 4, "Courier", "Roboi's Food Mart Level {tier}", 1, "Los Santos", 0,
                    option_attr="courier_checks", zero_disables=True),
-    SubmissionTier(249, 4, "Hippy Shopper Courier Level {tier}", 1, "San Fierro", 38,
+    SubmissionTier(249, 4, "Courier", "Hippy Shopper Level {tier}", 1, "San Fierro", 38,
                    option_attr="courier_checks", zero_disables=True),
-    SubmissionTier(253, 4, "Burger Shot Courier Level {tier}", 1, "Las Venturas", 54,
+    SubmissionTier(253, 4, "Courier", "Burger Shot Level {tier}", 1, "Las Venturas", 54,
                    option_attr="courier_checks", zero_disables=True),
-    SubmissionTier(257, 9, "Street Race - {name}",      0,    "Los Santos", 0,
+    SubmissionTier(257, 9, "Street Race", "{name}",         0, "Los Santos", 0,
                    tier_names=RACE_GROUPS[0].names, requires_option="include_street_races"),
-    SubmissionTier(266, 6, "Street Race - {name}",      0,    "San Fierro", 38,
+    SubmissionTier(266, 6, "Street Race", "{name}",         0, "San Fierro", 38,
                    tier_names=RACE_GROUPS[1].names, requires_option="include_street_races"),
-    SubmissionTier(272, 10, "Street Race - {name}",     0,    "Las Venturas", 54,
+    SubmissionTier(272, 10, "Street Race", "{name}",        0, "Las Venturas", 54,
                    tier_names=RACE_GROUPS[2].names, requires_option="include_street_races"),
-    SubmissionTier(282, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+    SubmissionTier(282, 1, "Shooting Range", "{name}",      3, "Los Santos", 25,
                    tier_names=SHOOTING_RANGE_WEAPONS[0:1], requires_option="include_shooting_range"),
-    SubmissionTier(283, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+    SubmissionTier(283, 1, "Shooting Range", "{name}",      3, "Los Santos", 25,
                    tier_names=SHOOTING_RANGE_WEAPONS[1:2], requires_option="include_shooting_range"),
-    SubmissionTier(284, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+    SubmissionTier(284, 1, "Shooting Range", "{name}",      3, "Los Santos", 25,
                    tier_names=SHOOTING_RANGE_WEAPONS[2:3], requires_option="include_shooting_range"),
-    SubmissionTier(285, 1, "Shooting Range - {name}",   3,    "Los Santos", 25,
+    SubmissionTier(285, 1, "Shooting Range", "{name}",      3, "Los Santos", 25,
                    tier_names=SHOOTING_RANGE_WEAPONS[3:4], requires_option="include_shooting_range"),
-    SubmissionTier(286, 2, "Freight Train Level {tier}",      1,    "San Fierro", 54,
+    SubmissionTier(286, 2, "Freight Train", "Level {tier}", 1, "San Fierro", 54,
                    option_attr="freight_checks", zero_disables=True),
 ]
 
@@ -169,10 +171,7 @@ VEHICLE_LOCKED_SUBMISSIONS = {
 }
 
 def unlock_item_for_tier(tier_spec) -> str:
-    for prefix, item in VEHICLE_LOCKED_SUBMISSIONS.items():
-        if tier_spec.name_template.startswith(prefix):
-            return item
-    return ""
+    return VEHICLE_LOCKED_SUBMISSIONS.get(tier_spec.label, "")
 
 def unlocked_submission_items(options) -> list[str]:
     wanted = []
@@ -196,8 +195,8 @@ def build_tier_location_names() -> list[str]:
             else:
                 value = tier * tier_spec.value_per_tier
             name = tier_spec.tier_names[tier - 1] if tier_spec.tier_names else ""
-            label = tier_spec.name_template.format(tier=tier, value=value, name=name)
-            names.append(f"{prefix} Mission: {label}")
+            suffix = tier_spec.name_template.format(tier=tier, value=value, name=name)
+            names.append(f"{prefix} {tier_spec.label}: {suffix}")
     return names
 
 SUBMISSION_TIER_LOCATION_NAMES = build_tier_location_names()

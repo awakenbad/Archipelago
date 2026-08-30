@@ -69,8 +69,8 @@ def set_all_entrance_rules(world: GTASAWorld) -> None:
 
 def set_all_location_rules(world: GTASAWorld) -> None:
     from .mission_list import (
-        LOCATION_NAME_TO_MISSION_ID,
-        STORY_MISSION_LOCATION_ORDER,
+        STORY_MISSION_ORDER,
+        get_mission_location_name,
         get_start_index,
         get_story_mission_count,
     )
@@ -78,11 +78,11 @@ def set_all_location_rules(world: GTASAWorld) -> None:
     start_index = get_start_index(world)
     location_cache = world.multiworld.regions.location_cache[world.player]
 
-    for index, location_name in enumerate(STORY_MISSION_LOCATION_ORDER[:get_story_mission_count(world)]):
+    for index, mission_id in enumerate(STORY_MISSION_ORDER[:get_story_mission_count(world)]):
         if index < start_index:
             continue
-        world.set_rule(world.get_location(location_name),
-                       _mission_rule(world, LOCATION_NAME_TO_MISSION_ID[location_name]))
+        world.set_rule(world.get_location(get_mission_location_name(mission_id)),
+                       _mission_rule(world, mission_id))
 
     from .export_list import EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT
     from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
@@ -96,9 +96,10 @@ def set_all_location_rules(world: GTASAWorld) -> None:
 
     from .gym_list import GYM_SKILL_ITEM, GYMS
     for gym in GYMS:
-        if gym.location_name not in location_cache:
+        gym_location_name = get_mission_location_name(gym.location_id)
+        if gym_location_name not in location_cache:
             continue
-        world.set_rule(world.get_location(gym.location_name),
+        world.set_rule(world.get_location(gym_location_name),
                        And(_story_point_rule(world, gym.required_count), Has(GYM_SKILL_ITEM)))
 
     _gate_at_story_points(world, dict.fromkeys(EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT))
@@ -125,7 +126,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             if location_name not in location_cache:
                 continue
             world.set_rule(world.get_location(location_name),
-                           _mission_rule(world, *(LOCATION_NAME_TO_MISSION_ID[name] for name in prerequisites)))
+                           _mission_rule(world, *prerequisites))
 
     if world.options.include_street_races:
         from .items import STREET_RACES_ITEM

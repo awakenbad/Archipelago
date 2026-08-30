@@ -3,21 +3,21 @@ from .bases import GTASATestBase
 # One per-level location and one final-tier location for each Los Santos submission. The final tier
 # is what "on_completion" keeps, since reaching it means the whole activity is done.
 MID_TIER_LOCATIONS = [
-    "LS Mission: Paramedic Level 1",
-    "LS Mission: Firefighter Level 1",
-    "LS Mission: Vigilante Level 1",
-    "LS Mission: Taxi Driver 5 Fares",
-    "LS Mission: Burglary $1,000 Stolen",
-    "LS Mission: Pimping Level 1",
+    "LS Paramedic: Level 1",
+    "LS Firefighter: Level 1",
+    "LS Vigilante: Level 1",
+    "LS Taxi Driver: 5 Fares",
+    "LS Burglary: $1,000 Stolen",
+    "LS Pimping: Level 1",
 ]
 
 FINAL_TIER_LOCATIONS = [
-    "LS Mission: Paramedic Level 12",
-    "LS Mission: Firefighter Level 12",
-    "LS Mission: Vigilante Level 12",
-    "LS Mission: Taxi Driver 50 Fares",
-    "LS Mission: Burglary $10,000 Stolen",
-    "LS Mission: Pimping Level 10",
+    "LS Paramedic: Level 12",
+    "LS Firefighter: Level 12",
+    "LS Vigilante: Level 12",
+    "LS Taxi Driver: 50 Fares",
+    "LS Burglary: $10,000 Stolen",
+    "LS Pimping: Level 10",
 ]
 
 
@@ -93,17 +93,17 @@ class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
 
     def test_boat_school_is_absent(self) -> None:
         self.assertRaises(KeyError, self.world.get_location,
-                          "SF Mission: Boat School - Basic Seamanship (Bronze)")
+                          "SF Boat School: Basic Seamanship (Bronze)")
 
     def test_driving_school_is_still_present(self) -> None:
         # Also San Fierro, but it opens at 39, well before this goal's position 53.
-        self.world.get_location("SF Mission: Driving School - The 360 (Bronze)")
+        self.world.get_location("SF Driving School: The 360 (Bronze)")
 
     def test_wang_cars_is_absent(self) -> None:
-        self.assertRaises(KeyError, self.world.get_location, "SF Mission: Zeroing In")
+        self.assertRaises(KeyError, self.world.get_location, "SF Wang Cars: Zeroing In")
 
     def test_back_to_school_is_still_present(self) -> None:
-        self.world.get_location("SF Mission: Back to School")
+        self.world.get_location("SF Driving School: Back to School")
 
 
 class TestBoatSchoolExistsForALaterGoal(GTASATestBase):
@@ -112,8 +112,8 @@ class TestBoatSchoolExistsForALaterGoal(GTASATestBase):
     }
 
     def test_boat_and_bike_school_exist(self) -> None:
-        for location_name in ("SF Mission: Boat School - Basic Seamanship (Bronze)",
-                              "LV Mission: Bike School - Jump & Stoppie (Gold)"):
+        for location_name in ("SF Boat School: Basic Seamanship (Bronze)",
+                              "LV Bike School: Jump & Stoppie (Gold)"):
             with self.subTest(location_name):
                 try:
                     self.world.get_location(location_name)

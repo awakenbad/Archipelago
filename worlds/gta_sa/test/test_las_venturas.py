@@ -1,18 +1,18 @@
 from .bases import GTASATestBase
 
 HEIST_MISSION_NAMES = [
-    "LV Mission: Architectural Espionage",
-    "LV Mission: Key To Her Heart",
-    "LV Mission: Dam And Blast",
-    "LV Mission: Cop Wheels",
-    "LV Mission: Up, Up and Away!",
-    "LV Mission: Breaking the Bank at Caligula's",
+    "LV Heist: Architectural Espionage",
+    "LV Heist: Key To Her Heart",
+    "LV Heist: Dam And Blast",
+    "LV Heist: Cop Wheels",
+    "LV Heist: Up, Up and Away!",
+    "LV Heist: Breaking the Bank at Caligula's",
 ]
 
-MEAT_BUSINESS = "LV Mission: The Meat Business"
+MEAT_BUSINESS = "LV Caligula's Palace: The Meat Business"
 MADD_DOGG = "LV Mission: Madd Dogg"
-SAINT_MARKS = "LV Mission: Saint Mark's Bistro"
-GOAL = "LV Mission: A Home in the Hills"
+SAINT_MARKS = "LV Caligula's Palace: Saint Mark's Bistro"
+GOAL = "LV Four Dragons Casino: A Home in the Hills"
 
 # Story positions. The heist takes none of them, so the goal sits directly after Saint Mark's.
 MEAT_BUSINESS_POSITION = 68
@@ -26,7 +26,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
     }
 
     def test_wang_cars_exists_and_needs_yay_ka_boom_boom(self) -> None:
-        location = self.world.get_location("SF Mission: Zeroing In")
+        location = self.world.get_location("SF Wang Cars: Zeroing In")
 
         self.collect_mission_requirement(63, hold_back="Triads")
         self.assertFalse(location.can_reach(self.multiworld.state))
@@ -35,8 +35,8 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_las_venturas_missions_exist(self) -> None:
-        for location_name in ("LV Mission: Monster", "LV Mission: Learning to Fly",
-                              "LV Mission: Fish in a Barrel", MADD_DOGG):
+        for location_name in ("LV Toreno: Monster", "LV Toreno: Learning to Fly",
+                              "LV Four Dragons Casino: Fish in a Barrel", MADD_DOGG):
             with self.subTest(location_name):
                 try:
                     self.world.get_location(location_name)
@@ -114,7 +114,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertEqual(total, sum(branch_pool_counts(0, GOAL_POSITION + 1).values()))
 
     def test_las_venturas_is_unreachable_before_san_fierro_is_finished(self) -> None:
-        monster = self.world.get_location("LV Mission: Monster")
+        monster = self.world.get_location("LV Toreno: Monster")
 
         self.collect_mission_requirement(75, hold_back="Triads")
         self.assertFalse(monster.can_reach(self.multiworld.state))

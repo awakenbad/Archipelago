@@ -6,10 +6,10 @@ class TestStoryMissionGating(GTASATestBase):
         self.assertTrue(big_smoke.can_reach(self.multiworld.state))
 
     def test_mid_game_mission_needs_its_branch_requirement(self) -> None:
-        self.assert_branch_gated("LS Mission: Wrong Side of the Tracks", 29)
+        self.assert_branch_gated("LS Big Smoke: Wrong Side of the Tracks", 29)
 
     def test_green_sabre_needs_its_full_requirement(self) -> None:
-        self.assert_branch_gated("LS Mission: The Green Sabre", 38)
+        self.assert_branch_gated("LS Sweet: The Green Sabre", 38)
 
     def test_completion_needs_the_goal_requirement(self) -> None:
         self.assertBeatable(False)
@@ -57,7 +57,7 @@ class TestGoalScopingWithBadlandsGoal(GTASATestBase):
         self.assertEqual(len(badlands_location_names), 18)
 
     def test_final_badlands_mission_needs_its_requirement(self) -> None:
-        self.assert_branch_gated("BD Mission: Are You Going to San Fierro?", 47)
+        self.assert_branch_gated("BD The Truth: Are You Going to San Fierro?", 47)
 
     def test_completion_needs_the_goal_requirement(self) -> None:
         self.assertBeatable(False)
