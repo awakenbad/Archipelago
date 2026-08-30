@@ -176,6 +176,14 @@ class CourierChecks(Range):
     range_end = 4
     default = 4
 
+class FreightChecks(Range):
+    """How many levels of the Brown Streak freight mission send a check, in Per Level mode. 0 turns
+    the freight off entirely, in both modes. Only in seeds that go past Yay Ka-Boom-Boom."""
+    display_name = "Freight Checks"
+    range_start = 0
+    range_end = 2
+    default = 2
+
 class GangTerritoryTarget(Range):
     """Percentage of gang territory to retake in Return to Los Santos, sending a check every 5% up
     to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything below 5 turns gang territory
@@ -325,6 +333,7 @@ class GTASAOptions(PerGameCommonOptions):
     pimping_checks: PimpingChecks
     quarry_checks: QuarryChecks
     courier_checks: CourierChecks
+    freight_checks: FreightChecks
     school_medals: SchoolMedals
     gang_territory_target: GangTerritoryTarget
 
@@ -338,7 +347,7 @@ option_groups = [
     OptionGroup(
         "Submission Options",
         [IncludeSubmissions, ParamedicChecks, FirefighterChecks, VigilanteChecks, TaxiChecks, BurglaryChecks,
-         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks,
+         TruckingChecks, ValetChecks, PimpingChecks, QuarryChecks, CourierChecks, FreightChecks,
          GangTerritoryTarget],
     ),
 ]
