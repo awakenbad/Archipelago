@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 def set_all_rules(world: GTASAWorld) -> None:
     set_all_entrance_rules(world)
     set_all_location_rules(world)
+    set_completion_location_rule(world)
     set_completion_condition(world)
 
 def _mission_rule(world: GTASAWorld, *mission_ids: int) -> Rule:
@@ -38,6 +39,27 @@ def _gate_at_story_points(world: GTASAWorld, requirements: dict[str, int]) -> No
         if location_name not in location_cache:
             continue
         world.set_rule(world.get_location(location_name), _story_point_rule(world, required_count))
+
+def _completion_rule(world: GTASAWorld) -> Rule:
+    from .branches import branch_pool_counts
+    from .items import PROGRESSIVE_BRANCH_ITEMS, gated_unlock_items, gating_skill_items
+    from .mission_list import get_goal, get_start
+
+    pool_counts = branch_pool_counts(get_start(world).story_index, get_goal(world).story_index)
+    required = {PROGRESSIVE_BRANCH_ITEMS[branch]: count
+                for branch, count in pool_counts.items() if count}
+
+    items_needed = gated_unlock_items(world.options) + sorted(gating_skill_items(world))
+    return And(HasAllCounts(required), *[Has(item) for item in items_needed])
+
+def set_completion_location_rule(world: GTASAWorld) -> None:
+    from .mission_list import COMPLETION_ID, get_mission_location_name
+
+    location_name = get_mission_location_name(COMPLETION_ID)
+    if location_name not in world.multiworld.regions.location_cache[world.player]:
+        return
+
+    world.set_rule(world.get_location(location_name), _completion_rule(world))
 
 def set_all_entrance_rules(world: GTASAWorld) -> None:
     world.set_rule(world.get_entrance("Los Santos to Badlands"), _mission_rule(world, 38))

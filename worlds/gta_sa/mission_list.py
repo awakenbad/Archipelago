@@ -8,6 +8,8 @@ REGION_ABBREVIATIONS = {
     "Return to Los Santos": "RTLS",
 }
 
+COMPLETION_ID = 160
+
 class StoryMilestone(NamedTuple):
     """One cut point on the story order, usable as a starting point, a goal, or both.
 
@@ -42,6 +44,8 @@ MILESTONES = (
     StoryMilestone(76, None, "a_home_in_the_hills",  102,
                    ("Los Santos", "Badlands", "San Fierro", "Las Venturas")),
     StoryMilestone(84, None,           "end_of_the_line",              112,
+                   ("Los Santos", "Badlands", "San Fierro", "Las Venturas", "Return to Los Santos")),
+    StoryMilestone(84, None,           "one_hundred_percent",          COMPLETION_ID,
                    ("Los Santos", "Badlands", "San Fierro", "Las Venturas", "Return to Los Santos")),
 )
 
@@ -196,6 +200,7 @@ MISSION_DATA = [
     (133, "BMX Challenge", "Los Santos"),
     (136, "NRG-500 Challenge", "San Fierro"),
     (132, "Chiliad Challenge", "Badlands"),
+    (COMPLETION_ID, "100% Completion", "Return to Los Santos"),
     # Stadium events
     (140, "8-Track", "Los Santos"),
     (141, "Dirt Track", "Las Venturas"),

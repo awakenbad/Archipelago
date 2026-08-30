@@ -38,6 +38,7 @@ class EndGoal(Choice):
     option_yay_ka_boom_boom = 2
     option_a_home_in_the_hills = 3
     option_end_of_the_line = 4
+    option_one_hundred_percent = 5
 
     default = option_the_green_sabre
 
