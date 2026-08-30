@@ -153,7 +153,7 @@ SUBMISSION_TIERS = [
                    tier_names=SHOOTING_RANGE_WEAPONS[2:3], requires_option="include_shooting_range"),
     SubmissionTier(285, 1, "Shooting Range - {name}",   3,    "Los Santos", 55,
                    tier_names=SHOOTING_RANGE_WEAPONS[3:4], requires_option="include_shooting_range"),
-    SubmissionTier(286, 2, "Freight Level {tier}",      1,    "San Fierro", 54,
+    SubmissionTier(286, 2, "Freight Train Level {tier}",      1,    "San Fierro", 54,
                    option_attr="freight_checks", zero_disables=True),
 ]
 

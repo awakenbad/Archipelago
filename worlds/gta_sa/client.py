@@ -22,7 +22,7 @@ except ImportError:
 
     tracker_loaded = False
     UT_VERSION = "Not found"
-from .items import WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
+from .items import ITEM_NAME_TO_ID, WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from .branches import BRANCHES
 from .skill_items import SKILL_ITEMS
 from .shop_list import INCLUDED_SHOP_SLOTS, SHOP_BASE_ID
@@ -176,6 +176,7 @@ class GTASAContext(TrackerGameContext):
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     street_races_included = False
+    gated_unlocks: list = []
     shop_slot_contents: dict = {}
     shop_slot_flags: dict = {}
 
@@ -278,11 +279,25 @@ class GTASAContext(TrackerGameContext):
             self.send_to_plugin(msg)
         self.items_applied_count = len(self.items_received)
 
+    def send_plugin_config(self) -> None:
+        self.send_death_link_config()
+        self.send_street_race_config()
+        self.send_gated_content_config()
+        self.send_collectible_config()
+
     def send_death_link_config(self) -> None:
         self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
 
     def send_street_race_config(self) -> None:
         self.send_to_plugin(f"CTRL:street_races:{int(self.street_races_included)}\n")
+
+    def send_gated_content_config(self) -> None:
+        effects = []
+        for name in self.gated_unlocks:
+            effect = ITEM_ID_TO_EFFECT.get(ITEM_NAME_TO_ID.get(name))
+            if effect is not None:
+                effects.append(effect[0])
+        self.send_to_plugin(f"CTRL:gated:{';'.join(effects)}\n")
 
     def send_collectible_config(self) -> None:
         known = self.missing_locations | self.checked_locations
@@ -371,11 +386,10 @@ class GTASAContext(TrackerGameContext):
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.street_races_included = bool(args.get("slot_data", {}).get("street_races", False))
+            self.gated_unlocks = list(args.get("slot_data", {}).get("gated_unlocks", []))
             self.announce_starting_point(
                 args.get("slot_data", {}).get("options", {}).get("starting_point"))
-            self.send_death_link_config()
-            self.send_street_race_config()
-            self.send_collectible_config()
+            self.send_plugin_config()
             self.scout_shop_locations()
         elif cmd == "RoomUpdate":
             self.push_shop_contents()
@@ -399,9 +413,7 @@ async def handle_plugin_connection(reader, writer, ctx: GTASAContext):
     # not sent yet would starve it of exactly the items it needs to make that decision.
     ctx.items_applied_count = 0
     ctx.apply_pending_items()
-    ctx.send_death_link_config()
-    ctx.send_street_race_config()
-    ctx.send_collectible_config()
+    ctx.send_plugin_config()
     ctx.push_shop_contents()
     try:
         await read_plugin_messages(reader, ctx)

@@ -170,6 +170,17 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
         classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
+def gated_unlock_items(options) -> list[str]:
+    from .submission_tier_list import unlocked_submission_items
+
+    unlock_items: list[str] = []
+    if options.include_street_races:
+        unlock_items.append(STREET_RACES_ITEM)
+    unlock_items += unlocked_submission_items(options)
+    if options.tag_checks.value:
+        unlock_items.append(TAGS_UNLOCK_ITEM)
+    return unlock_items
+
 def choose_starting_unlock(world: GTASAWorld, unlock_items: list[str]) -> str:
     if world.ut_passthrough is not None:
         chosen = world.ut_passthrough.get("starting_unlock", "")
@@ -199,14 +210,7 @@ def create_all_items(world: GTASAWorld) -> None:
     early[PROGRESSIVE_BRANCH_ITEMS["Ryder"]] = 1
     early[PROGRESSIVE_BRANCH_ITEMS["Sweet"]] = 2
 
-    from .submission_tier_list import unlocked_submission_items
-
-    unlock_items: list[str] = []
-    if world.options.include_street_races:
-        unlock_items.append(STREET_RACES_ITEM)
-    unlock_items += unlocked_submission_items(world.options)
-    if world.options.tag_checks.value:
-        unlock_items.append(TAGS_UNLOCK_ITEM)
+    unlock_items = gated_unlock_items(world.options)
 
     if unlock_items and world.options.starting_unlock:
         starting_unlock = choose_starting_unlock(world, unlock_items)

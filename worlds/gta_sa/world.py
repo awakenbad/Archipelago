@@ -84,6 +84,7 @@ class GTASAWorld(World):
             "options": {name: getattr(self.options, name).value for name in GENERATION_OPTION_NAMES},
             "collectibles": sorted(self.chosen_collectible_ids),
             "starting_unlock": self.starting_unlock_item,
+            "gated_unlocks": items.gated_unlock_items(self.options),
         }
 
     @staticmethod
