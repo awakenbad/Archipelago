@@ -81,11 +81,6 @@ def sanitize_for_game(text: str, limit: int) -> str:
     Also guarantees no newline sneaks into the line-delimited plugin protocol."""
     return "".join(ch if 32 <= ord(ch) < 127 else "?" for ch in text)[:limit]
 
-PICKUP_INDEX_TO_LOCATION_ID = {
-    0: 81000,
-    1: 81001,
-    2: 81002,
-}
 ITEM_ID_TO_EFFECT = {
     2: ("money", 500),
     5: ("health_upgrade", None),
@@ -466,10 +461,6 @@ async def read_plugin_messages(reader, ctx: GTASAContext):
                 await ctx.report_goal_reached()
                 continue
             location_id = check_id
-        elif check_type == "PICKUP":
-            location_id = PICKUP_INDEX_TO_LOCATION_ID.get(check_id)
-            if location_id is None:
-                continue
         elif check_type in CHECK_TYPE_BASE_IDS:
             location_id = CHECK_TYPE_BASE_IDS[check_type] + check_id
         else:
