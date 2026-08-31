@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from BaseClasses import Item, ItemClassification
+from BaseClasses import CollectionState, Item, ItemClassification
 from Options import OptionError
 
 from .branches import BRANCHES
@@ -214,6 +214,20 @@ def skill_item_names(world: GTASAWorld) -> tuple[list[str], list[str]]:
     optional = [name for name in offered if name not in gating]
     return required, optional
 
+EARLY_ITEM_BRANCHES = (("Ryder", 1), ("Sweet", 2))
+
+def set_early_items(world: GTASAWorld) -> None:
+    state = CollectionState(world.multiworld)
+    openings = sum(1 for location in world.multiworld.get_locations(world.player)
+                   if location.address is not None and location.can_reach(state))
+
+    early = world.multiworld.local_early_items[world.player]
+    for branch, count in EARLY_ITEM_BRANCHES:
+        if openings <= 0:
+            break
+        early[PROGRESSIVE_BRANCH_ITEMS[branch]] = min(count, openings)
+        openings -= min(count, openings)
+
 def create_all_items(world: GTASAWorld) -> None:
     from .branches import branch_pool_counts
     from .mission_list import get_goal, get_included_regions, get_start
@@ -222,10 +236,6 @@ def create_all_items(world: GTASAWorld) -> None:
     required: list[str] = []
     for branch in BRANCHES:
         required += [PROGRESSIVE_BRANCH_ITEMS[branch.name]] * pool_counts[branch.name]
-
-    early = world.multiworld.local_early_items[world.player]
-    early[PROGRESSIVE_BRANCH_ITEMS["Ryder"]] = 1
-    early[PROGRESSIVE_BRANCH_ITEMS["Sweet"]] = 2
 
     unlock_items = gated_unlock_items(world.options)
 

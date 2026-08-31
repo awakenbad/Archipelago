@@ -69,6 +69,9 @@ class GTASAWorld(World):
     def create_items(self) -> None:
         items.create_all_items(self)
 
+    def pre_fill(self) -> None:
+        items.set_early_items(self)
+
     def create_item(self, name: str) -> items.GTASAItem:
         return items.create_item_with_correct_classification(self, name)
 
