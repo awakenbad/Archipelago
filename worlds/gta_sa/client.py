@@ -22,6 +22,7 @@ except ImportError:
 
     tracker_loaded = False
     UT_VERSION = "Not found"
+from .save_folder import world_folder_name
 from .items import ITEM_NAME_TO_ID, WEAPON_FILLER_ITEMS, WEAPON_MASTERY_SKILLS
 from .branches import BRANCHES
 from .skill_items import SKILL_ITEMS
@@ -277,10 +278,17 @@ class GTASAContext(TrackerGameContext):
         self.items_applied_count = len(self.items_received)
 
     def send_plugin_config(self) -> None:
+        self.send_world_config()
         self.send_death_link_config()
         self.send_street_race_config()
         self.send_gated_content_config()
         self.send_collectible_config()
+
+    def send_world_config(self) -> None:
+        name = world_folder_name(self.seed_name, self.auth)
+        if name is None:
+            return
+        self.send_to_plugin(f"CTRL:world:{name}\n")
 
     def send_death_link_config(self) -> None:
         self.send_to_plugin(f"CTRL:death_link:{int(self.death_link_enabled)}\n")
