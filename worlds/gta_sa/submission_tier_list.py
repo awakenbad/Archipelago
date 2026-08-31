@@ -76,6 +76,7 @@ class SubmissionTier(NamedTuple):
     region: str
     # Progressive Missions needed before the activity itself can be started.
     required_progressive_missions: int
+    logic_region: str = ""
     # Cumulative progress per tier, for activities whose levels are unevenly spaced.
     # Empty means the uniform value_per_tier * tier applies.
     thresholds: tuple[int, ...] = ()
@@ -145,9 +146,11 @@ SUBMISSION_TIERS = [
                    option_attr="courier_checks", zero_disables=True),
     SubmissionTier(257, 9, "Street Race", "{name}",         0, "Los Santos", 0,
                    tier_names=RACE_GROUPS[0].names, requires_option="include_street_races"),
-    SubmissionTier(266, 6, "Street Race", "{name}",         0, "San Fierro", 38,
+    SubmissionTier(266, 6, "Street Race", "{name}",         0, "San Fierro", 0,
+                   logic_region="Los Santos",
                    tier_names=RACE_GROUPS[1].names, requires_option="include_street_races"),
-    SubmissionTier(272, 10, "Street Race", "{name}",        0, "Las Venturas", 54,
+    SubmissionTier(272, 10, "Street Race", "{name}",        0, "Las Venturas", 0,
+                   logic_region="Los Santos",
                    tier_names=RACE_GROUPS[2].names, requires_option="include_street_races"),
     SubmissionTier(282, 1, "Shooting Range", "{name}",      3, "Los Santos", 25,
                    tier_names=SHOOTING_RANGE_WEAPONS[0:1], requires_option="include_shooting_range"),
@@ -231,7 +234,7 @@ def get_included_tier_names_by_region(options, story_mission_count: int,
             names = _capped_medal_names(tier_spec, names, options)
         elif tier_spec.option_attr:
             names = names[:tier_spec.included_tier_count(options)]
-        grouped.setdefault(tier_spec.region, []).extend(names)
+        grouped.setdefault(tier_spec.logic_region or tier_spec.region, []).extend(names)
     return grouped
 
 def _capped_medal_names(tier_spec: SubmissionTier, names: list[str], options) -> list[str]:

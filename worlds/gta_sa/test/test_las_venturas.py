@@ -124,10 +124,13 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.assertTrue(monster.can_reach(self.multiworld.state))
 
 class TestEarlierGoalsHaveNoLasVenturas(GTASATestBase):
+    ITEM_GATED_PREFIXES = ("LV Horseshoe", "LV Street Race")
+
     def test_green_sabre_seed_has_no_las_venturas_locations(self) -> None:
         las_venturas = [
             location.name
             for location in self.multiworld.get_locations(self.player)
-            if location.name.startswith("LV ") and not location.name.startswith("LV Horseshoe")
+            if location.name.startswith("LV ")
+            and not location.name.startswith(self.ITEM_GATED_PREFIXES)
         ]
         self.assertEqual(las_venturas, [])
