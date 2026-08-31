@@ -1,13 +1,9 @@
 import unittest
-from argparse import Namespace
 
-from BaseClasses import CollectionState, MultiWorld
-from worlds.AutoWorld import call_all
+from BaseClasses import MultiWorld
 
-from ..items import STREET_RACES_ITEM, SUBMISSION_UNLOCK_ITEMS, TAGS_UNLOCK_ITEM
+from .bases import ELIGIBLE_UNLOCKS, generate
 from ..world import GTASAWorld
-
-GEN_STEPS = ("generate_early", "create_regions", "create_items", "set_rules")
 
 COLLECTIBLE_HEAVY_OPTIONS = {
     "end_goal": "end_of_the_line",
@@ -19,27 +15,6 @@ COLLECTIBLE_HEAVY_OPTIONS = {
     "include_ammunation_shop": True,
     "starting_unlock": True,
 }
-
-ELIGIBLE_UNLOCKS = set(SUBMISSION_UNLOCK_ITEMS) | {STREET_RACES_ITEM, TAGS_UNLOCK_ITEM}
-
-def generate(options: dict, seed: int, passthrough: dict | None = None) -> MultiWorld:
-    multiworld = MultiWorld(1)
-    multiworld.game = {1: GTASAWorld.game}
-    multiworld.player_name = {1: "Tester1"}
-    multiworld.set_seed(seed)
-
-    args = Namespace()
-    for key, option in GTASAWorld.options_dataclass.type_hints.items():
-        setattr(args, key, {1: option.from_any(options.get(key, option.default))})
-    multiworld.set_options(args)
-    multiworld.state = CollectionState(multiworld)
-
-    if passthrough is not None:
-        multiworld.re_gen_passthrough = {GTASAWorld.game: passthrough}
-
-    for step in GEN_STEPS:
-        call_all(multiworld, step)
-    return multiworld
 
 def location_ids(multiworld: MultiWorld) -> set[int]:
     return {loc.address for loc in multiworld.get_locations(1) if loc.address is not None}

@@ -69,7 +69,8 @@ class TagChecks(Range):
 class HorseshoeChecks(Range):
     """
     How many of the 50 Las Venturas horseshoes are location checks - a random set of that size, and
-    only the chosen ones show blips. 0 disables them. Ignored unless Las Venturas is in scope.
+    only the chosen ones show blips. 0 disables them. They are gated by the Horseshoes Unlock item
+    alone, so they are available on every goal.
     """
 
     display_name = "Horseshoe Checks"
@@ -172,8 +173,9 @@ class FreightChecks(Range):
 
 class GangTerritoryTarget(Range):
     """Percentage of gang territory to retake in Return to Los Santos, sending a check every 5% up
-    to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything below 5 turns gang territory
-    checks off entirely, same as 0. Only appears on the End of the Line goal."""
+    to your target (so 35 sends checks at 5, 10, ... 35%). Rounded DOWN to the nearest 5%, anything
+    below 5 turns gang territory checks off entirely, same as 0. Only appears on the End of the Line
+    goal."""
     display_name = "Gang Territory Target %"
     range_start = 0
     range_end = 100
@@ -182,8 +184,8 @@ class GangTerritoryTarget(Range):
 class OysterChecks(Range):
     """
     How many of the 50 oysters are location checks - a random set of that size, and only the chosen
-    ones show blips. 0 disables them. They are statewide and underwater, so they only appear on goals
-    that open the whole map (A Home in the Hills and later).
+    ones show blips. 0 disables them. They are gated by the Oysters Unlock item alone, so they are
+    available on every goal.
     """
 
     display_name = "Oyster Checks"
@@ -262,7 +264,7 @@ class StartingUnlock(Toggle):
     Whether one randomly chosen unlock item is granted at the start.
 
     Every side activity is gated behind its own item, this hands over one of them - a submission, the tags,
-    or the street races.
+    the horseshoes, or the street races. Never the oysters.
     """
 
     display_name = "Starting Unlock"

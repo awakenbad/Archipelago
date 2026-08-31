@@ -1,9 +1,46 @@
+from argparse import Namespace
+
+from BaseClasses import CollectionState, MultiWorld
 from test.bases import WorldTestBase
+from worlds.AutoWorld import call_all
+
 
 from ..branches import branch_of, effective_requirement
-from ..items import PROGRESSIVE_BRANCH_ITEMS
+from ..items import (
+    HORSESHOES_UNLOCK_ITEM,
+    OYSTERS_UNLOCK_ITEM,
+    PROGRESSIVE_BRANCH_ITEMS,
+    STREET_RACES_ITEM,
+    SUBMISSION_UNLOCK_ITEMS,
+    TAGS_UNLOCK_ITEM,
+)
 from ..mission_list import get_start_index
 from ..world import GTASAWorld
+
+ELIGIBLE_UNLOCKS = set(SUBMISSION_UNLOCK_ITEMS) | {
+    STREET_RACES_ITEM, TAGS_UNLOCK_ITEM, OYSTERS_UNLOCK_ITEM, HORSESHOES_UNLOCK_ITEM,
+}
+
+GEN_STEPS = ("generate_early", "create_regions", "create_items", "set_rules")
+
+def generate(options: dict, seed: int, passthrough: dict | None = None) -> MultiWorld:
+    multiworld = MultiWorld(1)
+    multiworld.game = {1: GTASAWorld.game}
+    multiworld.player_name = {1: "Tester1"}
+    multiworld.set_seed(seed)
+
+    args = Namespace()
+    for key, option in GTASAWorld.options_dataclass.type_hints.items():
+        setattr(args, key, {1: option.from_any(options.get(key, option.default))})
+    multiworld.set_options(args)
+    multiworld.state = CollectionState(multiworld)
+
+    if passthrough is not None:
+        multiworld.re_gen_passthrough = {GTASAWorld.game: passthrough}
+
+    for step in GEN_STEPS:
+        call_all(multiworld, step)
+    return multiworld
 
 class GTASATestBase(WorldTestBase):
     game = "Grand Theft Auto: San Andreas"

@@ -66,6 +66,8 @@ WEAPON_MASTERY_ITEMS = [f"{name} Mastery" for name in WEAPON_MASTERY_SKILLS]
 STREET_RACES_ITEM = "Street Races Unlock"
 
 TAGS_UNLOCK_ITEM = "Tags Unlock"
+OYSTERS_UNLOCK_ITEM = "Oysters Unlock"
+HORSESHOES_UNLOCK_ITEM = "Horseshoes Unlock"
 
 SUBMISSION_UNLOCK_ITEMS = [
     "Paramedic Unlock",
@@ -101,13 +103,15 @@ ITEM_NAME_TO_ID = {
     **{name: 61 + i for i, name in enumerate(WEAPON_MASTERY_ITEMS)},
     STREET_RACES_ITEM: 80,
     TAGS_UNLOCK_ITEM: 87,
+    OYSTERS_UNLOCK_ITEM: 88,
+    HORSESHOES_UNLOCK_ITEM: 89,
     **{name: 81 + i for i, name in enumerate(SUBMISSION_UNLOCK_ITEMS)},
     **SKILL_ITEM_IDS,
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Money": ItemClassification.filler,
-    **{name: ItemClassification.progression for name in PROGRESSIVE_BRANCH_ITEMS.values()},
+    **dict.fromkeys(PROGRESSIVE_BRANCH_ITEMS.values(), ItemClassification.progression),
     "Max Health Upgrade": ItemClassification.useful,
     "Max Armor Upgrade": ItemClassification.useful,
     "Fire Immunity": ItemClassification.useful,
@@ -116,16 +120,18 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Boxing Style": ItemClassification.useful,
     "Kung Fu Style": ItemClassification.useful,
     "Kickboxing Style": ItemClassification.useful,
-    **{name: ItemClassification.filler for name in WEAPON_FILLER_ITEMS},
-    **{name: ItemClassification.trap for name in TRAP_ITEMS},
-    **{name: ItemClassification.filler for name in UTILITY_FILLER_ITEMS},
-    **{name: ItemClassification.useful for name in WEAPON_MASTERY_ITEMS},
+    **dict.fromkeys(WEAPON_FILLER_ITEMS, ItemClassification.filler),
+    **dict.fromkeys(TRAP_ITEMS, ItemClassification.trap),
+    **dict.fromkeys(UTILITY_FILLER_ITEMS, ItemClassification.filler),
+    **dict.fromkeys(WEAPON_MASTERY_ITEMS, ItemClassification.useful),
     STREET_RACES_ITEM: ItemClassification.progression,
     TAGS_UNLOCK_ITEM: ItemClassification.progression,
-    **{name: ItemClassification.progression for name in SUBMISSION_UNLOCK_ITEMS},
+    OYSTERS_UNLOCK_ITEM: ItemClassification.progression,
+    HORSESHOES_UNLOCK_ITEM: ItemClassification.progression,
+    **dict.fromkeys(SUBMISSION_UNLOCK_ITEMS, ItemClassification.progression),
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
-    **{name: ItemClassification.useful for name in SKILL_ITEM_IDS},
+    **dict.fromkeys(SKILL_ITEM_IDS, ItemClassification.useful),
 }
 
 VICTORY_ITEM_NAME = "Victory"
@@ -179,7 +185,16 @@ def gated_unlock_items(options) -> list[str]:
     unlock_items += unlocked_submission_items(options)
     if options.tag_checks.value:
         unlock_items.append(TAGS_UNLOCK_ITEM)
+    if options.oyster_checks.value:
+        unlock_items.append(OYSTERS_UNLOCK_ITEM)
+    if options.horseshoe_checks.value:
+        unlock_items.append(HORSESHOES_UNLOCK_ITEM)
     return unlock_items
+
+STARTING_UNLOCK_EXCLUSIONS = frozenset({OYSTERS_UNLOCK_ITEM})
+
+def startable_unlock_items(unlock_items: list[str]) -> list[str]:
+    return [name for name in unlock_items if name not in STARTING_UNLOCK_EXCLUSIONS]
 
 def choose_starting_unlock(world: GTASAWorld, unlock_items: list[str]) -> str:
     if world.ut_passthrough is not None:
@@ -239,8 +254,9 @@ def create_all_items(world: GTASAWorld) -> None:
 
     unlock_items = gated_unlock_items(world.options)
 
-    if unlock_items and world.options.starting_unlock:
-        starting_unlock = choose_starting_unlock(world, unlock_items)
+    startable = startable_unlock_items(unlock_items)
+    if startable and world.options.starting_unlock:
+        starting_unlock = choose_starting_unlock(world, startable)
         world.starting_unlock_item = starting_unlock
         world.multiworld.push_precollected(world.create_item(starting_unlock))
         unlock_items.remove(starting_unlock)
@@ -273,8 +289,8 @@ def create_all_items(world: GTASAWorld) -> None:
 
     needed_number_of_filler_items = number_of_unfilled_locations - len(itempool)
     mastery_count = min(needed_number_of_filler_items, len(WEAPON_MASTERY_ITEMS))
-    for name in world.random.sample(WEAPON_MASTERY_ITEMS, mastery_count):
-        itempool.append(world.create_item(name))
+    itempool += [world.create_item(name)
+                 for name in world.random.sample(WEAPON_MASTERY_ITEMS, mastery_count)]
 
     itempool += [world.create_filler() for _ in range(needed_number_of_filler_items - mastery_count)]
     world.multiworld.itempool += itempool

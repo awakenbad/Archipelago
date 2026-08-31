@@ -108,6 +108,8 @@ ITEM_ID_TO_EFFECT = {
     **{81 + i: (f"unlock_{name}", None) for i, name in enumerate(
         ("paramedic", "firefighter", "vigilante", "taxi", "pimping", "burglary"))},
     87: ("unlock_tags", None),
+    88: ("unlock_oysters", None),
+    89: ("unlock_horseshoes", None),
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 
@@ -206,7 +208,7 @@ class GTASAContext(TrackerGameContext):
 
     async def server_auth(self, password_requested=False):
         if password_requested and not self.password:
-            await super(GTASAContext, self).server_auth(password_requested)
+            await super().server_auth(password_requested)
         await self.get_username()
         await self.send_connect()
 

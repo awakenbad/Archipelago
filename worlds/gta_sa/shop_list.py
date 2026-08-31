@@ -1,3 +1,5 @@
+from .mission_list import get_mission_location_name, get_story_index
+
 SHOP_BASE_ID = 300
 SHOP_REGION = "Los Santos"
 
@@ -23,8 +25,6 @@ SHOP_ITEM_NAMES = [
 ]
 
 SHOP_LOCATION_NAMES = [f"Ammu-Nation: {name}" for name in SHOP_ITEM_NAMES]
-
-from .mission_list import get_mission_location_name, get_story_index
 
 _SHOP_OPENS = 21  # Doberman
 

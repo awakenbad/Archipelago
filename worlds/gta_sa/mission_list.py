@@ -233,9 +233,9 @@ _BRANCH_LABEL_BY_MISSION_ID.update({
     mission_id: branch.name
     for branch in OPTIONAL_MISSION_BRANCHES for mission_id in branch.mission_ids
 })
-_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Gym" for mission_id in GYM_LOCATION_IDS})
-_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Challenge" for mission_id in CHALLENGE_LOCATION_IDS})
-_BRANCH_LABEL_BY_MISSION_ID.update({mission_id: "Stadium" for mission_id in STADIUM_LOCATION_IDS})
+_BRANCH_LABEL_BY_MISSION_ID.update(dict.fromkeys(GYM_LOCATION_IDS, "Gym"))
+_BRANCH_LABEL_BY_MISSION_ID.update(dict.fromkeys(CHALLENGE_LOCATION_IDS, "Challenge"))
+_BRANCH_LABEL_BY_MISSION_ID.update(dict.fromkeys(STADIUM_LOCATION_IDS, "Stadium"))
 for mission_id, mission_name, _ in MISSION_DATA:
     if _BRANCH_LABEL_BY_MISSION_ID.get(mission_id) == mission_name:
         del _BRANCH_LABEL_BY_MISSION_ID[mission_id]

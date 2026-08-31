@@ -40,6 +40,13 @@ def _gate_at_story_points(world: GTASAWorld, requirements: dict[str, int]) -> No
             continue
         world.set_rule(world.get_location(location_name), _story_point_rule(world, required_count))
 
+def _gate_behind_item(world: GTASAWorld, location_names: list[str], item_name: str) -> None:
+    location_cache = world.multiworld.regions.location_cache[world.player]
+    for location_name in location_names:
+        if location_name not in location_cache:
+            continue
+        world.set_rule(world.get_location(location_name), Has(item_name))
+
 def _completion_rule(world: GTASAWorld) -> Rule:
     from .branches import branch_pool_counts
     from .items import PROGRESSIVE_BRANCH_ITEMS, gated_unlock_items, gating_skill_items
@@ -85,9 +92,10 @@ def set_all_location_rules(world: GTASAWorld) -> None:
                        _mission_rule(world, mission_id))
 
     from .export_list import EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT
-    from .horseshoe_list import HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT
+    from .horseshoe_list import HORSESHOE_LOCATION_NAMES
+    from .items import HORSESHOES_UNLOCK_ITEM, OYSTERS_UNLOCK_ITEM, TAGS_UNLOCK_ITEM
     from .mission_list import get_optional_mission_requirements
-    from .oyster_list import OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT
+    from .oyster_list import OYSTER_LOCATION_NAMES
     from .tag_list import TAG_LOCATION_NAMES
     from .submission_tier_list import get_tier_requirements
 
@@ -103,8 +111,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
                        And(_story_point_rule(world, gym.required_count), Has(GYM_SKILL_ITEM)))
 
     _gate_at_story_points(world, dict.fromkeys(EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT))
-    _gate_at_story_points(world, dict.fromkeys(OYSTER_LOCATION_NAMES, OYSTER_REQUIREMENT))
-    from .items import TAGS_UNLOCK_ITEM
+    _gate_behind_item(world, OYSTER_LOCATION_NAMES, OYSTERS_UNLOCK_ITEM)
     from .tag_list import MISSION_SPRAYED_TAGS, MISSION_SPRAYED_TAGS_STORY_INDEX
 
     sprayed_by_mission = {TAG_LOCATION_NAMES[number - 1] for number in MISSION_SPRAYED_TAGS}
@@ -117,7 +124,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
             world.set_rule(world.get_location(location_name), reach_tagging_up_turf)
         else:
             world.set_rule(world.get_location(location_name), Has(TAGS_UNLOCK_ITEM))
-    _gate_at_story_points(world, dict.fromkeys(HORSESHOE_LOCATION_NAMES, HORSESHOE_REQUIREMENT))
+    _gate_behind_item(world, HORSESHOE_LOCATION_NAMES, HORSESHOES_UNLOCK_ITEM)
 
     if world.options.include_ammunation_shop:
         from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS

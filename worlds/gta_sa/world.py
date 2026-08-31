@@ -3,7 +3,6 @@ from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
-from .. import gta_sa
 
 SLOT_DATA_OPTION_NAMES = tuple(gtasa_options.GTASAOptions.__annotations__)
 

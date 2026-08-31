@@ -12,10 +12,11 @@ from ..mission_list import (
     get_mission_location_name,
 )
 
-STORY_LOCATION_ORDER = tuple(get_mission_location_name(m) for m in STORY_MISSION_ORDER)
 from ..tag_list import MISSION_SPRAYED_TAGS, TAG_LOCATION_NAMES
 from ..world import GTASAWorld
 from .bases import GTASATestBase
+
+STORY_LOCATION_ORDER = tuple(get_mission_location_name(m) for m in STORY_MISSION_ORDER)
 
 PROGRESSIVE_ITEM_NAMES = set(PROGRESSIVE_BRANCH_ITEMS.values())
 

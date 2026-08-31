@@ -83,7 +83,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         from ..stadium_list import STADIUM_LOCATION_IDS
 
         from ..gym_list import GYM_SKILL_ITEM
-        from ..items import STREET_RACES_ITEM
+        from ..items import HORSESHOES_UNLOCK_ITEM, STREET_RACES_ITEM
 
         optional_names = set(get_optional_mission_requirements())
         challenge_names = {get_mission_location_name(mission_id)
@@ -91,6 +91,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.collect_mission_requirement(92)
         self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
         self.collect(self.get_items_by_name(STREET_RACES_ITEM))
+        self.collect(self.get_items_by_name(HORSESHOES_UNLOCK_ITEM))
 
         las_venturas_missions = [
             location
@@ -127,6 +128,6 @@ class TestEarlierGoalsHaveNoLasVenturas(GTASATestBase):
         las_venturas = [
             location.name
             for location in self.multiworld.get_locations(self.player)
-            if location.name.startswith("LV ")
+            if location.name.startswith("LV ") and not location.name.startswith("LV Horseshoe")
         ]
         self.assertEqual(las_venturas, [])

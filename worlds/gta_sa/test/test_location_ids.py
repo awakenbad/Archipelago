@@ -1,4 +1,5 @@
 import collections
+import itertools
 import unittest
 
 from ..locations import LOCATION_NAME_TO_ID
@@ -54,7 +55,7 @@ class TestLocationIdsAreUnique(unittest.TestCase):
         spans = [(base, base + count - 1, name) for name, base, count in blocks]
         spans.sort()
 
-        for (start, end, name), (next_start, _, next_name) in zip(spans, spans[1:]):
+        for (_, end, name), (next_start, _, next_name) in itertools.pairwise(spans):
             with self.subTest(f"{name} -> {next_name}"):
                 self.assertLess(
                     end, next_start,

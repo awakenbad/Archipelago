@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from BaseClasses import ItemClassification, Location
+from BaseClasses import Location
 
 from . import items
 from . import mission_list
@@ -138,35 +138,37 @@ def sample_collectibles(world: GTASAWorld, names: list[str], count: int) -> list
     return chosen
 
 def create_collectible_locations(world: GTASAWorld, region_name: str, names: list[str],
-                                 count: int, requirement: int) -> None:
-    if region_name not in mission_list.get_included_regions(world):
-        return
-    if requirement >= mission_list.get_story_mission_count(world):
-        return
+                                 count: int) -> None:
     region = world.get_region(region_name)
     chosen = sample_collectibles(world, names, count)
     region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
+def create_scoped_collectible_locations(world: GTASAWorld, region_name: str, names: list[str],
+                                        count: int, requirement: int) -> None:
+    if region_name not in mission_list.get_included_regions(world):
+        return
+    if requirement >= mission_list.get_story_mission_count(world):
+        return
+    create_collectible_locations(world, region_name, names, count)
+
 def create_tag_locations(world: GTASAWorld) -> None:
     from .tag_list import TAG_REQUIREMENT
     earnable = get_earnable_tag_names(mission_list.get_start_index(world))
-    create_collectible_locations(world, TAG_REGION, earnable,
-                                 world.options.tag_checks.value, TAG_REQUIREMENT)
+    create_scoped_collectible_locations(world, TAG_REGION, earnable,
+                                        world.options.tag_checks.value, TAG_REQUIREMENT)
 
 def create_snapshot_locations(world: GTASAWorld) -> None:
     from .snapshot_list import SNAPSHOT_REQUIREMENT
-    create_collectible_locations(world, SNAPSHOT_REGION, SNAPSHOT_LOCATION_NAMES,
-                                 world.options.snapshot_checks.value, SNAPSHOT_REQUIREMENT)
+    create_scoped_collectible_locations(world, SNAPSHOT_REGION, SNAPSHOT_LOCATION_NAMES,
+                                        world.options.snapshot_checks.value, SNAPSHOT_REQUIREMENT)
 
 def create_oyster_locations(world: GTASAWorld) -> None:
-    from .oyster_list import OYSTER_REQUIREMENT
     create_collectible_locations(world, OYSTER_REGION, OYSTER_LOCATION_NAMES,
-                                 world.options.oyster_checks.value, OYSTER_REQUIREMENT)
+                                 world.options.oyster_checks.value)
 
 def create_horseshoe_locations(world: GTASAWorld) -> None:
-    from .horseshoe_list import HORSESHOE_REQUIREMENT
     create_collectible_locations(world, HORSESHOE_REGION, HORSESHOE_LOCATION_NAMES,
-                                 world.options.horseshoe_checks.value, HORSESHOE_REQUIREMENT)
+                                 world.options.horseshoe_checks.value)
 
 def create_export_locations(world: GTASAWorld) -> None:
     from .export_list import EXPORT_REQUIREMENT, get_included_export_names
