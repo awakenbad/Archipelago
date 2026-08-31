@@ -96,3 +96,27 @@ class TestUniversalTrackerStartingUnlock(unittest.TestCase):
     def test_control_seeds_alone_disagree_on_the_unlock(self):
         drawn = {granted_unlock(generate(COLLECTIBLE_HEAVY_OPTIONS, seed=s)) for s in range(1, 12)}
         self.assertGreater(len(drawn), 1)
+
+NON_DEFAULT_TOGGLES = {
+    "end_goal": "end_of_the_line",
+    "include_street_races": False,
+    "freight_checks": 0,
+    "starting_unlock": False,
+    "include_shooting_range": False,
+    "include_stadium_events": False,
+}
+
+class TestUniversalTrackerRestoresEveryOption(unittest.TestCase):
+    def test_a_yamlless_regen_reproduces_the_location_set(self):
+        original = generate(NON_DEFAULT_TOGGLES, seed=1)
+        passthrough = GTASAWorld.interpret_slot_data(original.worlds[1].fill_slot_data())
+
+        regen = generate({"end_goal": "end_of_the_line"}, seed=2, passthrough=passthrough)
+
+        self.assertEqual(location_ids(original), location_ids(regen))
+
+    def test_every_declared_option_is_carried(self):
+        from ..options import GTASAOptions
+        from ..world import SLOT_DATA_OPTION_NAMES
+
+        self.assertEqual(set(SLOT_DATA_OPTION_NAMES), set(GTASAOptions.__annotations__))

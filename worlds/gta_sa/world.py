@@ -5,16 +5,7 @@ from . import items, locations, mission_list, regions, rules
 from . import options as gtasa_options
 from .. import gta_sa
 
-GENERATION_OPTION_NAMES = (
-    "starting_point", "end_goal",
-    "tag_checks", "snapshot_checks", "horseshoe_checks", "oyster_checks",
-    "include_exports", "include_ammunation_shop", "include_challenges", "include_stadium_events",
-    "include_shooting_range",
-    "courier_checks",
-    "paramedic_checks", "firefighter_checks", "vigilante_checks", "taxi_checks",
-    "burglary_checks", "trucking_checks", "valet_checks", "pimping_checks",
-    "quarry_checks", "gang_territory_target", "school_medals",
-)
+SLOT_DATA_OPTION_NAMES = tuple(gtasa_options.GTASAOptions.__annotations__)
 
 class GTASAWeb(WebWorld):
     option_groups = gtasa_options.option_groups
@@ -83,7 +74,7 @@ class GTASAWorld(World):
             "death_link": self.options.death_link.value,
             "goal_mission_id": mission_list.get_goal_mission_id(self),
             "street_races": self.options.include_street_races.value,
-            "options": {name: getattr(self.options, name).value for name in GENERATION_OPTION_NAMES},
+            "options": {name: getattr(self.options, name).value for name in SLOT_DATA_OPTION_NAMES},
             "collectibles": sorted(self.chosen_collectible_ids),
             "starting_unlock": self.starting_unlock_item,
             "gated_unlocks": items.gated_unlock_items(self.options),
