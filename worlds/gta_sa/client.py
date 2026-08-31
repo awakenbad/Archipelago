@@ -35,6 +35,10 @@ from .export_list import EXPORT_BASE_ID, EXPORT_COUNT
 from .submission_tier_list import SUBMISSION_TIER_BASE_ID
 from .options import StartingPoint
 
+# The plugin dials in here - keep in step with APProtocol.h.
+PLUGIN_HOST = "127.0.0.1"
+PLUGIN_PORT = 41992
+
 COLLECTIBLE_BLOCKS = (
     ("TAG", TAG_BASE_ID, TAG_COUNT),
     ("SNAPSHOT", SNAPSHOT_BASE_ID, SNAPSHOT_COUNT),
@@ -502,10 +506,13 @@ def launch(*args):
         try:
             plugin_server = await asyncio.start_server(
                 functools.partial(handle_plugin_connection, ctx=ctx),
-                "127.0.0.1", 12345
+                PLUGIN_HOST, PLUGIN_PORT
             )
         except Exception as e:
-            logger.error(f"Failed to start the plugin socket server: {e!r}")
+            logger.error(
+                f"Failed to listen for the game plugin on {PLUGIN_HOST}:{PLUGIN_PORT} - "
+                f"something else is probably using that port. {e!r}"
+            )
             raise
 
         asyncio.create_task(plugin_server.serve_forever())
