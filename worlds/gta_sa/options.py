@@ -335,9 +335,3 @@ option_groups = [
          GangTerritoryTarget],
     ),
 ]
-
-option_presets = {
-    "Los Santos": {
-        "end_goal": 0
-    }
-}
