@@ -57,8 +57,11 @@ DEFAULT_GOAL_MISSION_ID = 38
 
 STARTING_POINT_COLOUR = "plum"
 
+def starting_point_key(value) -> str | None:
+    return StartingPoint.name_lookup.get(value)
+
 def starting_point_name(value: int) -> str:
-    key = StartingPoint.name_lookup.get(value)
+    key = starting_point_key(value)
     if key is None:
         return f"Unknown ({value})"
     return key.replace("_", " ").title()
@@ -174,6 +177,7 @@ class GTASAContext(TrackerGameContext):
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     street_races_included = False
+    starting_point = None
     gated_unlocks: list = []
     shop_slot_contents: dict = {}
     shop_slot_flags: dict = {}
@@ -278,11 +282,18 @@ class GTASAContext(TrackerGameContext):
         self.items_applied_count = len(self.items_received)
 
     def send_plugin_config(self) -> None:
+        self.send_starting_point_config()
         self.send_world_config()
         self.send_death_link_config()
         self.send_street_race_config()
         self.send_gated_content_config()
         self.send_collectible_config()
+
+    def send_starting_point_config(self) -> None:
+        key = starting_point_key(self.starting_point)
+        if key is None:
+            return
+        self.send_to_plugin(f"CTRL:start:{key}\n")
 
     def send_world_config(self) -> None:
         name = world_folder_name(self.seed_name, self.auth)
@@ -392,8 +403,8 @@ class GTASAContext(TrackerGameContext):
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.street_races_included = bool(args.get("slot_data", {}).get("street_races", False))
             self.gated_unlocks = list(args.get("slot_data", {}).get("gated_unlocks", []))
-            self.announce_starting_point(
-                args.get("slot_data", {}).get("options", {}).get("starting_point"))
+            self.starting_point = args.get("slot_data", {}).get("options", {}).get("starting_point")
+            self.announce_starting_point(self.starting_point)
             self.send_plugin_config()
             self.scout_shop_locations()
         elif cmd == "RoomUpdate":
