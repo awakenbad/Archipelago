@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from BaseClasses import CollectionState, Item, ItemClassification
 from Options import OptionError
 
-from .branches import BRANCHES
+from .branches import BRANCHES, early_branch_order
 from .challenge_list import CHALLENGES
 from .skill_items import DEFAULT_SKILL_ITEMS, SKILL_ITEM_IDS, SKILL_ITEMS
 from .stadium_list import STADIUM_EVENTS
@@ -68,6 +68,7 @@ STREET_RACES_ITEM = "Street Races Unlock"
 TAGS_UNLOCK_ITEM = "Tags Unlock"
 OYSTERS_UNLOCK_ITEM = "Oysters Unlock"
 HORSESHOES_UNLOCK_ITEM = "Horseshoes Unlock"
+SNAPSHOTS_UNLOCK_ITEM = "Snapshots Unlock"
 
 SUBMISSION_UNLOCK_ITEMS = [
     "Paramedic Unlock",
@@ -105,6 +106,7 @@ ITEM_NAME_TO_ID = {
     TAGS_UNLOCK_ITEM: 87,
     OYSTERS_UNLOCK_ITEM: 88,
     HORSESHOES_UNLOCK_ITEM: 89,
+    SNAPSHOTS_UNLOCK_ITEM: 90,
     **{name: 81 + i for i, name in enumerate(SUBMISSION_UNLOCK_ITEMS)},
     **SKILL_ITEM_IDS,
 }
@@ -128,6 +130,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     TAGS_UNLOCK_ITEM: ItemClassification.progression,
     OYSTERS_UNLOCK_ITEM: ItemClassification.progression,
     HORSESHOES_UNLOCK_ITEM: ItemClassification.progression,
+    SNAPSHOTS_UNLOCK_ITEM: ItemClassification.progression,
     **dict.fromkeys(SUBMISSION_UNLOCK_ITEMS, ItemClassification.progression),
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
@@ -176,9 +179,10 @@ def create_item_with_correct_classification(world: GTASAWorld, name: str) -> GTA
         classification = ItemClassification.progression
     return GTASAItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
-def gated_unlock_items(options) -> list[str]:
+def gated_unlock_items(world: GTASAWorld) -> list[str]:
     from .submission_tier_list import unlocked_submission_items
 
+    options = world.options
     unlock_items: list[str] = []
     if options.include_street_races:
         unlock_items.append(STREET_RACES_ITEM)
@@ -189,6 +193,8 @@ def gated_unlock_items(options) -> list[str]:
         unlock_items.append(OYSTERS_UNLOCK_ITEM)
     if options.horseshoe_checks.value:
         unlock_items.append(HORSESHOES_UNLOCK_ITEM)
+    if options.snapshot_checks.value:
+        unlock_items.append(SNAPSHOTS_UNLOCK_ITEM)
     return unlock_items
 
 STARTING_UNLOCK_EXCLUSIONS = frozenset({OYSTERS_UNLOCK_ITEM})
@@ -229,19 +235,22 @@ def skill_item_names(world: GTASAWorld) -> tuple[list[str], list[str]]:
     optional = [name for name in offered if name not in gating]
     return required, optional
 
-EARLY_ITEM_BRANCHES = (("Ryder", 1), ("Sweet", 2))
+EARLY_ITEM_BUDGET = 3
 
 def set_early_items(world: GTASAWorld) -> None:
+    from .mission_list import get_goal, get_start
+
     state = CollectionState(world.multiworld)
     openings = sum(1 for location in world.multiworld.get_locations(world.player)
                    if location.address is not None and location.can_reach(state))
 
+    picks = early_branch_order(get_start(world).story_index, get_goal(world).story_index,
+                               EARLY_ITEM_BUDGET)
+
     early = world.multiworld.local_early_items[world.player]
-    for branch, count in EARLY_ITEM_BRANCHES:
-        if openings <= 0:
-            break
-        early[PROGRESSIVE_BRANCH_ITEMS[branch]] = min(count, openings)
-        openings -= min(count, openings)
+    for branch in picks[:openings]:
+        item = PROGRESSIVE_BRANCH_ITEMS[branch]
+        early[item] = early.get(item, 0) + 1
 
 def create_all_items(world: GTASAWorld) -> None:
     from .branches import branch_pool_counts
@@ -252,7 +261,7 @@ def create_all_items(world: GTASAWorld) -> None:
     for branch in BRANCHES:
         required += [PROGRESSIVE_BRANCH_ITEMS[branch.name]] * pool_counts[branch.name]
 
-    unlock_items = gated_unlock_items(world.options)
+    unlock_items = gated_unlock_items(world)
 
     startable = startable_unlock_items(unlock_items)
     if startable and world.options.starting_unlock:

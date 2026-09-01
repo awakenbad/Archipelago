@@ -59,6 +59,6 @@ class TestEverySliderAtItsFloor(GTASATestBase):
         pooled = collections.Counter(item.name for item in self.multiworld.itempool)
         pooled.update(item.name for item in self.multiworld.precollected_items[self.player])
 
-        for name in gated_unlock_items(self.world.options) + sorted(gating_skill_items(self.world)):
+        for name in gated_unlock_items(self.world) + sorted(gating_skill_items(self.world)):
             with self.subTest(name):
                 self.assertGreaterEqual(pooled[name], 1)

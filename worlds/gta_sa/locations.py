@@ -143,11 +143,14 @@ def create_collectible_locations(world: GTASAWorld, region_name: str, names: lis
     chosen = sample_collectibles(world, names, count)
     region.add_locations(get_location_names_with_ids(chosen), GTASALocation)
 
+def scoped_collectibles_included(world: GTASAWorld, region_name: str, requirement: int) -> bool:
+    if region_name not in mission_list.get_included_regions(world):
+        return False
+    return requirement < mission_list.get_story_mission_count(world)
+
 def create_scoped_collectible_locations(world: GTASAWorld, region_name: str, names: list[str],
                                         count: int, requirement: int) -> None:
-    if region_name not in mission_list.get_included_regions(world):
-        return
-    if requirement >= mission_list.get_story_mission_count(world):
+    if not scoped_collectibles_included(world, region_name, requirement):
         return
     create_collectible_locations(world, region_name, names, count)
 
@@ -158,9 +161,8 @@ def create_tag_locations(world: GTASAWorld) -> None:
                                         world.options.tag_checks.value, TAG_REQUIREMENT)
 
 def create_snapshot_locations(world: GTASAWorld) -> None:
-    from .snapshot_list import SNAPSHOT_REQUIREMENT
-    create_scoped_collectible_locations(world, SNAPSHOT_REGION, SNAPSHOT_LOCATION_NAMES,
-                                        world.options.snapshot_checks.value, SNAPSHOT_REQUIREMENT)
+    create_collectible_locations(world, SNAPSHOT_REGION, SNAPSHOT_LOCATION_NAMES,
+                                 world.options.snapshot_checks.value)
 
 def create_oyster_locations(world: GTASAWorld) -> None:
     create_collectible_locations(world, OYSTER_REGION, OYSTER_LOCATION_NAMES,

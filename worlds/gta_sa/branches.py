@@ -115,6 +115,38 @@ def effective_requirement(mission_id: int, start_index: int) -> dict[str, int]:
             effective[name] = remaining
     return effective
 
+def _satisfied(counts: dict[str, int], requirement: dict[str, int]) -> bool:
+    return all(counts.get(name, 0) >= value for name, value in requirement.items())
+
+def early_branch_order(start_index: int, goal_index: int, budget: int) -> list[str]:
+    pool = branch_pool_counts(start_index, goal_index)
+    missions = [mission_id for branch in BRANCHES for mission_id in branch.missions
+                if start_index <= STORY_INDEX_BY_MISSION_ID[mission_id] < goal_index]
+    requirements = {mission_id: effective_requirement(mission_id, start_index)
+                    for mission_id in missions}
+
+    granted: dict[str, int] = {}
+    picks: list[str] = []
+    while len(picks) < budget:
+        best_name = None
+        best_opened = 0
+        for branch in BRANCHES:
+            if granted.get(branch.name, 0) >= pool[branch.name]:
+                continue
+            trial = dict(granted)
+            trial[branch.name] = trial.get(branch.name, 0) + 1
+            opened = sum(1 for mission_id in missions
+                         if _satisfied(trial, requirements[mission_id])
+                         and not _satisfied(granted, requirements[mission_id]))
+            if opened > best_opened:
+                best_name = branch.name
+                best_opened = opened
+        if best_name is None:
+            break
+        granted[best_name] = granted.get(best_name, 0) + 1
+        picks.append(best_name)
+    return picks
+
 def validate() -> None:
     story = set(STORY_MISSION_ORDER)
 

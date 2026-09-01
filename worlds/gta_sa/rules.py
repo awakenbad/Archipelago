@@ -56,7 +56,7 @@ def _completion_rule(world: GTASAWorld) -> Rule:
     required = {PROGRESSIVE_BRANCH_ITEMS[branch]: count
                 for branch, count in pool_counts.items() if count}
 
-    items_needed = gated_unlock_items(world.options) + sorted(gating_skill_items(world))
+    items_needed = gated_unlock_items(world) + sorted(gating_skill_items(world))
     return And(HasAllCounts(required), *[Has(item) for item in items_needed])
 
 def set_completion_location_rule(world: GTASAWorld) -> None:
@@ -93,7 +93,12 @@ def set_all_location_rules(world: GTASAWorld) -> None:
 
     from .export_list import EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT
     from .horseshoe_list import HORSESHOE_LOCATION_NAMES
-    from .items import HORSESHOES_UNLOCK_ITEM, OYSTERS_UNLOCK_ITEM, TAGS_UNLOCK_ITEM
+    from .items import (
+        HORSESHOES_UNLOCK_ITEM,
+        OYSTERS_UNLOCK_ITEM,
+        SNAPSHOTS_UNLOCK_ITEM,
+        TAGS_UNLOCK_ITEM,
+    )
     from .mission_list import get_optional_mission_requirements
     from .oyster_list import OYSTER_LOCATION_NAMES
     from .tag_list import TAG_LOCATION_NAMES
@@ -125,6 +130,9 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         else:
             world.set_rule(world.get_location(location_name), Has(TAGS_UNLOCK_ITEM))
     _gate_behind_item(world, HORSESHOE_LOCATION_NAMES, HORSESHOES_UNLOCK_ITEM)
+
+    from .snapshot_list import SNAPSHOT_LOCATION_NAMES
+    _gate_behind_item(world, SNAPSHOT_LOCATION_NAMES, SNAPSHOTS_UNLOCK_ITEM)
 
     if world.options.include_ammunation_shop:
         from .shop_list import SHOP_LOCATION_NAMES, INCLUDED_SHOP_SLOTS

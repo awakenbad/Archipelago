@@ -37,3 +37,32 @@ class TestNarrowOpeningIsCapped(GTASATestBase):
         early = self.multiworld.local_early_items[self.player]
         self.assertEqual(early.get(RYDER), 1)
         self.assertNotIn(SWEET, early)
+
+class TestSanFierroStartAsksForTheSanFierroChain(GTASATestBase):
+    options = {
+        "starting_point": "san_fierro",
+        "end_goal": "yay_ka_boom_boom",
+    }
+
+    def test_the_early_items_are_the_three_garage_missions(self) -> None:
+        early = self.multiworld.local_early_items[self.player]
+        self.assertEqual(dict(early), {PROGRESSIVE_BRANCH_ITEMS["Garage"]: 3})
+
+    def test_nothing_early_is_missing_from_the_pool(self) -> None:
+        pool = [item.name for item in self.multiworld.itempool]
+        for name, count in self.multiworld.local_early_items[self.player].items():
+            self.assertGreaterEqual(pool.count(name), count)
+
+class TestBadlandsStartSpreadsAcrossThreeBranches(GTASATestBase):
+    options = {
+        "starting_point": "badlands",
+        "end_goal": "are_you_going_to_san_fierro",
+    }
+
+    def test_the_early_items_open_badlands_and_both_missions_behind_it(self) -> None:
+        early = self.multiworld.local_early_items[self.player]
+        self.assertEqual(dict(early), {
+            PROGRESSIVE_BRANCH_ITEMS["C.R.A.S.H."]: 1,
+            PROGRESSIVE_BRANCH_ITEMS["Catalina"]: 1,
+            PROGRESSIVE_BRANCH_ITEMS["The Truth"]: 1,
+        })
