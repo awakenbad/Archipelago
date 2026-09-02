@@ -408,6 +408,8 @@ class GTASAContext(TrackerGameContext):
 
         if cmd == "ReceivedItems":
             self.apply_pending_items()
+        elif cmd == "RoomInfo":
+            self.seed_name = args["seed_name"]
         elif cmd == "Connected":
             self.goal_mission_id = args.get("slot_data", {}).get("goal_mission_id", DEFAULT_GOAL_MISSION_ID)
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
