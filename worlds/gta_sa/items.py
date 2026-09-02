@@ -69,6 +69,7 @@ TAGS_UNLOCK_ITEM = "Tags Unlock"
 OYSTERS_UNLOCK_ITEM = "Oysters Unlock"
 HORSESHOES_UNLOCK_ITEM = "Horseshoes Unlock"
 SNAPSHOTS_UNLOCK_ITEM = "Snapshots Unlock"
+WANG_CARS_UNLOCK_ITEM = "Wang Cars Unlock"
 
 SUBMISSION_UNLOCK_ITEMS = [
     "Paramedic Unlock",
@@ -107,6 +108,7 @@ ITEM_NAME_TO_ID = {
     OYSTERS_UNLOCK_ITEM: 88,
     HORSESHOES_UNLOCK_ITEM: 89,
     SNAPSHOTS_UNLOCK_ITEM: 90,
+    WANG_CARS_UNLOCK_ITEM: 91,
     **{name: 81 + i for i, name in enumerate(SUBMISSION_UNLOCK_ITEMS)},
     **SKILL_ITEM_IDS,
 }
@@ -131,6 +133,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     OYSTERS_UNLOCK_ITEM: ItemClassification.progression,
     HORSESHOES_UNLOCK_ITEM: ItemClassification.progression,
     SNAPSHOTS_UNLOCK_ITEM: ItemClassification.progression,
+    WANG_CARS_UNLOCK_ITEM: ItemClassification.progression,
     **dict.fromkeys(SUBMISSION_UNLOCK_ITEMS, ItemClassification.progression),
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.
@@ -195,6 +198,8 @@ def gated_unlock_items(world: GTASAWorld) -> list[str]:
         unlock_items.append(HORSESHOES_UNLOCK_ITEM)
     if options.snapshot_checks.value:
         unlock_items.append(SNAPSHOTS_UNLOCK_ITEM)
+    if options.include_wang_cars:
+        unlock_items.append(WANG_CARS_UNLOCK_ITEM)
     return unlock_items
 
 STARTING_UNLOCK_EXCLUSIONS = frozenset({OYSTERS_UNLOCK_ITEM})

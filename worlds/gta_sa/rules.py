@@ -98,7 +98,9 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         OYSTERS_UNLOCK_ITEM,
         SNAPSHOTS_UNLOCK_ITEM,
         TAGS_UNLOCK_ITEM,
+        WANG_CARS_UNLOCK_ITEM,
     )
+    from .locations import wang_cars_location_names
     from .mission_list import get_optional_mission_requirements
     from .oyster_list import OYSTER_LOCATION_NAMES
     from .tag_list import TAG_LOCATION_NAMES
@@ -116,6 +118,8 @@ def set_all_location_rules(world: GTASAWorld) -> None:
                        And(_story_point_rule(world, gym.required_count), Has(GYM_SKILL_ITEM)))
 
     _gate_at_story_points(world, dict.fromkeys(EXPORT_LOCATION_NAMES, EXPORT_REQUIREMENT))
+    if world.options.include_wang_cars:
+        _gate_behind_item(world, wang_cars_location_names(world), WANG_CARS_UNLOCK_ITEM)
     _gate_behind_item(world, OYSTER_LOCATION_NAMES, OYSTERS_UNLOCK_ITEM)
     from .tag_list import MISSION_SPRAYED_TAGS, MISSION_SPRAYED_TAGS_STORY_INDEX
 

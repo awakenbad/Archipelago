@@ -119,6 +119,7 @@ ITEM_ID_TO_EFFECT = {
     88: ("unlock_oysters", None),
     89: ("unlock_horseshoes", None),
     90: ("unlock_snapshots", None),
+    91: ("wang_cars", None),
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 
@@ -182,6 +183,7 @@ class GTASAContext(TrackerGameContext):
     death_link_enabled = False
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     street_races_included = False
+    wang_cars_included = False
     starting_point = None
     gated_unlocks: list = []
     shop_slot_contents: dict = {}
@@ -291,6 +293,7 @@ class GTASAContext(TrackerGameContext):
         self.send_world_config()
         self.send_death_link_config()
         self.send_street_race_config()
+        self.send_wang_cars_config()
         self.send_gated_content_config()
         self.send_collectible_config()
 
@@ -311,6 +314,9 @@ class GTASAContext(TrackerGameContext):
 
     def send_street_race_config(self) -> None:
         self.send_to_plugin(f"CTRL:street_races:{int(self.street_races_included)}\n")
+
+    def send_wang_cars_config(self) -> None:
+        self.send_to_plugin(f"CTRL:wang_cars:{int(self.wang_cars_included)}\n")
 
     def send_gated_content_config(self) -> None:
         effects = []
@@ -407,6 +413,7 @@ class GTASAContext(TrackerGameContext):
             self.death_link_enabled = bool(args.get("slot_data", {}).get("death_link", False))
             asyncio.create_task(self.update_death_link(self.death_link_enabled))
             self.street_races_included = bool(args.get("slot_data", {}).get("street_races", False))
+            self.wang_cars_included = bool(args.get("slot_data", {}).get("wang_cars", False))
             self.gated_unlocks = list(args.get("slot_data", {}).get("gated_unlocks", []))
             self.starting_point = args.get("slot_data", {}).get("options", {}).get("starting_point")
             self.announce_starting_point(self.starting_point)

@@ -214,7 +214,9 @@ class SchoolMedals(Choice):
 class IncludeExports(Choice):
     """
     How many lists on the San Fierro export board are location checks.
-    Ignored unless San Fierro is in scope.
+
+    With Include Wang Cars on they come on every goal, gated by that item alone. With it off they
+    follow the story instead, and are ignored unless San Fierro is in scope.
     """
 
     display_name = "Include Exports"
@@ -256,6 +258,19 @@ class IncludeStreetRaces(Toggle):
     """
 
     display_name = "Include Street Races"
+
+    default = 1
+
+class IncludeWangCars(Toggle):
+    """
+    Whether 4 Wang Cars missions are included as checks and unlocked early with a Unlock Wang Cars item.
+
+    Unlock Wang Cars also adds Import/Export to logic upon receiving.
+
+    With this off, missions are not generated as locations and there is no unlock item.
+    This setting does not affect Import/Export.
+    """
+    display_name = "Include Wang Cars"
 
     default = 1
 
@@ -306,6 +321,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_challenges: IncludeChallenges
     include_stadium_events: IncludeStadiumEvents
     include_street_races: IncludeStreetRaces
+    include_wang_cars: IncludeWangCars
     include_shooting_range: IncludeShootingRange
     starting_unlock: StartingUnlock
     trap_percentage: TrapPercentage
@@ -328,7 +344,7 @@ option_groups = [
         "Gameplay Options",
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
-         IncludeShootingRange, StartingUnlock, TrapPercentage],
+         IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",

@@ -22,16 +22,19 @@ GOAL_POSITION = 75
 
 class TestHomeInTheHillsGoal(GTASATestBase):
     options = {
+        "starting_unlock": False,
         "end_goal": "a_home_in_the_hills",
     }
 
-    def test_wang_cars_exists_and_needs_yay_ka_boom_boom(self) -> None:
+    def test_wang_cars_exists_and_needs_its_unlock(self) -> None:
+        from ..items import WANG_CARS_UNLOCK_ITEM
+
         location = self.world.get_location("SF Wang Cars: Zeroing In")
 
-        self.collect_mission_requirement(63, hold_back="Triads")
+        self.collect_mission_requirement(63)
         self.assertFalse(location.can_reach(self.multiworld.state))
 
-        self.collect_mission_requirement(63)
+        self.collect(self.get_items_by_name(WANG_CARS_UNLOCK_ITEM))
         self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_las_venturas_missions_exist(self) -> None:

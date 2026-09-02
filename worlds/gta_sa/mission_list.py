@@ -218,10 +218,12 @@ class OptionalMissionBranch(NamedTuple):
     mission_ids: tuple[int, ...]
     required_progressive_missions: int
 
+WANG_CARS_BRANCH = "Wang Cars"
+
 OPTIONAL_MISSION_BRANCHES = (
     OptionalMissionBranch("Zero", (72, 73, 74), 37),
     OptionalMissionBranch("Driving School", (71,), 39),
-    OptionalMissionBranch("Wang Cars", (67, 68, 69, 70), 54),
+    OptionalMissionBranch(WANG_CARS_BRANCH, (67, 68, 69, 70), 54),
     OptionalMissionBranch("Heist", (96, 97, 98, 99, 100), 65),
     OptionalMissionBranch("Heist", (101,), 75),
 )
@@ -368,6 +370,14 @@ def get_optional_branch_requirements_by_id() -> dict[int, int]:
         for branch in OPTIONAL_MISSION_BRANCHES
         for mission_id in branch.mission_ids
     }
+
+def get_optional_branch_mission_ids(branch_name: str) -> tuple[int, ...]:
+    return tuple(mission_id for branch in OPTIONAL_MISSION_BRANCHES
+                 if branch.name == branch_name for mission_id in branch.mission_ids)
+
+def get_optional_branch_location_names(branch_name: str) -> list[str]:
+    return [get_mission_location_name(mission_id)
+            for mission_id in get_optional_branch_mission_ids(branch_name)]
 
 def get_optional_mission_requirements() -> dict[str, int]:
     """Location name -> Progressive Missions needed, for every optional branch."""

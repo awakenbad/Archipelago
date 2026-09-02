@@ -43,8 +43,8 @@ class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
         # Also San Fierro, but it opens at 39, well before this goal's position 53.
         self.world.get_location("SF Driving School: The 360 (Bronze)")
 
-    def test_wang_cars_is_absent(self) -> None:
-        self.assertRaises(KeyError, self.world.get_location, "SF Wang Cars: Zeroing In")
+    def test_wang_cars_is_present_because_its_gate_is_an_item(self) -> None:
+        self.world.get_location("SF Wang Cars: Zeroing In")
 
     def test_back_to_school_is_still_present(self) -> None:
         self.world.get_location("SF Driving School: Back to School")

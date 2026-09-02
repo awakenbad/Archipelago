@@ -30,6 +30,7 @@ class TestEverySliderAtItsFloor(GTASATestBase):
         "include_exports": 0,
         "include_ammunation_shop": 0,
         "include_street_races": False,
+        "include_wang_cars": False,
         "include_shooting_range": False,
         "tag_checks": 0,
         "snapshot_checks": 0,

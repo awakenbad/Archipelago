@@ -74,7 +74,9 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_snapshot_locations(world)
     if world.options.horseshoe_checks.value:
         create_horseshoe_locations(world)
-    if world.options.include_exports.value:
+    if world.options.include_wang_cars:
+        create_wang_cars_locations(world)
+    elif world.options.include_exports.value:
         create_export_locations(world)
     if world.options.oyster_checks.value:
         create_oyster_locations(world)
@@ -108,8 +110,12 @@ def create_regular_locations(world: GTASAWorld) -> None:
     story_mission_count = mission_list.get_story_mission_count(world)
     start_index = mission_list.get_start_index(world)
     optional_requirements = mission_list.get_optional_branch_requirements_by_id()
+    item_gated = (set(mission_list.get_optional_branch_mission_ids(mission_list.WANG_CARS_BRANCH))
+                  if world.options.include_wang_cars else set())
 
     for mission_id, _, region_name in mission_list.MISSION_DATA:
+        if mission_id in item_gated:
+            continue
         if region_name not in included_regions:
             continue
         if mission_id in CHALLENGE_LOCATION_IDS and not world.options.include_challenges:
@@ -171,6 +177,15 @@ def create_oyster_locations(world: GTASAWorld) -> None:
 def create_horseshoe_locations(world: GTASAWorld) -> None:
     create_collectible_locations(world, HORSESHOE_REGION, HORSESHOE_LOCATION_NAMES,
                                  world.options.horseshoe_checks.value)
+
+def wang_cars_location_names(world: GTASAWorld) -> list[str]:
+    from .export_list import get_included_export_names
+    return (mission_list.get_optional_branch_location_names(mission_list.WANG_CARS_BRANCH)
+            + get_included_export_names(world.options.include_exports.value))
+
+def create_wang_cars_locations(world: GTASAWorld) -> None:
+    region = world.get_region(world.origin_region_name)
+    region.add_locations(get_location_names_with_ids(wang_cars_location_names(world)), GTASALocation)
 
 def create_export_locations(world: GTASAWorld) -> None:
     from .export_list import EXPORT_REQUIREMENT, get_included_export_names

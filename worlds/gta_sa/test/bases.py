@@ -14,13 +14,14 @@ from ..items import (
     STREET_RACES_ITEM,
     SUBMISSION_UNLOCK_ITEMS,
     TAGS_UNLOCK_ITEM,
+    WANG_CARS_UNLOCK_ITEM,
 )
 from ..mission_list import get_start_index
 from ..world import GTASAWorld
 
 ELIGIBLE_UNLOCKS = set(SUBMISSION_UNLOCK_ITEMS) | {
     STREET_RACES_ITEM, TAGS_UNLOCK_ITEM, OYSTERS_UNLOCK_ITEM, HORSESHOES_UNLOCK_ITEM,
-    SNAPSHOTS_UNLOCK_ITEM,
+    SNAPSHOTS_UNLOCK_ITEM, WANG_CARS_UNLOCK_ITEM,
 }
 
 GEN_STEPS = ("generate_early", "create_regions", "create_items", "set_rules")
