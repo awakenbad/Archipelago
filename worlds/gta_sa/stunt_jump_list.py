@@ -1,0 +1,5 @@
+STUNT_JUMP_BASE_ID = 900
+STUNT_JUMP_COUNT = 70
+STUNT_JUMP_REGION = "Los Santos"
+
+STUNT_JUMP_LOCATION_NAMES = [f"Stunt Jump: #{i + 1}" for i in range(STUNT_JUMP_COUNT)]

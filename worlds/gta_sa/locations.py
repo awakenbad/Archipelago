@@ -12,6 +12,11 @@ from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_LOCATION_NAMES, SNAPSHOT_R
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_LOCATION_NAMES, HORSESHOE_REGION
 from .export_list import EXPORT_BASE_ID, EXPORT_LOCATION_NAMES, EXPORT_REGION
 from .oyster_list import OYSTER_BASE_ID, OYSTER_LOCATION_NAMES, OYSTER_REGION
+from .stunt_jump_list import (
+    STUNT_JUMP_BASE_ID,
+    STUNT_JUMP_LOCATION_NAMES,
+    STUNT_JUMP_REGION,
+)
 from .shop_list import (
     SHOP_BASE_ID,
     SHOP_LOCATION_NAMES,
@@ -51,6 +56,9 @@ LOCATION_NAME_TO_ID.update({
     name: OYSTER_BASE_ID + i for i, name in enumerate(OYSTER_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
+    name: STUNT_JUMP_BASE_ID + i for i, name in enumerate(STUNT_JUMP_LOCATION_NAMES)
+})
+LOCATION_NAME_TO_ID.update({
     name: SHOP_BASE_ID + i for i, name in enumerate(SHOP_LOCATION_NAMES)
 })
 LOCATION_NAME_TO_ID.update({
@@ -80,6 +88,8 @@ def create_all_locations(world: GTASAWorld) -> None:
         create_export_locations(world)
     if world.options.oyster_checks.value:
         create_oyster_locations(world)
+    if world.options.stunt_jump_checks.value:
+        create_stunt_jump_locations(world)
     if world.options.include_ammunation_shop:
         create_shop_locations(world)
 
@@ -173,6 +183,10 @@ def create_snapshot_locations(world: GTASAWorld) -> None:
 def create_oyster_locations(world: GTASAWorld) -> None:
     create_collectible_locations(world, OYSTER_REGION, OYSTER_LOCATION_NAMES,
                                  world.options.oyster_checks.value)
+
+def create_stunt_jump_locations(world: GTASAWorld) -> None:
+    create_collectible_locations(world, STUNT_JUMP_REGION, STUNT_JUMP_LOCATION_NAMES,
+                                 world.options.stunt_jump_checks.value)
 
 def create_horseshoe_locations(world: GTASAWorld) -> None:
     create_collectible_locations(world, HORSESHOE_REGION, HORSESHOE_LOCATION_NAMES,

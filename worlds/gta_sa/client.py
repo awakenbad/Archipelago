@@ -32,6 +32,7 @@ from .snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_COUNT
 from .horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT
 from .oyster_list import OYSTER_BASE_ID, OYSTER_COUNT
 from .export_list import EXPORT_BASE_ID, EXPORT_COUNT
+from .stunt_jump_list import STUNT_JUMP_BASE_ID, STUNT_JUMP_COUNT
 from .submission_tier_list import SUBMISSION_TIER_BASE_ID
 from .options import StartingPoint
 
@@ -45,6 +46,7 @@ COLLECTIBLE_BLOCKS = (
     ("HORSESHOE", HORSESHOE_BASE_ID, HORSESHOE_COUNT),
     ("EXPORT", EXPORT_BASE_ID, EXPORT_COUNT),
     ("OYSTER", OYSTER_BASE_ID, OYSTER_COUNT),
+    ("STUNT_JUMP", STUNT_JUMP_BASE_ID, STUNT_JUMP_COUNT),
 )
 
 CHECK_TYPE_BASE_IDS = {
@@ -53,6 +55,7 @@ CHECK_TYPE_BASE_IDS = {
     "HORSESHOE": HORSESHOE_BASE_ID,
     "EXPORT": EXPORT_BASE_ID,
     "OYSTER": OYSTER_BASE_ID,
+    "STUNT_JUMP": STUNT_JUMP_BASE_ID,
     "SHOP": SHOP_BASE_ID,
     "SUBLEVEL": SUBMISSION_TIER_BASE_ID,
 }
@@ -120,6 +123,7 @@ ITEM_ID_TO_EFFECT = {
     89: ("unlock_horseshoes", None),
     90: ("unlock_snapshots", None),
     91: ("wang_cars", None),
+    92: ("unlock_stunt_jumps", None),
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 
@@ -159,6 +163,10 @@ class GTASACommandProcessor(ClientCommandProcessor):
     def _cmd_oyster(self, number: str = ""):
         """Highlight oyster #<number> (1-50) on the in-game radar/map. Without a number, clears the highlight."""
         self._locate("OYSTER", "Oyster", OYSTER_COUNT, number)
+
+    def _cmd_stuntjump(self, number: str = ""):
+        """Highlight stunt jump #<number> (1-70) on the in-game radar/map. Without a number, clears the highlight."""
+        self._locate("STUNT_JUMP", "Stunt Jump", STUNT_JUMP_COUNT, number)
 
     def _cmd_showlocations(self):
         self.output(f"Missing locations: {sorted(self.ctx.missing_locations)}")

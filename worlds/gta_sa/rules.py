@@ -97,6 +97,7 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         HORSESHOES_UNLOCK_ITEM,
         OYSTERS_UNLOCK_ITEM,
         SNAPSHOTS_UNLOCK_ITEM,
+        STUNT_JUMPS_UNLOCK_ITEM,
         TAGS_UNLOCK_ITEM,
         WANG_CARS_UNLOCK_ITEM,
     )
@@ -121,6 +122,8 @@ def set_all_location_rules(world: GTASAWorld) -> None:
     if world.options.include_wang_cars:
         _gate_behind_item(world, wang_cars_location_names(world), WANG_CARS_UNLOCK_ITEM)
     _gate_behind_item(world, OYSTER_LOCATION_NAMES, OYSTERS_UNLOCK_ITEM)
+    from .stunt_jump_list import STUNT_JUMP_LOCATION_NAMES
+    _gate_behind_item(world, STUNT_JUMP_LOCATION_NAMES, STUNT_JUMPS_UNLOCK_ITEM)
     from .tag_list import MISSION_SPRAYED_TAGS, MISSION_SPRAYED_TAGS_STORY_INDEX
 
     sprayed_by_mission = {TAG_LOCATION_NAMES[number - 1] for number in MISSION_SPRAYED_TAGS}

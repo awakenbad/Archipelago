@@ -194,6 +194,19 @@ class OysterChecks(Range):
     range_end = 50
     default = 50
 
+class StuntJumpChecks(Range):
+    """
+    How many of the 70 unique stunt jumps are location checks - a random set of that size, and only
+    the chosen ones show blips. 0 disables them. They are gated by the Stunt Jumps Unlock item
+    alone, so they are available on every goal.
+    """
+
+    display_name = "Stunt Jump Checks"
+
+    range_start = 0
+    range_end = 70
+    default = 70
+
 class SchoolMedals(Choice):
     """
     Which medals will send checks to the multiworld.
@@ -316,6 +329,7 @@ class GTASAOptions(PerGameCommonOptions):
     snapshot_checks: SnapshotChecks
     horseshoe_checks: HorseshoeChecks
     oyster_checks: OysterChecks
+    stunt_jump_checks: StuntJumpChecks
     include_exports: IncludeExports
     include_ammunation_shop: IncludeAmmunationShop
     include_challenges: IncludeChallenges
@@ -342,7 +356,8 @@ class GTASAOptions(PerGameCommonOptions):
 option_groups = [
     OptionGroup(
         "Gameplay Options",
-        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks, SchoolMedals,
+        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
+         StuntJumpChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
          IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage],
     ),

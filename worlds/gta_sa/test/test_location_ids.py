@@ -28,12 +28,13 @@ class TestLocationIdsAreUnique(unittest.TestCase):
         from ..oyster_list import OYSTER_COUNT
         from ..shop_list import SHOP_LOCATION_NAMES
         from ..snapshot_list import SNAPSHOT_COUNT
+        from ..stunt_jump_list import STUNT_JUMP_COUNT
         from ..submission_tier_list import SUBMISSION_TIER_SLOT_COUNT
         from ..tag_list import TAG_COUNT
 
         expected = (len(MISSION_DATA) + TAG_COUNT + SNAPSHOT_COUNT + HORSESHOE_COUNT
-                    + EXPORT_COUNT + OYSTER_COUNT + len(SHOP_LOCATION_NAMES)
-                    + SUBMISSION_TIER_SLOT_COUNT)
+                    + EXPORT_COUNT + OYSTER_COUNT + STUNT_JUMP_COUNT
+                    + len(SHOP_LOCATION_NAMES) + SUBMISSION_TIER_SLOT_COUNT)
         self.assertEqual(len(LOCATION_NAME_TO_ID), expected)
 
     def test_each_block_stays_inside_its_own_range(self) -> None:
@@ -41,6 +42,7 @@ class TestLocationIdsAreUnique(unittest.TestCase):
         from ..horseshoe_list import HORSESHOE_BASE_ID, HORSESHOE_COUNT
         from ..oyster_list import OYSTER_BASE_ID, OYSTER_COUNT
         from ..snapshot_list import SNAPSHOT_BASE_ID, SNAPSHOT_COUNT
+        from ..stunt_jump_list import STUNT_JUMP_BASE_ID, STUNT_JUMP_COUNT
         from ..submission_tier_list import SUBMISSION_TIER_BASE_ID, SUBMISSION_TIER_SLOT_COUNT
         from ..tag_list import TAG_BASE_ID, TAG_COUNT
 
@@ -50,6 +52,7 @@ class TestLocationIdsAreUnique(unittest.TestCase):
             ("horseshoes", HORSESHOE_BASE_ID, HORSESHOE_COUNT),
             ("exports", EXPORT_BASE_ID, EXPORT_COUNT),
             ("oysters", OYSTER_BASE_ID, OYSTER_COUNT),
+            ("stunt jumps", STUNT_JUMP_BASE_ID, STUNT_JUMP_COUNT),
             ("submission tiers", SUBMISSION_TIER_BASE_ID, SUBMISSION_TIER_SLOT_COUNT),
         ]
         spans = [(base, base + count - 1, name) for name, base, count in blocks]
