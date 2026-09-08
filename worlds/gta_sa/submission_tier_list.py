@@ -48,8 +48,8 @@ BIKE_SCHOOL_TESTS = (
     "The 360",
     "The 180",
     "The Wheelie",
-    "The Stoppie",
     "Jump & Stop",
+    "The Stoppie",
     "Jump & Stoppie",
 )
 
