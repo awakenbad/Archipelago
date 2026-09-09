@@ -114,10 +114,14 @@ class SubmissionTier(NamedTuple):
 # same base slots, same tier counts, same value per tier. Append new entries at the end;
 # inserting in the middle renumbers every slot after it and invalidates existing seeds.
 SUBMISSION_TIERS = [
-    SubmissionTier(0,  12, "Paramedic",   "Level {tier}",   1, "Los Santos", 0, option_attr="paramedic_checks"),
-    SubmissionTier(12, 12, "Firefighter", "Level {tier}",   1, "Los Santos", 0, option_attr="firefighter_checks"),
-    SubmissionTier(24, 12, "Vigilante",   "Level {tier}",   1, "Los Santos", 0, option_attr="vigilante_checks"),
-    SubmissionTier(36, 50, "Taxi Driver", "{value} Fares",  1, "Los Santos", 0, option_attr="taxi_checks"),
+    SubmissionTier(0,  12, "Paramedic",   "Level {tier}",   1, "Los Santos", 0,
+                   option_attr="paramedic_checks", zero_disables=True),
+    SubmissionTier(12, 12, "Firefighter", "Level {tier}",   1, "Los Santos", 0,
+                   option_attr="firefighter_checks", zero_disables=True),
+    SubmissionTier(24, 12, "Vigilante",   "Level {tier}",   1, "Los Santos", 0,
+                   option_attr="vigilante_checks", zero_disables=True),
+    SubmissionTier(36, 50, "Taxi Driver", "{value} Fares",  1, "Los Santos", 0,
+                   option_attr="taxi_checks", zero_disables=True),
     SubmissionTier(86, 10, "Burglary", "${value:,} Stolen", 1000, "Los Santos", 0,
                    option_attr="burglary_checks", zero_disables=True),
     SubmissionTier(96, 8,  "Trucking",    "Level {tier}",   1, "Badlands",   33,

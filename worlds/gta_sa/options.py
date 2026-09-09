@@ -90,31 +90,31 @@ class IncludeAmmunationShop(Toggle):
     default = 1
 
 class ParamedicChecks(Range):
-    """How many Paramedic levels send a check."""
+    """How many Paramedic levels send a check. 0 removes Paramedic from the seed."""
     display_name = "Paramedic Checks"
-    range_start = 1
+    range_start = 0
     range_end = 12
     default = 12
 
 class FirefighterChecks(Range):
-    """How many Firefighter levels send a check."""
+    """How many Firefighter levels send a check. 0 removes Firefighter from the seed."""
     display_name = "Firefighter Checks"
-    range_start = 1
+    range_start = 0
     range_end = 12
     default = 12
 
 class VigilanteChecks(Range):
-    """How many Vigilante levels send a check."""
+    """How many Vigilante levels send a check. 0 removes Vigilante from the seed."""
     display_name = "Vigilante Checks"
-    range_start = 1
+    range_start = 0
     range_end = 12
     default = 12
 
 class TaxiChecks(Range):
     """How many Taxi fare milestones send a check. Each milestone is 1 fare, so
-    e.g. 3 sends checks at 1, 2 and 3 fares."""
+    e.g. 3 sends checks at 1, 2 and 3 fares. 0 removes Taxi from the seed."""
     display_name = "Taxi Checks"
-    range_start = 1
+    range_start = 0
     range_end = 50
     default = 50
 
