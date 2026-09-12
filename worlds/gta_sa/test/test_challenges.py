@@ -9,6 +9,7 @@ CHILIAD_LOCATION = "BD Challenge: Chiliad"
 class TestChallengesEnabled(GTASATestBase):
     options = {
         "include_challenges": 1,
+        "include_stadium_events": 0,
     }
 
     def test_bmx_location_exists(self) -> None:

@@ -171,24 +171,24 @@ def get_random_filler_item_name(world: GTASAWorld) -> str:
     return world.random.choice(["Money", *WEAPON_FILLER_ITEMS, *UTILITY_FILLER_ITEMS])
 
 def gating_skill_items(world: GTASAWorld) -> set[str]:
-    from .mission_list import get_included_regions, get_mission_region
+    from .mission_list import get_included_regions, get_mission_logic_region
 
     included_regions = get_included_regions(world)
     gating: set[str] = set()
 
     if world.options.include_challenges:
         for challenge in CHALLENGES:
-            if challenge.gates and get_mission_region(challenge.location_id) in included_regions:
+            if challenge.gates and get_mission_logic_region(challenge.location_id) in included_regions:
                 gating.add(challenge.skill_item)
 
     if world.options.include_stadium_events:
         for event in STADIUM_EVENTS:
-            if event.skill_item and get_mission_region(event.location_id) in included_regions:
+            if event.skill_item and get_mission_logic_region(event.location_id) in included_regions:
                 gating.add(event.skill_item)
 
     from .gym_list import GYM_SKILL_ITEM, GYMS
     for gym in GYMS:
-        if get_mission_region(gym.location_id) in included_regions:
+        if get_mission_logic_region(gym.location_id) in included_regions:
             gating.add(GYM_SKILL_ITEM)
 
     return gating
@@ -243,7 +243,7 @@ UPGRADE_ITEMS = [
 ]
 
 def skill_item_names(world: GTASAWorld) -> tuple[list[str], list[str]]:
-    from .mission_list import get_included_regions, get_mission_region
+    from .mission_list import get_included_regions, get_mission_logic_region
 
     gating = gating_skill_items(world)
     offered = list(DEFAULT_SKILL_ITEMS)
@@ -251,7 +251,7 @@ def skill_item_names(world: GTASAWorld) -> tuple[list[str], list[str]]:
         included_regions = get_included_regions(world)
         for challenge in CHALLENGES:
             if (challenge.skill_item not in offered
-                    and get_mission_region(challenge.location_id) in included_regions):
+                    and get_mission_logic_region(challenge.location_id) in included_regions):
                 offered.append(challenge.skill_item)
 
     order = [item.name for item in SKILL_ITEMS]

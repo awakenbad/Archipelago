@@ -252,11 +252,20 @@ MISSION_ID_TO_LOCATION_NAME = {
 
 MISSION_ID_TO_REGION = {mission_id: region for mission_id, _, region in MISSION_DATA}
 
+MISSION_LOGIC_REGION = {
+    141: "Los Santos",   # Dirt Track
+    142: "Los Santos",   # Blood Ring
+    143: "Los Santos",   # Kickstart
+}
+
 def get_mission_location_name(mission_id: int) -> str:
     return MISSION_ID_TO_LOCATION_NAME[mission_id]
 
 def get_mission_region(mission_id: int) -> str:
     return MISSION_ID_TO_REGION[mission_id]
+
+def get_mission_logic_region(mission_id: int) -> str:
+    return MISSION_LOGIC_REGION.get(mission_id, get_mission_region(mission_id))
 
 LOCATION_NAME_TO_MISSION_ID = {name: mission_id for mission_id, name in MISSION_ID_TO_LOCATION_NAME.items()}
 MISSION_NAME_TO_ID = {name: mission_id for mission_id, name, _ in MISSION_DATA}

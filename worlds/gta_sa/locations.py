@@ -123,9 +123,10 @@ def create_regular_locations(world: GTASAWorld) -> None:
     item_gated = (set(mission_list.get_optional_branch_mission_ids(mission_list.WANG_CARS_BRANCH))
                   if world.options.include_wang_cars else set())
 
-    for mission_id, _, region_name in mission_list.MISSION_DATA:
+    for mission_id, _, _ in mission_list.MISSION_DATA:
         if mission_id in item_gated:
             continue
+        region_name = mission_list.get_mission_logic_region(mission_id)
         if region_name not in included_regions:
             continue
         if mission_id in CHALLENGE_LOCATION_IDS and not world.options.include_challenges:
