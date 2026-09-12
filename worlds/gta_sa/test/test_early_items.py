@@ -25,6 +25,7 @@ class TestNarrowOpeningIsCapped(GTASATestBase):
         "starting_unlock": False,
         "courier_checks": 0,
         "include_stadium_events": 0,
+        "include_challenges": 0,
         "end_goal": "the_green_sabre",
     }
 

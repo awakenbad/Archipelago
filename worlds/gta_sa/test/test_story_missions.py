@@ -38,7 +38,7 @@ class TestGoalScoping(GTASATestBase):
         badlands_location_names = [
             location.name
             for location in self.multiworld.get_locations(self.player)
-            if location.name.startswith("BD ")
+            if location.name.startswith("BD ") and not location.name.startswith("BD Challenge")
         ]
         self.assertEqual(badlands_location_names, [])
 

@@ -27,9 +27,19 @@ class TestChallengesEnabled(GTASATestBase):
     def test_cycling_item_is_in_the_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name(CYCLING_ITEM)), 1)
 
-    def test_out_of_scope_challenges_absent(self) -> None:
-        self.assertRaises(KeyError, self.world.get_location, NRG_LOCATION)
-        self.assertRaises(KeyError, self.world.get_location, CHILIAD_LOCATION)
+    def test_nrg_and_chiliad_are_in_scope_from_the_start(self) -> None:
+        self.world.get_location(NRG_LOCATION)
+        self.world.get_location(CHILIAD_LOCATION)
+
+    def test_nrg_needs_nothing_at_all(self) -> None:
+        self.assertTrue(self.world.get_location(NRG_LOCATION).can_reach(self.multiworld.state))
+
+    def test_chiliad_still_needs_the_cycling_item(self) -> None:
+        location = self.world.get_location(CHILIAD_LOCATION)
+        self.assertFalse(location.can_reach(self.multiworld.state))
+
+        self.collect_by_name(CYCLING_ITEM)
+        self.assertTrue(location.can_reach(self.multiworld.state))
 
     def test_bike_item_is_generated_even_with_nothing_to_gate(self) -> None:
         from BaseClasses import ItemClassification

@@ -255,6 +255,8 @@ MISSION_ID_TO_REGION = {mission_id: region for mission_id, _, region in MISSION_
 MISSION_LOGIC_REGION = {
     115: "Los Santos",   # San Fierro gym
     116: "Los Santos",   # Las Venturas gym
+    132: "Los Santos",   # Chiliad Challenge
+    136: "Los Santos",   # NRG-500 Challenge
     141: "Los Santos",   # Dirt Track
     142: "Los Santos",   # Blood Ring
     143: "Los Santos",   # Kickstart
