@@ -35,9 +35,15 @@ class TestSubmissionsUnreachableForTheGoalAreExcluded(GTASATestBase):
         "end_goal": "yay_ka_boom_boom",
     }
 
-    def test_boat_school_is_absent(self) -> None:
+    def test_freight_train_is_absent(self) -> None:
         self.assertRaises(KeyError, self.world.get_location,
-                          "SF Boat School: Basic Seamanship (Bronze)")
+                          "SF Freight Train: Level 1")
+
+    def test_boat_and_bike_school_are_present(self) -> None:
+        for location_name in ("SF Boat School: Basic Seamanship (Bronze)",
+                              "LV Bike School: The 360 (Bronze)"):
+            with self.subTest(location_name):
+                self.world.get_location(location_name)
 
     def test_driving_school_is_still_present(self) -> None:
         # Also San Fierro, but it opens at 39, well before this goal's position 53.

@@ -47,6 +47,12 @@ TRAP_ITEMS = [
     "Bad Weather Trap",
 ]
 
+CHAOS_TRAP_ITEMS = [
+    "Low Chaos Trap",
+    "Medium Chaos Trap",
+    "High Chaos Trap",
+]
+
 WEAPON_MASTERY_SKILLS = [
     "Pistol",
     "Silenced Pistol",
@@ -100,6 +106,7 @@ ITEM_NAME_TO_ID = {
     **{name: 11 + i for i, name in enumerate(WEAPON_FILLER_ITEMS)},
     # Weapons occupy 11-31; traps start at 40 to leave room for more weapons.
     **{name: 40 + i for i, name in enumerate(TRAP_ITEMS)},
+    **{name: 45 + i for i, name in enumerate(CHAOS_TRAP_ITEMS)},
     # Utility fillers start at 50, after the trap block.
     **{name: 50 + i for i, name in enumerate(UTILITY_FILLER_ITEMS)},
     # Weapon mastery starts at 61, after the Kickboxing style at 60.
@@ -128,6 +135,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Kickboxing Style": ItemClassification.useful,
     **dict.fromkeys(WEAPON_FILLER_ITEMS, ItemClassification.filler),
     **dict.fromkeys(TRAP_ITEMS, ItemClassification.trap),
+    **dict.fromkeys(CHAOS_TRAP_ITEMS, ItemClassification.trap),
     **dict.fromkeys(UTILITY_FILLER_ITEMS, ItemClassification.filler),
     **dict.fromkeys(WEAPON_MASTERY_ITEMS, ItemClassification.useful),
     STREET_RACES_ITEM: ItemClassification.progression,
@@ -151,9 +159,15 @@ class GTASAItem(Item):
 def create_victory_item(world: GTASAWorld) -> GTASAItem:
     return GTASAItem(VICTORY_ITEM_NAME, ItemClassification.progression, None, world.player)
 
+def trap_item_names(world: GTASAWorld) -> list[str]:
+    ceiling = world.options.chaos_mod_traps.value
+    if ceiling:
+        return CHAOS_TRAP_ITEMS[:ceiling]
+    return TRAP_ITEMS
+
 def get_random_filler_item_name(world: GTASAWorld) -> str:
     if world.random.random() * 100 < world.options.trap_percentage:
-        return world.random.choice(TRAP_ITEMS)
+        return world.random.choice(trap_item_names(world))
     return world.random.choice(["Money", *WEAPON_FILLER_ITEMS, *UTILITY_FILLER_ITEMS])
 
 def gating_skill_items(world: GTASAWorld) -> set[str]:

@@ -311,7 +311,8 @@ class IncludeShootingRange(Toggle):
 
 class TrapPercentage(Range):
     """
-    Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire).
+    Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire, bad weather),
+    or chaos traps when Chaos Mod Traps is on.
     """
 
     display_name = "Trap Percentage"
@@ -319,6 +320,23 @@ class TrapPercentage(Range):
     range_start = 0
     range_end = 100
     default = 15
+
+class ChaosModTraps(Choice):
+    """
+    Replaces the regular traps with Chaos Mod effects. Requires Chaos Mod to be installed.
+
+    The level is a ceiling: Low only rolls low severity chaos traps, Medium rolls low or medium, and
+    High rolls all three. Off keeps the regular traps.
+    """
+
+    display_name = "Chaos Mod Traps"
+
+    option_off = 0
+    option_low = 1
+    option_medium = 2
+    option_high = 3
+
+    default = 0
 
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
@@ -339,6 +357,7 @@ class GTASAOptions(PerGameCommonOptions):
     include_shooting_range: IncludeShootingRange
     starting_unlock: StartingUnlock
     trap_percentage: TrapPercentage
+    chaos_mod_traps: ChaosModTraps
     paramedic_checks: ParamedicChecks
     firefighter_checks: FirefighterChecks
     vigilante_checks: VigilanteChecks
@@ -359,7 +378,7 @@ option_groups = [
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
          StuntJumpChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
-         IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage],
+         IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage, ChaosModTraps],
     ),
     OptionGroup(
         "Submission Options",

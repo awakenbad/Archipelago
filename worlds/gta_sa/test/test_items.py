@@ -1,6 +1,8 @@
 from .bases import GTASATestBase
 from ..branches import branch_pool_counts
-from ..items import PROGRESSIVE_BRANCH_ITEMS, TRAP_ITEMS, UTILITY_FILLER_ITEMS, WEAPON_FILLER_ITEMS
+from ..items import (
+    CHAOS_TRAP_ITEMS, PROGRESSIVE_BRANCH_ITEMS, TRAP_ITEMS, UTILITY_FILLER_ITEMS, WEAPON_FILLER_ITEMS,
+)
 
 def _progressive_pool_total(test) -> int:
     return sum(len(test.get_items_by_name(name)) for name in PROGRESSIVE_BRANCH_ITEMS.values())
@@ -50,7 +52,7 @@ class TestFillerItems(GTASATestBase):
         self.assertTrue(all(item.filler for item in weapon_items))
 
     def test_get_filler_item_name_returns_money_a_weapon_or_a_trap(self) -> None:
-        possible_filler_names = {"Money", *WEAPON_FILLER_ITEMS, *TRAP_ITEMS, *UTILITY_FILLER_ITEMS}
+        possible_filler_names = {"Money", *WEAPON_FILLER_ITEMS, *TRAP_ITEMS, *CHAOS_TRAP_ITEMS, *UTILITY_FILLER_ITEMS}
         for _ in range(50):
             with self.subTest():
                 self.assertIn(self.world.get_filler_item_name(), possible_filler_names)

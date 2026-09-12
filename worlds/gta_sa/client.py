@@ -112,6 +112,9 @@ ITEM_ID_TO_EFFECT = {
     42: ("trap_wanted", None),
     43: ("trap_carfire", None),
     44: ("trap_weather", None),
+    45: ("chaos_low", None),
+    46: ("chaos_medium", None),
+    47: ("chaos_high", None),
     # Utility fillers: 50 + index into items.py's UTILITY_FILLER_ITEMS.
     50: ("armor_refill", None),
     51: ("car_repair", None),
