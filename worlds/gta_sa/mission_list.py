@@ -253,6 +253,8 @@ MISSION_ID_TO_LOCATION_NAME = {
 MISSION_ID_TO_REGION = {mission_id: region for mission_id, _, region in MISSION_DATA}
 
 MISSION_LOGIC_REGION = {
+    115: "Los Santos",   # San Fierro gym
+    116: "Los Santos",   # Las Venturas gym
     141: "Los Santos",   # Dirt Track
     142: "Los Santos",   # Blood Ring
     143: "Los Santos",   # Kickstart

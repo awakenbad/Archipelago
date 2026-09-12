@@ -8,8 +8,8 @@ class Gym(NamedTuple):
 
 GYMS = (
     Gym(114, 5),
-    Gym(115, 36),
-    Gym(116, 54),
+    Gym(115, 5),
+    Gym(116, 5),
 )
 
 GYM_LOCATION_IDS = {gym.location_id for gym in GYMS}

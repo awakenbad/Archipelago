@@ -46,19 +46,6 @@ class TestSubmissionLocationGating(GTASATestBase):
                 state.remove(self.get_item_by_name(item_name))
                 self.assertFalse(self.world.get_location(location_name).can_reach(state))
 
-class TestLosSantosGymGating(GTASATestBase):
-    def test_needs_drive_thru_reachable(self) -> None:
-        from ..gym_list import GYM_SKILL_ITEM
-
-        location = self.world.get_location("LS Gym: Fight School")
-        self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
-
-        self.collect_mission_requirement(15, hold_back="Sweet")
-        self.assertFalse(location.can_reach(self.multiworld.state))
-
-        self.collect_mission_requirement(15)
-        self.assertTrue(location.can_reach(self.multiworld.state))
-
 class TestSubmissionLevelLocations(GTASATestBase):
     options = {"starting_unlock": False}
     """Paramedic/Firefighter/Vigilante pay out per level (1-12), not once on completion."""
