@@ -77,6 +77,7 @@ HORSESHOES_UNLOCK_ITEM = "Horseshoes Unlock"
 SNAPSHOTS_UNLOCK_ITEM = "Snapshots Unlock"
 WANG_CARS_UNLOCK_ITEM = "Wang Cars Unlock"
 STUNT_JUMPS_UNLOCK_ITEM = "Stunt Jumps Unlock"
+COURIER_UNLOCK_ITEM = "Courier Unlock"
 
 SUBMISSION_UNLOCK_ITEMS = [
     "Paramedic Unlock",
@@ -118,6 +119,7 @@ ITEM_NAME_TO_ID = {
     SNAPSHOTS_UNLOCK_ITEM: 90,
     WANG_CARS_UNLOCK_ITEM: 91,
     STUNT_JUMPS_UNLOCK_ITEM: 92,
+    COURIER_UNLOCK_ITEM: 93,
     **{name: 81 + i for i, name in enumerate(SUBMISSION_UNLOCK_ITEMS)},
     **SKILL_ITEM_IDS,
 }
@@ -145,6 +147,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     SNAPSHOTS_UNLOCK_ITEM: ItemClassification.progression,
     WANG_CARS_UNLOCK_ITEM: ItemClassification.progression,
     STUNT_JUMPS_UNLOCK_ITEM: ItemClassification.progression,
+    COURIER_UNLOCK_ITEM: ItemClassification.progression,
     **dict.fromkeys(SUBMISSION_UNLOCK_ITEMS, ItemClassification.progression),
     # Skill items are useful by default and promoted to progression per seed - see
     # gating_skill_items(), which knows whether anything in scope actually needs them.

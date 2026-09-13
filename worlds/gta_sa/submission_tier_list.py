@@ -180,6 +180,7 @@ VEHICLE_LOCKED_SUBMISSIONS = {
     "Taxi Driver": "Taxi Unlock",
     "Pimping": "Pimping Unlock",
     "Burglary": "Burglary Unlock",
+    "Courier": "Courier Unlock",
 }
 
 def unlock_item_for_tier(tier_spec) -> str:

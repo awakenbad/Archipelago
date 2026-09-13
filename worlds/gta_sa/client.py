@@ -127,6 +127,7 @@ ITEM_ID_TO_EFFECT = {
     90: ("unlock_snapshots", None),
     91: ("wang_cars", None),
     92: ("unlock_stunt_jumps", None),
+    93: ("unlock_courier", None),
     **{item.item_id: (item.effect, None) for item in SKILL_ITEMS},
 }
 

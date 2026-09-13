@@ -1,4 +1,5 @@
 from .bases import GTASATestBase
+from ..items import COURIER_UNLOCK_ITEM
 
 HEIST_MISSION_NAMES = [
     "LV Heist: Architectural Espionage",
@@ -95,6 +96,7 @@ class TestHomeInTheHillsGoal(GTASATestBase):
         self.collect(self.get_items_by_name(GYM_SKILL_ITEM))
         self.collect(self.get_items_by_name(STREET_RACES_ITEM))
         self.collect(self.get_items_by_name(HORSESHOES_UNLOCK_ITEM))
+        self.collect(self.get_items_by_name(COURIER_UNLOCK_ITEM))
 
         las_venturas_missions = [
             location
