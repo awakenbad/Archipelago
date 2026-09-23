@@ -163,9 +163,6 @@ def create_victory_item(world: GTASAWorld) -> GTASAItem:
     return GTASAItem(VICTORY_ITEM_NAME, ItemClassification.progression, None, world.player)
 
 def trap_item_names(world: GTASAWorld) -> list[str]:
-    ceiling = world.options.chaos_mod_traps.value
-    if ceiling:
-        return CHAOS_TRAP_ITEMS[:ceiling]
     return TRAP_ITEMS
 
 def get_random_filler_item_name(world: GTASAWorld) -> str:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle
+from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle, Visibility
 
 class StartingPoint(Choice):
     """
@@ -311,8 +311,7 @@ class IncludeShootingRange(Toggle):
 
 class TrapPercentage(Range):
     """
-    Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire, bad weather),
-    or chaos traps when Chaos Mod Traps is on.
+    Percentage of filler items that are traps (flat tires, fat CJ, wanted level, car fire, bad weather).
     """
 
     display_name = "Trap Percentage"
@@ -330,6 +329,7 @@ class ChaosModTraps(Choice):
     """
 
     display_name = "Chaos Mod Traps"
+    visibility = Visibility.none
 
     option_off = 0
     option_low = 1
@@ -378,7 +378,7 @@ option_groups = [
         [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
          StuntJumpChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
-         IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage, ChaosModTraps],
+         IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage],
     ),
     OptionGroup(
         "Submission Options",
