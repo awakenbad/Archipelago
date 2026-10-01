@@ -2,6 +2,8 @@
 from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations, mission_list, regions, rules
+from .out_of_order import is_out_of_order
+from .out_of_order import logic as out_of_order_logic
 from . import options as gtasa_options
 
 SLOT_DATA_OPTION_NAMES = tuple(gtasa_options.GTASAOptions.__annotations__)
@@ -40,6 +42,9 @@ class GTASAWorld(World):
                 option = getattr(self.options, name, None)
                 if option is not None:
                     setattr(self.options, name, option.from_any(value))
+
+        if is_out_of_order(self):
+            out_of_order_logic.apply_option_overrides(self)
 
         start = mission_list.get_start(self)
         goal = mission_list.get_goal(self)

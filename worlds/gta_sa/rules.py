@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING
 
 from rule_builder.rules import And, Has, HasAllCounts, Rule
 
+from .out_of_order import is_out_of_order
+from .out_of_order import logic as out_of_order_logic
+
 if TYPE_CHECKING:
     from .world import GTASAWorld
 
@@ -14,6 +17,9 @@ def set_all_rules(world: GTASAWorld) -> None:
     set_completion_condition(world)
 
 def _mission_rule(world: GTASAWorld, *mission_ids: int) -> Rule:
+    if is_out_of_order(world):
+        return out_of_order_logic.mission_rule(world, *mission_ids)
+
     from .branches import effective_requirement
     from .items import PROGRESSIVE_BRANCH_ITEMS
     from .mission_list import get_start_index
@@ -27,6 +33,9 @@ def _mission_rule(world: GTASAWorld, *mission_ids: int) -> Rule:
     return HasAllCounts({PROGRESSIVE_BRANCH_ITEMS[branch]: count for branch, count in merged.items()})
 
 def _story_point_rule(world: GTASAWorld, position: int) -> Rule:
+    if is_out_of_order(world):
+        return out_of_order_logic.story_point_rule(world, position)
+
     from .mission_list import STORY_MISSION_ORDER
 
     if position <= 0:
@@ -69,6 +78,9 @@ def set_completion_location_rule(world: GTASAWorld) -> None:
     world.set_rule(world.get_location(location_name), _completion_rule(world))
 
 def set_all_entrance_rules(world: GTASAWorld) -> None:
+    if is_out_of_order(world):
+        return
+
     world.set_rule(world.get_entrance("Los Santos to Badlands"), _mission_rule(world, 38))
     world.set_rule(world.get_entrance("Badlands to San Fierro"), _mission_rule(world, 47))
     world.set_rule(world.get_entrance("San Fierro to Las Venturas"), _mission_rule(world, 63))
@@ -184,6 +196,9 @@ def set_all_location_rules(world: GTASAWorld) -> None:
         location_name = get_mission_location_name(location_id)
         if location_name in location_cache:
             world.set_rule(world.get_location(location_name), Has(skill_item))
+
+    if is_out_of_order(world):
+        out_of_order_logic.set_location_rules(world)
 
 def set_completion_condition(world: GTASAWorld) -> None:
     from .items import VICTORY_ITEM_NAME

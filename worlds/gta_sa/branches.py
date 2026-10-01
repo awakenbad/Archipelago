@@ -37,7 +37,8 @@ CROSS_EDGES = {
     102: (92,),                # A Home in the Hills <- Saint Mark's Bistro
     103: (102,),               # Vertical Bird <- A Home in the Hills
     106: (104,),               # Beat Down on B Dup <- Home Coming
-    108: (105,),               # Riot <- Cut Throat Business
+    108: (107,),               # Riot <- Grove 4 Life
+    109: (108,),               # Los Desperados <- Riot
 }
 
 SET_COUNT_EDGES: dict[int, tuple[int, tuple[int, ...]]] = {}
@@ -60,15 +61,16 @@ def _merge(into: dict[str, int], other: dict[str, int]) -> None:
     for name, value in other.items():
         into[name] = max(into.get(name, 0), value)
 
-_REQUIREMENT_MEMO: dict[int, dict[str, int]] = {}
+_REQUIREMENT_MEMO: dict[tuple[int, int], dict[str, int]] = {}
 
-def mission_requirement(mission_id: int) -> dict[str, int]:
-    if mission_id in _REQUIREMENT_MEMO:
-        return dict(_REQUIREMENT_MEMO[mission_id])
+def requirement_with_edges(mission_id: int, edges: dict[int, tuple[int, ...]]) -> dict[str, int]:
+    key = (mission_id, id(edges))
+    if key in _REQUIREMENT_MEMO:
+        return dict(_REQUIREMENT_MEMO[key])
 
     branch = branch_of(mission_id)
     if branch is None:
-        _REQUIREMENT_MEMO[mission_id] = {}
+        _REQUIREMENT_MEMO[key] = {}
         return {}
 
     branch_missions = _BRANCH_BY_NAME[branch].missions
@@ -77,21 +79,24 @@ def mission_requirement(mission_id: int) -> dict[str, int]:
     req: dict[str, int] = {branch: position}
 
     if position > 1:
-        _merge(req, mission_requirement(branch_missions[position - 2]))
+        _merge(req, requirement_with_edges(branch_missions[position - 2], edges))
 
-    for prereq in CROSS_EDGES.get(mission_id, ()):
-        _merge(req, mission_requirement(prereq))
+    for prereq in edges.get(mission_id, ()):
+        _merge(req, requirement_with_edges(prereq, edges))
 
     if mission_id in SET_COUNT_EDGES:
         count, members = SET_COUNT_EDGES[mission_id]
         member_branch = branch_of(members[0])
         req[member_branch] = max(req.get(member_branch, 0), count)
-        for name, value in mission_requirement(members[0]).items():
+        for name, value in requirement_with_edges(members[0], edges).items():
             if name != member_branch:
                 req[name] = max(req.get(name, 0), value)
 
-    _REQUIREMENT_MEMO[mission_id] = dict(req)
+    _REQUIREMENT_MEMO[key] = dict(req)
     return dict(req)
+
+def mission_requirement(mission_id: int) -> dict[str, int]:
+    return requirement_with_edges(mission_id, CROSS_EDGES)
 
 def branch_precompleted(start_index: int) -> dict[str, int]:
     return {
@@ -106,10 +111,11 @@ def branch_pool_counts(start_index: int, goal_index: int) -> dict[str, int]:
         for branch in BRANCHES
     }
 
-def effective_requirement(mission_id: int, start_index: int) -> dict[str, int]:
+def effective_requirement(mission_id: int, start_index: int,
+                          edges: dict[int, tuple[int, ...]] = CROSS_EDGES) -> dict[str, int]:
     precompleted = branch_precompleted(start_index)
     effective: dict[str, int] = {}
-    for name, count in mission_requirement(mission_id).items():
+    for name, count in requirement_with_edges(mission_id, edges).items():
         remaining = count - precompleted.get(name, 0)
         if remaining > 0:
             effective[name] = remaining
@@ -118,11 +124,12 @@ def effective_requirement(mission_id: int, start_index: int) -> dict[str, int]:
 def _satisfied(counts: dict[str, int], requirement: dict[str, int]) -> bool:
     return all(counts.get(name, 0) >= value for name, value in requirement.items())
 
-def early_branch_order(start_index: int, goal_index: int, budget: int) -> list[str]:
+def early_branch_order(start_index: int, goal_index: int, budget: int,
+                       edges: dict[int, tuple[int, ...]] = CROSS_EDGES) -> list[str]:
     pool = branch_pool_counts(start_index, goal_index)
     missions = [mission_id for branch in BRANCHES for mission_id in branch.missions
                 if start_index <= STORY_INDEX_BY_MISSION_ID[mission_id] < goal_index]
-    requirements = {mission_id: effective_requirement(mission_id, start_index)
+    requirements = {mission_id: effective_requirement(mission_id, start_index, edges)
                     for mission_id in missions}
 
     granted: dict[str, int] = {}

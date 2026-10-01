@@ -2,6 +2,22 @@ from dataclasses import dataclass
 
 from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle, Visibility
 
+class MissionOrder(Choice):
+    """
+    Linear: story missions unlock in vanilla story order.
+
+    Out of Order: every story branch can be started as soon as you receive its first Progressive
+    item, and each branch is then played in its own order. Always plays from Los Santos to End of
+    the Line - Starting Point and End Goal are ignored.
+    """
+
+    display_name = "Mission Order"
+
+    option_linear = 0
+    option_out_of_order = 1
+
+    default = option_linear
+
 class StartingPoint(Choice):
     """
     Where your game begins.
@@ -12,7 +28,7 @@ class StartingPoint(Choice):
     Note: This option does not affect collectibles. I.e., starting in Badlands and leaving Include
     Tags on will keep all tags in the pool.
 
-    Must be earlier than your End Goal.
+    Must be earlier than your End Goal. Ignored when Mission Order is Out of Order.
     """
 
     display_name = "Starting Point"
@@ -28,7 +44,7 @@ class StartingPoint(Choice):
 
 class EndGoal(Choice):
     """
-    What mission you need to complete to finish your game.
+    What mission you need to complete to finish your game. Ignored when Mission Order is Out of Order.
     """
 
     display_name = "End Goal"
@@ -41,6 +57,18 @@ class EndGoal(Choice):
     option_one_hundred_percent = 5
 
     default = option_the_green_sabre
+
+class EndOfTheLineRequirement(Range):
+    """
+    Out of Order only: how many story missions you must complete before End of the Line can be
+    started from its marker in Grove Street.
+    """
+
+    display_name = "End of the Line Requirement"
+
+    range_start = 1
+    range_end = 83
+    default = 83
 
 class SnapshotChecks(Range):
     """
@@ -280,7 +308,7 @@ class IncludeWangCars(Toggle):
 
     Unlock Wang Cars also adds Import/Export to logic upon receiving.
 
-    With this off, missions are not generated as locations and there is no unlock item.
+    With this off, there is no unlock item and the missions stay on their vanilla story gate.
     This setting does not affect Import/Export.
     """
     display_name = "Include Wang Cars"
@@ -340,8 +368,10 @@ class ChaosModTraps(Choice):
 
 @dataclass
 class GTASAOptions(PerGameCommonOptions):
+    mission_order: MissionOrder
     starting_point: StartingPoint
     end_goal: EndGoal
+    end_of_the_line_requirement: EndOfTheLineRequirement
     death_link: DeathLink
     tag_checks: TagChecks
     snapshot_checks: SnapshotChecks
@@ -374,8 +404,12 @@ class GTASAOptions(PerGameCommonOptions):
 
 option_groups = [
     OptionGroup(
+        "Story Settings",
+        [MissionOrder, StartingPoint, EndGoal, EndOfTheLineRequirement],
+    ),
+    OptionGroup(
         "Gameplay Options",
-        [StartingPoint, EndGoal, DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
+        [DeathLink, TagChecks, SnapshotChecks, HorseshoeChecks, OysterChecks,
          StuntJumpChecks, SchoolMedals,
          IncludeExports, IncludeAmmunationShop, IncludeChallenges, IncludeStadiumEvents, IncludeStreetRaces,
          IncludeWangCars, IncludeShootingRange, StartingUnlock, TrapPercentage],

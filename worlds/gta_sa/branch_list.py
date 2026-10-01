@@ -8,7 +8,7 @@ FREE_MISSIONS = (11,)
 
 BRANCHES = (
     Branch("Sweet", (13, 14, 15, 16, 17, 18, 19, 21, 20, 37, 38,
-                     106, 107, 108, 109, 112)),
+                     106, 107, 109, 112)),
     Branch("Ryder", (12, 24, 25, 26)),
     Branch("Big Smoke", (27, 28, 29, 30)),
     Branch("OG Loc", (31, 32, 33, 34)),
@@ -24,5 +24,5 @@ BRANCHES = (
     Branch("Four Dragons Casino", (84, 85, 86, 88, 87, 102)),
     Branch("Caligula's Palace", (89, 90, 91, 92)),
     Branch("Madd Dogg", (95,)),
-    Branch("Return", (103, 104, 105)),
+    Branch("Mansion", (103, 104, 105, 108)),
 )

@@ -81,7 +81,7 @@ class TestGangTerritoryTarget(GTASATestBase):
     def test_the_tier_needs_return_to_los_santos_progress(self) -> None:
         location = self.world.get_location("RTLS Gang Territory: 5% Controlled")
 
-        self.collect_mission_requirement(104, hold_back="Return")
+        self.collect_mission_requirement(104, hold_back="Mansion")
         self.assertFalse(location.can_reach(self.multiworld.state))
 
         self.collect_mission_requirement(104)

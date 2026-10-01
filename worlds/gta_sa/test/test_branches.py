@@ -23,6 +23,14 @@ class TestBranchData(unittest.TestCase):
         names = [branch.name for branch in BRANCHES]
         self.assertEqual(len(names), len(set(names)))
 
+    def test_riot_is_the_fourth_mansion_mission_after_grove_4_life(self) -> None:
+        requirement = mission_requirement(108)
+        self.assertEqual(requirement["Mansion"], 4)
+        self.assertEqual(requirement["Sweet"], 13)
+
+    def test_los_desperados_waits_for_riot(self) -> None:
+        self.assertEqual(mission_requirement(109)["Mansion"], 4)
+
     def test_free_mission_needs_nothing(self) -> None:
         self.assertEqual(mission_requirement(FREE_MISSIONS[0]), {})
 

@@ -196,6 +196,8 @@ class GTASAContext(TrackerGameContext):
     goal_mission_id = DEFAULT_GOAL_MISSION_ID
     street_races_included = False
     wang_cars_included = False
+    mission_order = 0
+    end_of_the_line_requirement = 0
     starting_point = None
     gated_unlocks: list = []
     shop_slot_contents: dict = {}
@@ -306,6 +308,7 @@ class GTASAContext(TrackerGameContext):
         self.send_death_link_config()
         self.send_street_race_config()
         self.send_wang_cars_config()
+        self.send_mission_order_config()
         self.send_gated_content_config()
         self.send_collectible_config()
 
@@ -329,6 +332,10 @@ class GTASAContext(TrackerGameContext):
 
     def send_wang_cars_config(self) -> None:
         self.send_to_plugin(f"CTRL:wang_cars:{int(self.wang_cars_included)}\n")
+
+    def send_mission_order_config(self) -> None:
+        self.send_to_plugin(f"CTRL:mission_order:{self.mission_order}\n")
+        self.send_to_plugin(f"CTRL:eotl_missions:{self.end_of_the_line_requirement}\n")
 
     def send_gated_content_config(self) -> None:
         effects = []
@@ -430,6 +437,9 @@ class GTASAContext(TrackerGameContext):
             self.wang_cars_included = bool(args.get("slot_data", {}).get("wang_cars", False))
             self.gated_unlocks = list(args.get("slot_data", {}).get("gated_unlocks", []))
             self.starting_point = args.get("slot_data", {}).get("options", {}).get("starting_point")
+            self.mission_order = int(args.get("slot_data", {}).get("options", {}).get("mission_order", 0))
+            self.end_of_the_line_requirement = int(
+                args.get("slot_data", {}).get("options", {}).get("end_of_the_line_requirement", 0))
             self.announce_starting_point(self.starting_point)
             self.send_plugin_config()
             self.scout_shop_locations()

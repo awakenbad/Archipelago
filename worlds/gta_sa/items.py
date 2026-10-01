@@ -6,6 +6,8 @@ from BaseClasses import CollectionState, Item, ItemClassification
 from Options import OptionError
 
 from .branches import BRANCHES, early_branch_order
+from .out_of_order import is_out_of_order
+from .out_of_order import logic as out_of_order_logic
 from .challenge_list import CHALLENGES
 from .skill_items import DEFAULT_SKILL_ITEMS, SKILL_ITEM_IDS, SKILL_ITEMS
 from .stadium_list import STADIUM_EVENTS
@@ -268,8 +270,11 @@ def set_early_items(world: GTASAWorld) -> None:
     openings = sum(1 for location in world.multiworld.get_locations(world.player)
                    if location.address is not None and location.can_reach(state))
 
-    picks = early_branch_order(get_start(world).story_index, get_goal(world).story_index,
-                               EARLY_ITEM_BUDGET)
+    if is_out_of_order(world):
+        picks = out_of_order_logic.early_branch_order(world, EARLY_ITEM_BUDGET)
+    else:
+        picks = early_branch_order(get_start(world).story_index, get_goal(world).story_index,
+                                   EARLY_ITEM_BUDGET)
 
     early = world.multiworld.local_early_items[world.player]
     for branch in picks[:openings]:
