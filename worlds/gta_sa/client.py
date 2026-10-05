@@ -60,6 +60,14 @@ CHECK_TYPE_BASE_IDS = {
     "SUBLEVEL": SUBMISSION_TIER_BASE_ID,
 }
 
+def collectible_lists(location_ids) -> str:
+    parts = []
+    for name, base, count in COLLECTIBLE_BLOCKS:
+        indices = sorted(loc - base for loc in location_ids if base <= loc < base + count)
+        if indices:
+            parts.append(f"{name}={','.join(str(i) for i in indices)}")
+    return ";".join(parts)
+
 DEFAULT_GOAL_MISSION_ID = 38
 
 STARTING_POINT_COLOUR = "plum"
@@ -311,6 +319,7 @@ class GTASAContext(TrackerGameContext):
         self.send_mission_order_config()
         self.send_gated_content_config()
         self.send_collectible_config()
+        self.send_checked_collectibles()
 
     def send_starting_point_config(self) -> None:
         key = starting_point_key(self.starting_point)
@@ -350,12 +359,12 @@ class GTASAContext(TrackerGameContext):
         if not known:
             return
 
-        parts = []
-        for name, base, count in COLLECTIBLE_BLOCKS:
-            indices = sorted(loc - base for loc in known if base <= loc < base + count)
-            if indices:
-                parts.append(f"{name}={','.join(str(i) for i in indices)}")
-        self.send_to_plugin(f"CTRL:collectibles:{';'.join(parts)}\n")
+        self.send_to_plugin(f"CTRL:collectibles:{collectible_lists(known)}\n")
+
+    def send_checked_collectibles(self) -> None:
+        if not self.checked_locations:
+            return
+        self.send_to_plugin(f"CTRL:collectibles_checked:{collectible_lists(self.checked_locations)}\n")
 
     def scout_shop_locations(self) -> None:
         """Ask the server what item sits at each Ammu-Nation slot, so the plugin can display it."""
@@ -445,6 +454,8 @@ class GTASAContext(TrackerGameContext):
             self.scout_shop_locations()
         elif cmd == "RoomUpdate":
             self.push_shop_contents()
+            if "checked_locations" in args:
+                self.send_checked_collectibles()
         elif cmd == "LocationInfo":
             for network_item in args["locations"]:
                 if not SHOP_BASE_ID <= network_item.location < SHOP_BASE_ID + 100:
