@@ -31,6 +31,11 @@ class TestBranchData(unittest.TestCase):
     def test_los_desperados_waits_for_riot(self) -> None:
         self.assertEqual(mission_requirement(109)["Mansion"], 4)
 
+    def test_only_yay_ka_boom_boom_waits_for_the_da_nang_thang(self) -> None:
+        self.assertNotIn("Woozie", mission_requirement(64))
+        self.assertNotIn("Woozie", mission_requirement(62))
+        self.assertEqual(mission_requirement(63)["Woozie"], 5)
+
     def test_free_mission_needs_nothing(self) -> None:
         self.assertEqual(mission_requirement(FREE_MISSIONS[0]), {})
 

@@ -25,7 +25,7 @@ CROSS_EDGES = {
     60: (66,),                 # Outrider <- Mike Toreno
     52: (60,),                 # Snail Trail <- Outrider
     61: (52,),                 # Ice Cold Killa <- Snail Trail
-    64: (57,),                 # Pier 69 <- The Da Nang Thang
+    63: (57,),                 # Yay Ka-Boom-Boom <- The Da Nang Thang
     75: (63,),                 # Monster <- Yay Ka-Boom-Boom
     84: (83,),                 # Fender Ketchup <- Learning to Fly
     89: (88,),                 # Intensive Care <- Don Peyote
