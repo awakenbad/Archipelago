@@ -183,7 +183,11 @@ class TestLasVenturasStart(GTASATestBase):
 
     def test_flying_school_lessons_are_still_earnable(self) -> None:
         location = self.world.get_location("LV Flying School: Takeoff (Bronze)")
+        toreno = self.get_items_by_name("Progressive Toreno")
+
+        for item in toreno[:4]:
+            self.multiworld.state.collect(item)
         self.assertFalse(location.can_reach(self.multiworld.state))
 
-        self.collect_mission_requirement(78)
+        self.multiworld.state.collect(toreno[4])
         self.assertTrue(location.can_reach(self.multiworld.state))

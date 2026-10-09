@@ -132,7 +132,7 @@ SUBMISSION_TIERS = [
                    tier_names=medal_tiers(DRIVING_SCHOOL_TESTS), medals_per_test=3),
     SubmissionTier(145, 10, "Pimping",    "Level {tier}",   1, "Los Santos", 0,
                    option_attr="pimping_checks", zero_disables=True),
-    SubmissionTier(155, 30, "Flying School", "{name}",      0, "Las Venturas", 58,
+    SubmissionTier(155, 30, "Flying School", "{name}",      0, "Las Venturas", 59,
                    tier_names=medal_tiers(FLYING_SCHOOL_LESSONS), medals_per_test=3, consumed_at_story_index=58),
     SubmissionTier(185, 15, "Boat School", "{name}",        0, "San Fierro", 39,
                    tier_names=medal_tiers(BOAT_SCHOOL_TESTS), medals_per_test=3),
