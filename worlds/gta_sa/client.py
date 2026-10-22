@@ -34,6 +34,7 @@ from .oyster_list import OYSTER_BASE_ID, OYSTER_COUNT
 from .export_list import EXPORT_BASE_ID, EXPORT_COUNT
 from .stunt_jump_list import STUNT_JUMP_BASE_ID, STUNT_JUMP_COUNT
 from .submission_tier_list import SUBMISSION_TIER_BASE_ID
+from .mission_list import COMPLETION_ID
 from .options import StartingPoint
 
 # The plugin dials in here - keep in step with APProtocol.h.
@@ -362,6 +363,8 @@ class GTASAContext(TrackerGameContext):
         self.send_to_plugin(f"CTRL:collectibles:{collectible_lists(known)}\n")
 
     def send_checked_collectibles(self) -> None:
+        if self.goal_mission_id == COMPLETION_ID:
+            return
         if not self.checked_locations:
             return
         self.send_to_plugin(f"CTRL:collectibles_checked:{collectible_lists(self.checked_locations)}\n")

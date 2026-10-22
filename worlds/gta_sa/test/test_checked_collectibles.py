@@ -4,8 +4,9 @@ from ..client import GTASAContext, collectible_lists
 
 
 class FakeContext:
-    def __init__(self, checked_locations) -> None:
+    def __init__(self, checked_locations, goal_mission_id=38) -> None:
         self.checked_locations = checked_locations
+        self.goal_mission_id = goal_mission_id
         self.sent = []
 
     def send_to_plugin(self, message: str) -> None:
@@ -31,6 +32,12 @@ class TestCheckedCollectiblesMessage(unittest.TestCase):
 
     def test_nothing_is_sent_before_anything_is_checked(self) -> None:
         context = FakeContext(set())
+        context.send_checked_collectibles()
+
+        self.assertEqual(context.sent, [])
+
+    def test_one_hundred_percent_keeps_blips_for_checks_sent_elsewhere(self) -> None:
+        context = FakeContext({616, 843}, goal_mission_id=160)
         context.send_checked_collectibles()
 
         self.assertEqual(context.sent, [])
