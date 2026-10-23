@@ -32,6 +32,7 @@ CROSS_EDGES = {
     93: (89,),                 # Misappropriation <- Intensive Care
     87: (90,),                 # Fish in a Barrel <- The Meat Business
     95: (90,),                 # Madd Dogg <- The Meat Business
+    91: (87,),                 # Freefall <- Fish in a Barrel
     94: (91,),                 # High Noon <- Freefall
     92: (82, 87, 94, 95),      # Saint Mark's Bistro <- every other LV
     102: (92,),                # A Home in the Hills <- Saint Mark's Bistro
