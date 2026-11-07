@@ -6,9 +6,9 @@ class MissionOrder(Choice):
     """
     Linear: story missions unlock in vanilla story order.
 
-    Out of Order: every story branch can be started as soon as you receive its first Progressive
-    item, and each branch is then played in its own order. Always plays from Los Santos to End of
-    the Line - Starting Point and End Goal are ignored.
+    Out of Order (Experimental): every story branch can be started as soon as you receive its first
+    Progressive item, and each branch is then played in its own order. Always plays from Los Santos
+    to End of the Line - Starting Point and End Goal are ignored.
     """
 
     display_name = "Mission Order"
@@ -37,8 +37,6 @@ class StartingPoint(Choice):
     option_badlands = 1
     option_san_fierro = 2
     option_las_venturas = 3
-    # No Return to Los Santos start yet - it needs a shipped save file that doesn't exist. Re-add it
-    # here (value 4) and on its MILESTONES row once that save is made.
 
     default = option_los_santos
 
@@ -351,6 +349,7 @@ class TrapPercentage(Range):
 
 class ChaosModTraps(Choice):
     """
+    (Experimental)
     Replaces the regular traps with Chaos Mod effects. Requires Chaos Mod to be installed.
 
     The level is a ceiling: Low only rolls low severity chaos traps, Medium rolls low or medium, and
