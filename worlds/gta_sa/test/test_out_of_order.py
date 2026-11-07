@@ -43,6 +43,27 @@ class TestStartingPointAndEndGoalAreIgnored(GTASATestBase):
         self.assertEqual(slot_data["options"]["end_goal"], 4)
 
 
+def gang_territory_locations(world) -> list[str]:
+    return [location.name for location in world.get_locations() if location.name.startswith("RTLS Gang Territory:")]
+
+
+class TestGangTerritoryIsOffOutOfOrder(GTASATestBase):
+    options = {**OUT_OF_ORDER, "gang_territory_target": 100}
+
+    def test_no_gang_territory_locations(self) -> None:
+        self.assertEqual(gang_territory_locations(self.world), [])
+
+    def test_slot_data_carries_the_overwritten_target(self) -> None:
+        self.assertEqual(self.world.fill_slot_data()["options"]["gang_territory_target"], 0)
+
+
+class TestGangTerritoryStaysOnLinear(GTASATestBase):
+    options = {"starting_unlock": False, "end_goal": "end_of_the_line", "gang_territory_target": 35}
+
+    def test_seven_gang_territory_locations(self) -> None:
+        self.assertEqual(len(gang_territory_locations(self.world)), 7)
+
+
 class TestEndOfTheLine(OutOfOrderTestBase):
     def test_it_opens_on_the_required_number_of_progressive_items_from_any_branch(self) -> None:
         self.give("Sweet", 2)

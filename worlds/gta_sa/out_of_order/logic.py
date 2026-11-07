@@ -18,6 +18,7 @@ def apply_option_overrides(world: GTASAWorld) -> None:
 
     world.options.starting_point.value = StartingPoint.option_los_santos
     world.options.end_goal.value = EndGoal.option_end_of_the_line
+    world.options.gang_territory_target.value = 0
 
 
 def requirement(mission_id: int) -> dict[str, int]:
