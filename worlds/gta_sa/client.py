@@ -9,7 +9,7 @@ import websockets
 
 from Utils import init_logging
 from CommonClient import server_loop, gui_enabled, logger
-from NetUtils import ClientStatus
+from NetUtils import ClientStatus, NetworkItem
 
 try:
     from worlds.tracker.TrackerClient import TrackerGameContext, TrackerCommandProcessor as ClientCommandProcessor, UT_VERSION  # noqa
@@ -100,6 +100,8 @@ def sanitize_for_game(text: str, limit: int) -> str:
     """The in-game font only renders plain ASCII, and its display columns are narrow.
     Also guarantees no newline sneaks into the line-delimited plugin protocol."""
     return "".join(ch if 32 <= ord(ch) < 127 else "?" for ch in text)[:limit]
+
+ITEM_LOG_FIELD_LIMIT = 60
 
 ITEM_ID_TO_EFFECT = {
     2: ("money", 500),
@@ -285,15 +287,6 @@ class GTASAContext(TrackerGameContext):
         logger.info("Lost the connection to the game. Waiting for it to reconnect...")
 
     def apply_pending_items(self) -> None:
-        """Push items to the plugin, each tagged with its position in items_received.
-
-        The index is what makes this safe to repeat. The server replays the whole list on every
-        connect, and items_applied_count only tracks what this process has sent - so it cannot be
-        the thing that prevents double-granting. The plugin decides, against a mark stored in the
-        GTA save, which indices it has already applied. That mark has to live in the save rather
-        than here, because the save is what can roll back: loading an older one should legitimately
-        re-grant the items it never saw.
-        """
         if not self.plugin_writer:
             return
 
@@ -301,6 +294,7 @@ class GTASAContext(TrackerGameContext):
             if index < self.items_applied_count:
                 continue
 
+            self.send_to_plugin(self.item_info_line(index, item))
             effect = ITEM_ID_TO_EFFECT.get(item.item)
             if effect is None:
                 logger.warning(f"Unrecognized item ID: {item.item}")
@@ -310,6 +304,18 @@ class GTASAContext(TrackerGameContext):
             msg = f"GIVE:{index}:{effect_type}\n" if value is None else f"GIVE:{index}:{effect_type}:{value}\n"
             self.send_to_plugin(msg)
         self.items_applied_count = len(self.items_received)
+
+    def item_info_line(self, index: int, item: NetworkItem) -> str:
+        sender_slot = self.slot_info.get(item.player)
+        sender_game = sender_slot.game if sender_slot else "Archipelago"
+        fields = (
+            self.item_names.lookup_in_game(item.item, self.game),
+            self.player_names.get(item.player, "Archipelago"),
+            sender_game,
+            self.location_names.lookup_in_game(item.location, sender_game),
+        )
+        text = "\t".join(sanitize_for_game(field, ITEM_LOG_FIELD_LIMIT) for field in fields)
+        return f"ITEMINFO:{index}:{item.flags}:{text}\n"
 
     def send_plugin_config(self) -> None:
         self.send_starting_point_config()
