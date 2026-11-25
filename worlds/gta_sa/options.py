@@ -43,6 +43,9 @@ class StartingPoint(Choice):
 class EndGoal(Choice):
     """
     What mission you need to complete to finish your game. Ignored when Mission Order is Out of Order.
+
+    Note: 100% end goal requires achieving it the vanilla way.
+    Disabling collectibles, submissions, or other side activities as checks does not remove them from the 100% requirement.
     """
 
     display_name = "End Goal"
@@ -59,7 +62,7 @@ class EndGoal(Choice):
 class EndOfTheLineRequirement(Range):
     """
     Out of Order only: how many story missions you must complete before End of the Line can be
-    started from its marker in Grove Street.
+    started.
     """
 
     display_name = "End of the Line Requirement"
@@ -71,7 +74,8 @@ class EndOfTheLineRequirement(Range):
 class SnapshotChecks(Range):
     """
     How many of the 50 San Fierro snapshots are location checks - a random set of that size, and
-    only the chosen ones show blips. 0 disables them. Ignored unless San Fierro is in scope.
+    only the chosen ones show blips. 0 disables them. They are gated by the Snapshots Unlock item
+    alone, so they are available on every goal.
     """
 
     display_name = "Snapshot Checks"
@@ -83,7 +87,8 @@ class SnapshotChecks(Range):
 class TagChecks(Range):
     """
     How many of the 100 Los Santos spray tags are location checks - a random set of that size, and
-    only the chosen ones show blips. 0 disables them.
+    only the chosen ones show blips. 0 disables them. They are gated by the Tags Unlock item
+    alone, so they are available on every goal.
     """
 
     display_name = "Tag Checks"
